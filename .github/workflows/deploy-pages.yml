@@ -34,6 +34,7 @@ jobs:
 
       - name: Check code and tests
         run: |
+          npm run api:check
           npm run lint
           npm run format:check
           npm test
@@ -44,6 +45,7 @@ jobs:
 
       - name: Build the playable game
         env:
+          VITE_ONLINE_ENABLED: 'false'
           PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
         run: |
           npm run build -- --base="${PAGES_BASE_PATH}/"

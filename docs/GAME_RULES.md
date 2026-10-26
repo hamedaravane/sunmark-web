@@ -1,6 +1,6 @@
 # Game rules
 
-This document records the playable single-player game. New games have exactly four seats: one human and three local bots in fixed clockwise seat order. Ordinary matches use these rules. The menu Tutorial is a separate, disposable practice exercise; contextual narration can also be enabled in an ordinary match through Help. Legacy three-player saves retain their existing board/player count, with seat one controlled by the human. Online multiplayer and unrequested expansions remain out of scope. Development cards, official seven resolution, scoring titles and ten-point victory are specified below and in [DEVELOPMENT_AND_SCORING.md](DEVELOPMENT_AND_SCORING.md).
+This document records the playable single-player game. New games have exactly four seats: one human and three local bots in fixed clockwise seat order. Ordinary matches use these rules. The menu Tutorial is a separate, disposable practice exercise; contextual narration can also be enabled in an ordinary match through Help. Legacy three-player saves retain their existing board/player count, with seat one controlled by the human. The separate online flow uses these same four-seat rules with authenticated human seats and host-selected bots; no turn deadlines, automatic human takeover or other expansions are introduced. Development cards, official seven resolution, scoring titles and ten-point victory are specified below and in [DEVELOPMENT_AND_SCORING.md](DEVELOPMENT_AND_SCORING.md).
 
 ## Board setup
 

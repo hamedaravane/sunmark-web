@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Sunmark — a mobile-first Persian-language strategy board game built with Phaser 4 and TypeScript.",
+  "description": "Sunmark \u2014 a mobile-first Persian-language strategy board game built with Phaser 4 and TypeScript.",
   "scripts": {
     "assets:optimize": "python3 scripts/optimize-images.py",
     "assets:check": "python3 scripts/optimize-images.py --check",
@@ -21,10 +21,16 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run format:check && npm test && npm run build && npm run pwa:check"
+    "check": "npm run api:check && npm run lint && npm run format:check && npm test && npm run build && npm run pwa:check",
+    "test:api": "vitest run --config vitest.config.integration.ts",
+    "api:generate": "openapi-typescript contracts/openapi.json -o src/online/shared/http.d.ts",
+    "api:sync": "node scripts/api-sync.mjs",
+    "api:check": "node scripts/api-check.mjs"
   },
   "dependencies": {
-    "phaser": "4.0.0"
+    "phaser": "4.0.0",
+    "socket.io-client": "4.8.3",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -32,6 +38,7 @@
     "eslint": "10.12.0",
     "eslint-config-prettier": "10.1.8",
     "globals": "17.13.0",
+    "openapi-typescript": "7.10.1",
     "prettier": "3.9.10",
     "typescript": "~5.7.2",
     "typescript-eslint": "8.71.2",

@@ -1,0 +1,86 @@
+name: sunmark-online
+x-backend-image: &backend-image ${SUNMARK_SERVER_IMAGE:-ghcr.io/hamedaravane/sunmark-server:ea3340fad2b88f1bd0671cb4c7e51cd8eb1d03ae}
+services:
+  postgres:
+    image: postgres:18-alpine@sha256:898c60cb390d1085bc97bdd6a1ae968757421df394b071848b52b1c09c89d6a5
+    environment:
+      POSTGRES_USER: sunmark
+      POSTGRES_PASSWORD: sunmark-local-only
+      POSTGRES_DB: sunmark
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sunmark -d sunmark']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  api:
+    image: *backend-image
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://sunmark:sunmark-local-only@postgres:5432/sunmark
+      CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080,http://localhost:${WEB_PORT:-8081},http://127.0.0.1:${WEB_PORT:-8081}
+      DOCS_ENABLED: 'true'
+      SESSION_COOKIE_SECURE: 'false'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/api/v1/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  migrate:
+    profiles: [tools]
+    image: *backend-image
+    environment:
+      DATABASE_URL: postgresql://sunmark:sunmark-local-only@postgres:5432/sunmark
+    command: ['node', 'migrate.mjs']
+    depends_on:
+      postgres:
+        condition: service_healthy
+  web:
+    build:
+      context: .
+      target: runtime
+      args:
+        VITE_API_BASE_URL: ''
+    environment:
+      API_UPSTREAM: http://api:3000
+    ports:
+      - '127.0.0.1:${WEB_PORT:-8081}:8080'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "Promise.all([fetch('http://127.0.0.1:8080/'), fetch('http://127.0.0.1:8080/api/v1/health/ready')]).then(rs=>process.exit(rs.every(r=>r.ok)?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    depends_on:
+      api:
+        condition: service_healthy
+  test:
+    profiles: [test]
+    build:
+      context: .
+      target: test
+    environment:
+      SUNMARK_TEST_API_URL: http://web:8080
+      SUNMARK_TEST_WEB_ORIGIN: http://localhost:${WEB_PORT:-8081}
+    command: ['sh', '-c', 'npm run api:check && npm run test:api']
+    depends_on:
+      web:
+        condition: service_healthy
+volumes:
+  postgres-data:

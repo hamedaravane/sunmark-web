@@ -104,3 +104,7 @@ The private card workspace has a bounded scrolling hand, original code-drawn eff
 Seven resolution opens a chosen-discard workspace even during an opponent turn. After every required discard, the active player previews/confirms an Ahriman destination, then chooses one eligible victim for weighted random theft. Mandatory phases disable normal actions; pausing/inspection cannot bypass them. Knight resolution returns to its previous pre-roll or action phase. Road Building reserves legal, unpaid road placements and displays the remaining count.
 
 Final trade completion or rejection returns to the board automatically; pending acceptance still requires the existing final consent. Outcomes remain in notice/history without a narrator completion popup. See [DEVELOPMENT_AND_SCORING.md](DEVELOPMENT_AND_SCORING.md).
+
+## Online session surface
+
+The main menu now adds Play Online without changing offline Play/Tutorial. Its separate OnlineScene draws the existing procedural board/pieces/ports and shared enamel surfaces with Phaser Graphics/Text. Transparent semantic controls provide layout, keyboard input and scrolling; focused native text fields remain editable. Room entry, invitations, ready/bot seats and the action panel are Persian/RTL. Board targets also have an in-game destination list and explicit final confirmation. Resources and private development choices remain owned by the authenticated seat; opponent standings show public counts/scores only. Reconnection never swaps to another seat's hand. See ONLINE_PLAY.md for scope and device-test limits.

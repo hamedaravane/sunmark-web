@@ -36,7 +36,7 @@ afterEach(() => {
     vi.useRealTimers();
 });
 
-test('menu keeps Play and Tutorial; practice pauses bots and does not create a save', () => {
+test('menu keeps offline Play and Tutorial alongside Online; practice pauses bots and does not create a save', () => {
     for (const guided of [false, true]) {
         const session = new GameSession();
         session.requestPlay(guided);
@@ -55,7 +55,8 @@ test('menu keeps Play and Tutorial; practice pauses bots and does not create a s
         const app = new AppPlatform();
         app.updateReady = true;
         const menu = menuContent(app, session);
-        expect(menu.match(/<button\b/g)).toHaveLength(2);
+        expect(menu.match(/<button\b/g)).toHaveLength(3);
+        expect(menu).toContain('data-action="online"');
         expect(menu).toContain('data-action="play"');
         expect(menu).toContain('data-action="tutorial"');
         expect(menu).not.toContain('data-action="open-app"');
