@@ -210,6 +210,8 @@ export class GameHud {
             this.session.sheet?.kind === 'introduction'
         )
             this.session.closeSheet();
+        if (action === 'online')
+            this.parent.dispatchEvent(new CustomEvent('sunmark:online', { bubbles: true }));
         if (action === 'play' || action === 'tutorial')
             this.session.requestPlay(action === 'tutorial');
         if (action === 'resume-match') this.session.resumeSaved();
