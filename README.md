@@ -105,6 +105,6 @@ Actual-size before/after comparisons and the responsive layout decisions are doc
 
 ## Local online testing
 
-The online branch adds private four-seat rooms, guest sessions, host-selected bots, server-authoritative commands, trading consent and reconnection. Install Docker Desktop and use this repository's local-online helper; it pulls the separately published, versioned backend image from GHCR. No backend checkout is needed for normal use. The frontend, API and PostgreSQL run together on your desktop; no paid server is needed. See [Online play](docs/ONLINE_PLAY.md).
+The online branch adds private four-seat rooms, guest sessions, host-selected bots, server-authoritative commands, trading consent and reconnection. Install Docker Desktop and use this repository's local-online helper; it pulls the separately published, versioned backend image from GHCR. No backend checkout is needed for normal use. The frontend, API and PostgreSQL run together on your desktop; no paid server is needed. See [Online play](docs/ONLINE_PLAY.md). Plain `docker compose up -d --build --wait` now runs the local database migration service before the API. See [Browser verification](docs/ONLINE_VERIFICATION.md) for reproduced failures, fixes and test scope.
 
 The published GitHub Pages build remains a static frontend; it cannot host the game API itself. This change does not deploy a public backend. Offline Play and Tutorial are preserved.

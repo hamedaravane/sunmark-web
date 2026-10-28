@@ -10,8 +10,6 @@ Run-Docker -CommandArgs @("info", "--format", "{{.ServerVersion}}")
 Run-Docker -CommandArgs ($composeArgs + @("config", "--quiet"))
 if ($env:SUNMARK_BUILD_BACKEND -eq "1") { Run-Docker -CommandArgs ($composeArgs + @("build", "api")) }
 Run-Docker -CommandArgs ($composeArgs + @("build", "web"))
-Run-Docker -CommandArgs ($composeArgs + @("up", "-d", "--wait", "postgres"))
-Run-Docker -CommandArgs ($composeArgs + @("--profile", "tools", "run", "--rm", "-T", "migrate"))
 Run-Docker -CommandArgs ($composeArgs + @("up", "-d", "--wait", "api", "web"))
 $webPort = if ($env:WEB_PORT) { $env:WEB_PORT } else { "8081" }
 Write-Host "Open http://localhost:$webPort on your desktop."

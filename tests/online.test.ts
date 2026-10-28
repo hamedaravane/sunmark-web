@@ -74,6 +74,25 @@ const noNetworkSocket = () => {
     return socket;
 };
 describe('online frontend', () => {
+    it('calls the default browser fetch without binding it to the client', async () => {
+        const request = vi.fn(function (this: unknown, url: Parameters<typeof fetch>[0]) {
+            if (this instanceof OnlineClient) throw new TypeError('Illegal invocation');
+            return Promise.resolve(
+                json(String(url).endsWith('/session') ? { id: sessionId, name: 'A' } : []),
+            );
+        });
+        vi.stubGlobal('fetch', request);
+        const client = new OnlineClient('http://unused', null);
+        try {
+            await client.initialize();
+            expect(client.session).toEqual({ id: sessionId, name: 'A' });
+            expect(client.error).toBe('');
+            expect(request).toHaveBeenCalledTimes(2);
+        } finally {
+            client.destroy();
+            vi.unstubAllGlobals();
+        }
+    });
     it('keeps the public static Pages release offline when no backend is deployed', () => {
         vi.stubEnv('VITE_ONLINE_ENABLED', 'false');
         const markup = menuContent(new AppPlatform(), new GameSession());

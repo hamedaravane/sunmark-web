@@ -33,7 +33,7 @@ export class OnlineClient {
     constructor(
         readonly base: string,
         private readonly storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> | null,
-        private readonly request: typeof fetch = fetch,
+        private readonly request: typeof fetch = (...args) => fetch(...args),
         private readonly socketFactory: (
             uri: string,
             options: { withCredentials: boolean; autoConnect: boolean },

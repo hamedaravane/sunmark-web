@@ -1,4 +1,4 @@
-import { Scene, type GameObjects, type Display } from 'phaser';
+import { CANVAS, Scene, type GameObjects, type Display } from 'phaser';
 import { fitBoard, boardToScreen } from '../game/ui/layout';
 import { drawSurface } from '../game/ui/graphicsTheme';
 import {
@@ -218,6 +218,7 @@ export class OnlineScene extends Scene {
         const panel = this.root
             .querySelector<HTMLElement>('.online-panel')
             ?.getBoundingClientRect();
+        const clippedLayers = new Map<string, GameObjects.Container>();
         for (const node of this.root.querySelectorAll<HTMLElement>('[data-paint]')) {
             const rect = node.getBoundingClientRect();
             if (rect.width <= 0 || rect.height <= 0) continue;
@@ -267,20 +268,31 @@ export class OnlineScene extends Scene {
                 isButton && node.disabled ? '#a5afbd' : '#fff4dc',
             );
             if (inside && clip) {
-                const maskGraphics = this.make
-                    .graphics({}, false)
-                    .fillStyle(0xffffff)
-                    .fillRect(
-                        clip.left - root.left,
-                        clip.top - root.top,
-                        clip.right - clip.left,
-                        clip.bottom - clip.top,
-                    );
-                this.objects.push(maskGraphics);
-                const mask = maskGraphics.createGeometryMask();
-                graphics.setMask(mask);
-                text.setMask(mask);
-                this.masks.push(mask);
+                const key = `${clip.left},${clip.top},${clip.right},${clip.bottom}`;
+                let content = clippedLayers.get(key);
+                if (!content) {
+                    const maskGraphics = this.make
+                        .graphics({}, false)
+                        .fillStyle(0xffffff)
+                        .fillRect(
+                            clip.left - root.left,
+                            clip.top - root.top,
+                            clip.right - clip.left,
+                            clip.bottom - clip.top,
+                        );
+                    this.objects.push(maskGraphics);
+                    content = this.keep(this.add.container());
+                    if (this.renderer.type === CANVAS) {
+                        const mask = maskGraphics.createGeometryMask();
+                        content.setMask(mask);
+                        this.masks.push(mask);
+                    } else {
+                        content.enableFilters();
+                        content.filters?.external.addMask(maskGraphics);
+                    }
+                    clippedLayers.set(key, content);
+                }
+                content.add([graphics, text]);
             }
         }
     }

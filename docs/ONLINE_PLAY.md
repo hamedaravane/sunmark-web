@@ -2,16 +2,15 @@
 
 No server purchase is required. Install Git and Docker Desktop (or Docker Engine/Compose on Linux). For normal desktop testing, **only this frontend repository is needed**: `compose.yml` pulls the separately published backend image from GHCR and runs it with PostgreSQL and the frontend. The API/migration services share one versioned image reference. No backend source checkout is required to run the game.
 
-From sunmark-web, run `bash scripts/local-online.sh` (macOS/Linux/Git Bash) or `powershell -File scripts/local-online.ps1` (Windows). The helper builds the frontend, starts PostgreSQL, explicitly applies migrations from the backend image, and starts API/web services. Open `http://localhost:8081`, choose **بازی آنلاین**, enter a name, and create a room. Add three bots for a quick solo test, or join with different browser profiles and the invite code. Every occupied seat must be ready before the host starts. Tabs in the same profile share one identity; use different profiles/browsers to simulate different players.
+From sunmark-web, run `bash scripts/local-online.sh` (macOS/Linux/Git Bash) or `powershell -File scripts/local-online.ps1` (Windows). The helper builds the frontend and starts the Compose stack. A separate one-shot migration service applies committed migrations from the backend image after PostgreSQL becomes healthy; the API waits for it to succeed, and the frontend waits for API readiness. Open `http://localhost:8081`, choose **بازی آنلاین**, enter a name, and create a room. Add three bots for a quick solo test, or join with different browser profiles and the invite code. Every occupied seat must be ready before the host starts. Tabs in the same profile share one identity; use different profiles/browsers to simulate different players.
 
 If you prefer direct Compose commands:
 
 ```sh
-docker compose build web
-docker compose up -d --wait postgres
-docker compose --profile tools run --rm -T migrate
-docker compose up -d --wait api web
+docker compose up -d --build --wait
 ```
+
+Plain `docker compose up` also runs this dependency chain on a fresh database. Migrations remain a separate service, not part of the API entrypoint; `migrate` exiting with code 0 is expected. Migration failure stops API/frontend startup. To apply migrations explicitly, run `docker compose run --rm migrate`. Existing database volumes and matches are retained. Production migration rollout remains an explicit deployment step.
 
 The default backend tag is its full Git commit SHA, synchronized with `contracts/backend.json`. Set `SUNMARK_SERVER_IMAGE` to an explicit GHCR digest reference for strict immutable pinning or to a different compatible image intentionally. There is no latest tag dependency. `api:check` detects drift between the checked-in default image revision and pinned contract. The backend's Publish backend image workflow builds amd64/arm64 images using its managed package-write token; no registry secret belongs in frontend source or Compose.
 
@@ -34,6 +33,14 @@ For native development, start PostgreSQL and the API from sunmark-server, or use
 After intentional backend contract changes, run `npm run api:sync -- <full-backend-commit-sha>`. It reads that immutable commit through Git, records provenance, copies the shared schema sources, and generates HTTP types. Ordinary builds/tests need no backend checkout or runtime source imports from a sibling repository. `npm run api:check` verifies hashes and generated type drift offline. The backend owns these shared sources; do not independently edit `src/online/shared`.
 
 Run `npm run check` for the offline/client checks and production build. For live integration, start the desktop stack and run `SUNMARK_TEST_API_URL=http://localhost:8081 npm run test:api`, or run `docker compose --profile test run --build --rm test`. Tests use the actual OnlineClient, isolated cookie jars and Socket.IO: four clients play through victory, recover a lost acknowledgement, reconnect, create a new rematch room, reject unauthorized/protocol/origin access, and finish setup with three server bots. These tests do not establish mobile rendering or installed-PWA behavior; user device testing remains necessary.
+
+For an optional real Chromium check, install Chromium on your test machine and run:
+
+```sh
+SUNMARK_TEST_API_URL=http://localhost:8081 CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:browser
+```
+
+This launches four isolated browser sessions, enters the actual online UI, creates/joins a room, marks seats ready, and performs legal moves through the rendered controls until victory. It also reloads a session, opens a rematch room, returns to the offline menu, and tests setup with three real server bots. A separate browser case selects locations on the rendered board and verifies proposal/acceptance/final confirmation of a resource trade. The planner sees only each requesting seat's projection; no game-state mutation or command submission bypasses the UI. Screenshots are saved under `test-results/online` (override `SUNMARK_BROWSER_ARTIFACTS`). Browser tests are separate from the default Node checks and require a running stack. Desktop Chromium and the emulated 390 × 844 viewport do not establish physical-phone or installed-PWA behavior.
 
 The existing static GitHub Pages workflow sets `VITE_ONLINE_ENABLED=false` until a public backend deployment is selected, so it keeps the offline menu rather than advertising an unavailable online service. Desktop Docker/native development enables the online flow by default. This does not change local online testing.
 
