@@ -26,6 +26,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test:
         [
@@ -38,7 +40,6 @@ services:
       timeout: 5s
       retries: 30
   migrate:
-    profiles: [tools]
     image: *backend-image
     environment:
       DATABASE_URL: postgresql://sunmark:sunmark-local-only@postgres:5432/sunmark
