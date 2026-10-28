@@ -3,6 +3,7 @@ import { OnlineClient, type Intent } from './client';
 import { OnlineScene } from './scene';
 import { newDrafts, onlineMarkup, resources } from './markup';
 import './style.css';
+import { responsiveLayout } from '../game/ui/responsiveLayout';
 export function startOnline(root: HTMLElement, onExit: () => void) {
     let storage: Storage | null = null;
     try {
@@ -59,6 +60,7 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
             draft.tool = '';
         }
         semantics.innerHTML = onlineMarkup(client, draft);
+        semantics.classList.toggle('has-game', !!client.snapshot?.game);
         const nextPanel = semantics.querySelector('.online-panel');
         if (nextPanel) nextPanel.scrollTop = scroll;
         if (key) {
@@ -226,12 +228,15 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
     };
     semantics.addEventListener('click', click);
     semantics.addEventListener('input', input);
-    const resize = new ResizeObserver(() => {
+    const resize = new ResizeObserver(([entry]) => {
+        const layout = responsiveLayout(entry.contentRect.width, entry.contentRect.height);
+        semantics.classList.toggle('is-wide', layout.wide);
+        semantics.style.setProperty('--controls-width', `${layout.controlsWidth}px`);
         if (root.clientWidth && root.clientHeight)
             game.scale.resize(root.clientWidth, root.clientHeight);
         scene.invalidate();
     });
-    resize.observe(root);
+    resize.observe(semantics);
     const disconnect = client.subscribe(render);
     render();
     const invite = new URL(location.href).searchParams.get('invite');

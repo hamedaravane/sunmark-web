@@ -72,7 +72,7 @@ h3 {
     top: 0;
     left: 0;
     right: 0;
-    width: min(100%, 480px);
+    width: 100%;
     height: var(--app-height);
     margin-inline: auto;
     overflow: hidden;
@@ -476,6 +476,7 @@ h3 {
 .menu-panel {
     position: relative;
     width: 100%;
+    max-width: 440px;
     text-align: center;
 }
 .panel-corner {
@@ -585,7 +586,7 @@ h3 {
 .bottom-sheet {
     position: fixed;
     inset: auto 0 0;
-    width: min(100%, 480px);
+    width: min(100%, 640px);
     max-width: 100%;
     max-height: calc(var(--app-height) - env(safe-area-inset-top, 0px) - 20px);
     margin: 0 auto;

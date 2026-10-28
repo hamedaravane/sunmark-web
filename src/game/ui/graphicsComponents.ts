@@ -102,9 +102,24 @@ export function drawComponent(
         });
     } else if (has('trade-icon')) {
         drawTradeIcon(g, box, !!el.closest('button:disabled'));
+    } else if (has('match-controls') && el.closest('.is-wide')) {
+        const display = canvasDisplay(g.scene);
+        matchFace(
+            g,
+            { x: box.x, y: 0, width: display.width - box.x, height: display.height },
+            MATCH_INK.base,
+            undefined,
+            0,
+        );
     } else if (has('match-bar')) {
         const display = canvasDisplay(g.scene);
-        matchFace(g, headerBackdrop(box, display.width), MATCH_INK.base, undefined, 0);
+        matchFace(
+            g,
+            el.closest('.is-wide') ? box : headerBackdrop(box, display.width),
+            MATCH_INK.base,
+            undefined,
+            0,
+        );
         g.lineStyle(1, UI_INK.gold, 0.4).lineBetween(
             box.x + 14,
             box.y + box.height - 1,
@@ -160,9 +175,9 @@ export function drawComponent(
     } else if (has('bottom-space')) {
         const display = canvasDisplay(g.scene);
         g.fillStyle(MATCH_INK.base).fillRect(
-            0,
+            el.closest('.is-wide') ? box.x : 0,
             box.y,
-            display.width,
+            el.closest('.is-wide') ? display.width - box.x : display.width,
             Math.max(0, display.height - box.y),
         );
     } else if (has('action-dock')) {

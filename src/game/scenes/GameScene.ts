@@ -123,7 +123,11 @@ export class GameScene extends Scene {
             width: rect.width,
             height: rect.height,
         });
-        this.layout = matchGeometry(rect.width, rect.height).board;
+        this.layout = matchGeometry(
+            rect.width,
+            rect.height,
+            this.viewport.closest('.match-screen')?.classList.contains('is-wide'),
+        ).board;
         this.effects?.clear();
         this.layoutListeners.forEach((listener) => listener());
         this.render(true);

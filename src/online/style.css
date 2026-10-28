@@ -1,7 +1,7 @@
 .online-root {
     position: absolute;
     inset: 0;
-    width: min(100%, 480px);
+    width: 100%;
     height: var(--app-height);
     margin: auto;
     overflow: hidden;
@@ -23,7 +23,8 @@
     inset: 0;
     display: flex;
     flex-direction: column;
-    padding-top: env(safe-area-inset-top);
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0
+        env(safe-area-inset-left, 0px);
     pointer-events: none;
     gap: 4px;
 }
@@ -46,13 +47,17 @@
     font-size: 12px;
 }
 .online-board {
-    flex: 0 0 37%;
+    flex: 0 0 48%;
     min-height: 240px;
     pointer-events: none;
 }
 .online-panel {
     flex: 1;
     min-height: 0;
+    min-width: 0;
+    width: 100%;
+    max-width: 640px;
+    margin-inline: auto;
     overflow: auto;
     overscroll-behavior: contain;
     pointer-events: auto;
@@ -78,6 +83,8 @@
     gap: 4px;
 }
 .online-semantics input {
+    min-width: 0;
+    max-width: 100%;
     border: 0;
     padding: 12px;
     font: inherit;
@@ -143,4 +150,22 @@
     .online-semantics h1 {
         font-size: 18px;
     }
+}
+
+.online-semantics.is-wide.has-game {
+    display: grid;
+    grid-template-columns: var(--controls-width) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: 'header header' 'panel board';
+}
+.is-wide.has-game > header {
+    grid-area: header;
+}
+.is-wide.has-game .online-board {
+    grid-area: board;
+    min-height: 0;
+}
+.is-wide.has-game .online-panel {
+    grid-area: panel;
+    max-width: none;
 }
