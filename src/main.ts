@@ -2,6 +2,7 @@ import { StartGame } from './game/main';
 import { loadUiFont } from './game/ui/typography';
 import './styles/global.css';
 import './styles/royal.css';
+import './styles/desktop.css';
 
 const parent = document.querySelector<HTMLElement>('#game-container');
 

@@ -850,14 +850,14 @@
 }
 
 /* The island uses the full remaining landscape area; the RTL rail owns all HUD controls. */
-.match-screen.is-wide {
+.match-screen.is-wide:not(.is-desktop) {
     --header-height: 112px;
     --hand-height: 60px;
     grid-template-columns: var(--controls-width) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    grid-template-areas: 'controls board';
+    grid-template-rows: var(--header-height) minmax(0, 1fr);
+    grid-template-areas: 'header board' 'controls board';
 }
-.is-wide .match-controls {
+.is-wide:not(.is-desktop) .match-controls {
     grid-area: controls;
     display: flex;
     flex-direction: column;
@@ -866,83 +866,83 @@
     scrollbar-width: none;
     pointer-events: auto;
 }
-.is-wide .match-controls::-webkit-scrollbar {
+.is-wide:not(.is-desktop) .match-controls::-webkit-scrollbar {
     display: none;
 }
-.is-wide .match-controls > * {
+.is-wide:not(.is-desktop) .match-controls > * {
     flex-shrink: 0;
 }
-.is-wide .match-bar {
+.is-wide:not(.is-desktop) .match-bar {
     height: var(--header-height);
     grid-template-rows: 54px 48px;
     padding: 2px 8px 8px;
 }
-.is-wide .header-active {
+.is-wide:not(.is-desktop) .header-active {
     min-height: 52px;
     gap: 5px;
     padding-inline: 4px;
 }
-.is-wide .header-active .player-avatar {
+.is-wide:not(.is-desktop) .header-active .player-avatar {
     width: 34px;
     height: 34px;
     flex-basis: 34px;
 }
-.is-wide .turn-heading strong {
+.is-wide:not(.is-desktop) .turn-heading strong {
     font-size: 13px;
     line-height: 18px;
     max-height: 36px;
 }
-.is-wide .captain-score {
+.is-wide:not(.is-desktop) .captain-score {
     width: 36px;
 }
-.is-wide .header-personal,
-.is-wide .seat-chip {
+.is-wide:not(.is-desktop) .header-personal,
+.is-wide:not(.is-desktop) .seat-chip {
     gap: 4px;
 }
-.is-wide .seat-chip {
+.is-wide:not(.is-desktop) .seat-chip {
     padding-inline: 5px;
 }
-.is-wide .seat-chip .player-avatar {
+.is-wide:not(.is-desktop) .seat-chip .player-avatar {
     width: 23px;
     height: 23px;
     flex-basis: 23px;
 }
-.is-wide .seat-name {
+.is-wide:not(.is-desktop) .seat-name {
     font-size: 12px;
 }
-.is-wide .seat-turn {
+.is-wide:not(.is-desktop) .seat-turn {
     display: none;
 }
-.match-screen.is-wide .board-roll {
+.match-screen.is-wide:not(.is-desktop) .board-roll {
     position: static;
     width: auto;
     min-height: 104px;
     align-items: center;
 }
-.is-wide .context-line {
+.is-wide:not(.is-desktop) .context-line {
     min-height: var(--context-height);
     margin-top: auto;
 }
-.is-wide .resource-hand {
+.is-wide:not(.is-desktop) .resource-hand {
     height: var(--hand-height);
     padding-inline: 8px;
     gap: 4px;
 }
-.is-wide .hand-resource {
+.is-wide:not(.is-desktop) .hand-resource {
     grid-template-columns: 24px minmax(0, auto);
     grid-template-rows: 28px 17px;
     padding-inline: 2px;
 }
-.is-wide .hand-resource .resource-icon {
+.is-wide:not(.is-desktop) .hand-resource .resource-icon {
     --icon-size: 24px;
 }
-.is-wide .resource-count {
+.is-wide:not(.is-desktop) .resource-count {
     font-size: 19px;
     line-height: 27px;
 }
-.is-wide .action-dock {
+.is-wide:not(.is-desktop) .action-dock {
     height: var(--dock-height);
 }
-.is-wide .bottom-space {
+.is-wide:not(.is-desktop) .bottom-space {
     height: 6px;
 }

@@ -1,5 +1,6 @@
 import { Scene, type GameObjects, type Display } from 'phaser';
-import { fitBoard, boardToScreen } from '../game/ui/layout';
+import { boardToScreen } from '../game/ui/layout';
+import { matchGeometry } from '../game/ui/matchGeometry';
 import { drawSurface } from '../game/ui/graphicsTheme';
 import {
     ensureTerrainTextures,
@@ -104,7 +105,13 @@ export class OnlineScene extends Scene {
         const boardElement = this.root.querySelector<HTMLElement>('.online-board');
         if (game && boardElement && !boardElement.hidden) {
             const bounds = boardElement.getBoundingClientRect();
-            const layout = fitBoard(bounds.width, bounds.height);
+            const geometry = matchGeometry(
+                bounds.width,
+                bounds.height,
+                true,
+                this.root.classList.contains('is-desktop'),
+            );
+            const { board: layout, detailScale } = geometry;
             layout.centerX += bounds.left - root.left;
             layout.centerY += bounds.top - root.top;
             const point = (value: { x: number; y: number }) => boardToScreen(value, layout);
@@ -132,7 +139,7 @@ export class OnlineScene extends Scene {
                         p.x,
                         p.y + layout.hexRadius * 0.4,
                         30,
-                        12,
+                        12 * detailScale,
                         tile.number === 6 || tile.number === 8 ? '#ffb9a3' : '#ffffff',
                     );
                 if (tile.robber) this.text('اهریمن', p.x, p.y - 4, 48, 10, '#ffcf75');
@@ -160,8 +167,8 @@ export class OnlineScene extends Scene {
                     const view = createRoadPiece(this, {
                         x: (a.x + b.x) / 2,
                         y: (a.y + b.y) / 2,
-                        length: Math.min(28, Math.hypot(a.x - b.x, a.y - b.y) * 0.74),
-                        thickness: 7,
+                        length: Math.min(28 * detailScale, Math.hypot(a.x - b.x, a.y - b.y) * 0.74),
+                        thickness: 7 * detailScale,
                         angle: Math.atan2(b.y - a.y, b.x - a.x),
                         color:
                             game.players.find((p) => p.id === edge.road?.ownerId)?.color ??
@@ -177,7 +184,7 @@ export class OnlineScene extends Scene {
                             x: p.x,
                             y: p.y,
                             kind: vertex.building.type,
-                            size: vertex.building.type === 'city' ? 25 : 21,
+                            size: (vertex.building.type === 'city' ? 25 : 21) * detailScale,
                             color:
                                 game.players.find(
                                     (player) => player.id === vertex.building?.ownerId,
@@ -218,6 +225,24 @@ export class OnlineScene extends Scene {
         const panel = this.root
             .querySelector<HTMLElement>('.online-panel')
             ?.getBoundingClientRect();
+        if (this.root.classList.contains('is-desktop')) {
+            for (const element of this.root.querySelectorAll<HTMLElement>(
+                ':scope > header, .online-panel',
+            )) {
+                const rect = element.getBoundingClientRect();
+                drawSurface(
+                    this.keep(this.add.graphics()),
+                    {
+                        x: rect.left - root.left,
+                        y: rect.top - root.top,
+                        width: rect.width,
+                        height: rect.height,
+                    },
+                    'inset',
+                    { quiet: true, flat: true, radius: 24, accent: 0x527b8b },
+                );
+            }
+        }
         for (const node of this.root.querySelectorAll<HTMLElement>('[data-paint]')) {
             const rect = node.getBoundingClientRect();
             if (rect.width <= 0 || rect.height <= 0) continue;

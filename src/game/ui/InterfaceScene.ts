@@ -29,6 +29,11 @@ interface PaintLayer {
  */
 export class InterfaceScene extends Scene {
     private hud: PaintLayer;
+    private panel: PaintLayer;
+    private controlsGroup: GameObjects.Container;
+    private controlsMaskShape: GameObjects.Graphics;
+    private controlsMask: Phaser.Display.Masks.GeometryMask | undefined;
+    private controlsFilter: Phaser.Filters.Mask | undefined;
     private roll: PaintLayer;
     private hints: PaintLayer;
     private dock: PaintLayer;
@@ -84,9 +89,26 @@ export class InterfaceScene extends Scene {
             this.textures.get(`ui-${name}`).add('crop', 0, x, y, w, h);
         }
         this.hud = this.layer();
+        this.panel = this.layer();
         this.dock = this.layer();
         this.roll = this.layer();
         this.hints = this.layer();
+        this.controlsGroup = this.add.container(0, 0, [
+            this.panel.container,
+            this.dock.container,
+            this.roll.container,
+            this.hints.container,
+        ]);
+        this.controlsMaskShape = this.make.graphics({}, false);
+        if (this.renderer.type === CANVAS)
+            this.controlsMask = this.controlsMaskShape.createGeometryMask();
+        else {
+            this.controlsGroup.enableFilters();
+            this.controlsFilter = this.controlsGroup.filters!.external.addMask(
+                this.controlsMaskShape,
+            );
+            this.controlsFilter.active = false;
+        }
         this.theatre = this.layer();
         this.modal = this.layer();
         this.content = this.layer();
@@ -178,6 +200,8 @@ export class InterfaceScene extends Scene {
             this.scale.off('resize', this.invalidate);
             this.modalMask?.destroy();
             this.maskShape.destroy();
+            this.controlsMask?.destroy();
+            this.controlsMaskShape.destroy();
             this.parent.classList.remove('graphics-ui');
         };
         this.events.once('shutdown', dispose);
@@ -211,6 +235,7 @@ export class InterfaceScene extends Scene {
                 ? 0.5 + 0.5 * Math.min(1, (time - this.matchEnteredAt) / entryDuration)
                 : 1,
         );
+        this.panel.container.setAlpha(this.hud.container.alpha);
         const dockDuration = this.motion.duration(150);
         this.dock.container.setAlpha(
             dockDuration
@@ -281,6 +306,7 @@ export class InterfaceScene extends Scene {
         this.origin = { x: origin.left, y: origin.top };
         for (const layer of [
             this.hud,
+            this.panel,
             this.roll,
             this.hints,
             this.dock,
@@ -292,6 +318,24 @@ export class InterfaceScene extends Scene {
         const menu = this.parent.querySelector<HTMLElement>('.main-menu')!;
         const match = this.parent.querySelector<HTMLElement>('.match-screen')!;
         this.paintTree(this.session.state ? match : menu, this.hud);
+        const controls = match.querySelector<HTMLElement>('.match-controls')!;
+        this.panel.container.setVisible(!!this.session.state);
+        const clipsControls =
+            !!this.session.state &&
+            match.classList.contains('is-wide') &&
+            controls.scrollHeight > controls.clientHeight + 1;
+        const controlsBox = this.box(controls);
+        if (clipsControls)
+            this.controlsMaskShape
+                .clear()
+                .fillStyle(0xffffff)
+                .fillRect(controlsBox.x, controlsBox.y, controlsBox.width, controlsBox.height);
+        if (this.controlsFilter) this.controlsFilter.active = clipsControls;
+        if (this.controlsMask) {
+            if (clipsControls) this.controlsGroup.setMask(this.controlsMask);
+            else this.controlsGroup.clearMask();
+        }
+        if (this.session.state) this.paintTree(controls, this.panel);
         const rollRoot = match.querySelector<HTMLElement>('.board-roll')!;
         const hintRoot = match.querySelector<HTMLElement>('.context-line')!;
         const rollKey = this.session.state
@@ -380,6 +424,7 @@ export class InterfaceScene extends Scene {
         this.hadSheet = !!dialog;
         for (const layer of [
             this.hud,
+            this.panel,
             this.roll,
             this.hints,
             this.dock,
@@ -454,7 +499,10 @@ export class InterfaceScene extends Scene {
             const box = this.box(element);
             if (box.width <= 0 || box.height <= 0) return;
             if (clip && (box.y + box.height < clip.y || box.y > clip.y + clip.height)) return;
-            this.paintElement(element, box, layer);
+            const controlsRoot = element.classList.contains('match-controls');
+            if (!(controlsRoot && layer === this.panel)) this.paintElement(element, box, layer);
+            // The panel's scroll mask must not clip the independent player header.
+            if (controlsRoot && layer === this.hud) return;
             // Native closed details retain descendant DOM nodes but hide their contents.
             for (const node of element.childNodes) {
                 if (node instanceof HTMLElement) {

@@ -169,3 +169,25 @@
     grid-area: panel;
     max-width: none;
 }
+
+.online-semantics.is-desktop {
+    inset: 0;
+    width: var(--play-width);
+    height: var(--play-height);
+    margin: auto;
+    gap: var(--play-gap);
+}
+.online-semantics.is-desktop.has-game {
+    grid-template-rows: var(--play-header) minmax(0, 1fr);
+}
+.online-semantics.is-desktop > header {
+    padding: 12px 20px;
+}
+.online-semantics.is-desktop .online-panel {
+    padding: 20px;
+    gap: 16px;
+}
+.online-semantics.is-desktop.has-game .online-panel {
+    align-self: center;
+    max-height: 100%;
+}

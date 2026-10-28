@@ -1,5 +1,9 @@
 import { expect, test } from 'vitest';
-import { responsiveLayout } from '../src/game/ui/responsiveLayout';
+import {
+    DESKTOP_LAYOUT,
+    responsiveLayout,
+    responsiveProperties,
+} from '../src/game/ui/responsiveLayout';
 import { matchGeometry } from '../src/game/ui/matchGeometry';
 import { boardToClient, boardToScreen, clientToBoard } from '../src/game/ui/layout';
 import { createBoard } from '../src/game/core/board';
@@ -39,8 +43,13 @@ test.each([
         const availableHeight = height - bottomInset;
         const layout = responsiveLayout(availableWidth, availableHeight);
         expect(layout.wide).toBe(true);
-        const boardWidth = availableWidth - layout.controlsWidth;
-        const geometry = matchGeometry(boardWidth, availableHeight, layout.wide);
+        const boardWidth = layout.desktop
+            ? layout.contentWidth - layout.controlsWidth - DESKTOP_LAYOUT.gap
+            : availableWidth - layout.controlsWidth;
+        const boardHeight = layout.desktop
+            ? layout.contentHeight - DESKTOP_LAYOUT.headerHeight - DESKTOP_LAYOUT.gap
+            : availableHeight;
+        const geometry = matchGeometry(boardWidth, boardHeight, layout.wide, layout.desktop);
         // The rail owns dice even on short landscape phones, so no land height is lost.
         expect(geometry.seaBand).toBe(0);
         expect(geometry.diceOnLedge).toBe(false);
@@ -51,9 +60,9 @@ test.each([
             expect(point.x).toBeGreaterThanOrEqual(19);
             expect(point.x).toBeLessThanOrEqual(boardWidth - 19);
             expect(point.y).toBeGreaterThanOrEqual(19);
-            expect(point.y).toBeLessThanOrEqual(availableHeight - 19);
+            expect(point.y).toBeLessThanOrEqual(boardHeight - 19);
         }
-        const viewport = { width: boardWidth, height: availableHeight };
+        const viewport = { width: boardWidth, height: boardHeight };
         const bounds = { left: horizontalInsets / 2, top: 0, ...viewport };
         for (const vertex of Object.values(board.vertices)) {
             const screen = boardToScreen(vertex, geometry.board);
@@ -72,4 +81,53 @@ test('portrait tablets use their additional width for a larger board', () => {
     expect(tablet.board.hexRadius).toBeGreaterThan(phone.board.hexRadius * 1.5);
     expect(tablet.seaBand).toBe(104);
     expect(tablet.diceOnLedge).toBe(false);
+});
+
+test.each([
+    [1099, 768, false],
+    [1100, 699, false],
+    [1100, 700, true],
+    [1366, 768, true],
+    [1920, 1080, true],
+    [2560, 1440, true],
+    [3840, 2160, true],
+    [1024, 1366, false],
+])(
+    'desktop composition at %i × %i requires room for both legible controls and the island',
+    (width, height, desktop) => {
+        const layout = responsiveLayout(width, height);
+        expect(layout.desktop).toBe(desktop);
+        if (!desktop) return;
+        expect(layout.contentWidth + DESKTOP_LAYOUT.gutter * 2).toBeLessThanOrEqual(width);
+        expect(layout.contentHeight + DESKTOP_LAYOUT.gutter * 2).toBeLessThanOrEqual(height);
+        const boardWidth = layout.contentWidth - layout.controlsWidth - DESKTOP_LAYOUT.gap;
+        const boardHeight = layout.contentHeight - DESKTOP_LAYOUT.headerHeight - DESKTOP_LAYOUT.gap;
+        const { board } = matchGeometry(boardWidth, boardHeight, true, true);
+        // A laptop gets a readable island; a 4K screen never gets a giant one.
+        expect(board.hexRadius).toBeGreaterThanOrEqual(58);
+        expect(board.hexRadius).toBeLessThanOrEqual(66);
+        expect(5 * Math.sqrt(3) * board.hexRadius + 80).toBeLessThanOrEqual(boardWidth);
+        expect(8 * board.hexRadius + 80).toBeLessThanOrEqual(boardHeight);
+        expect(responsiveProperties(layout)['--play-width']).toBe(`${layout.contentWidth}px`);
+        expect(layout.controlsWidth).toBe(340);
+    },
+);
+
+test('maximized and ultrawide desktops keep the same island scale and focus width', () => {
+    const layouts = [
+        [1920, 1080],
+        [3440, 1440],
+        [3840, 2160],
+    ].map(([w, h]) => responsiveLayout(w, h));
+    const radii = layouts.map(
+        (layout) =>
+            matchGeometry(
+                layout.contentWidth - layout.controlsWidth - DESKTOP_LAYOUT.gap,
+                layout.contentHeight - DESKTOP_LAYOUT.headerHeight - DESKTOP_LAYOUT.gap,
+                true,
+                true,
+            ).board.hexRadius,
+    );
+    expect(new Set(radii)).toEqual(new Set([66]));
+    expect(new Set(layouts.map((layout) => layout.contentWidth))).toEqual(new Set([1520]));
 });
