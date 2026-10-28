@@ -1,0 +1,10 @@
+[Unit]
+Description=Reclaim expired encrypted backup storage and verify repository integrity
+After=network-online.target
+[Service]
+Type=oneshot
+ExecStart=/opt/sunmark/current/deploy/scripts/prune.sh
+TimeoutStartSec=3600
+Nice=10
+CPUQuota=40%
+MemoryMax=512M

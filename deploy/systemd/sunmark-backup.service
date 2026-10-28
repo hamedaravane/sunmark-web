@@ -1,0 +1,11 @@
+[Unit]
+Description=Encrypted off-server Sunmark PostgreSQL backup
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/sunmark/current/deploy/scripts/backup.sh
+TimeoutStartSec=1800
+Nice=10
+CPUQuota=40%
+MemoryMax=512M

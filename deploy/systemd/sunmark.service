@@ -1,0 +1,16 @@
+[Unit]
+Description=Sunmark production containers
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/sunmark/current/deploy/scripts/stack.sh up -d --wait --wait-timeout 180
+ExecStop=/opt/sunmark/current/deploy/scripts/stack.sh stop
+TimeoutStartSec=240
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target

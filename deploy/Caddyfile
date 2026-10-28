@@ -1,0 +1,38 @@
+{
+	email {$ACME_EMAIL}
+	admin off
+	servers {
+		timeouts {
+			read_header 10s
+			read_body 30s
+			idle 2m
+		}
+	}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	# Runtime art/font URLs are stable names; only build-hashed JS/CSS are immutable.
+	@runtime path /assets/backgrounds/* /assets/characters/* /assets/fonts/* /assets/dice/* /assets/ui/* /assets/effects/*
+	header @runtime >Cache-Control "public, max-age=3600, must-revalidate"
+	@dynamic path /api/* /socket.io/*
+	header @dynamic >Cache-Control "no-store"
+	@private path /docs /docs/* /docs-json
+	respond @private 404
+	reverse_proxy web:8080
+	handle_errors {
+		header Retry-After 30
+		respond "Sunmark is temporarily unavailable. Please retry shortly." 503
+	}
+}
+
+http://:8081 {
+	respond /healthz 200
+}

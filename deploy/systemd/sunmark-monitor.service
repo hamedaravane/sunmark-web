@@ -1,0 +1,8 @@
+[Unit]
+Description=Sunmark service, TLS, disk and backup monitoring
+After=docker.service network-online.target
+[Service]
+Type=oneshot
+ExecStart=/opt/sunmark/current/deploy/scripts/monitor.sh
+TimeoutStartSec=60
+MemoryMax=128M

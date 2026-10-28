@@ -1,0 +1,8 @@
+[Unit]
+Description=Nightly Sunmark database backup
+[Timer]
+OnCalendar=*-*-* 00:30:00 UTC
+RandomizedDelaySec=600
+Persistent=true
+[Install]
+WantedBy=timers.target

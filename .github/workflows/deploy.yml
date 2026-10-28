@@ -1,0 +1,79 @@
+name: Deploy production release
+on:
+  workflow_dispatch:
+    inputs:
+      web_digest:
+        description: 'Frontend digest: sha256: followed by 64 hex characters'
+        required: true
+        type: string
+      migration_reviewed:
+        description: 'I reviewed schema/rules compatibility, migration and recovery for this version pair'
+        required: true
+        type: boolean
+permissions:
+  contents: read
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' && inputs.migration_reviewed
+    environment: production
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: { persist-credentials: false }
+      - name: Validate release and prepare SSH
+        env:
+          WEB_DIGEST: ${{ inputs.web_digest }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          API_DIGEST=$(python3 -c 'import json; print(json.load(open("deploy/backend-image.json"))["image"].split("@",1)[1])')
+          [[ "$WEB_DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]]
+          [[ "$API_DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]]
+          printf 'API_DIGEST=%s\n' "$API_DIGEST" >> "$GITHUB_ENV"
+          test -n "$DEPLOY_KEY" && test -n "$KNOWN_HOSTS"
+          install -d -m 700 "$RUNNER_TEMP/sunmark-ssh"
+          printf '%s\n' "$DEPLOY_KEY" > "$RUNNER_TEMP/sunmark-ssh/key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/sunmark-ssh/known_hosts"
+          chmod 600 "$RUNNER_TEMP/sunmark-ssh/"*
+      - name: Upload immutable deployment bundle and deploy
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          WEB_DIGEST: ${{ inputs.web_digest }}
+        run: |
+          set -euo pipefail
+          [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]*$ ]]
+          [[ "$DEPLOY_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
+          DEPLOY_PORT=${DEPLOY_PORT:-22}
+          [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]] && ((DEPLOY_PORT > 0 && DEPLOY_PORT < 65536))
+          args=(-i "$RUNNER_TEMP/sunmark-ssh/key" -o BatchMode=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$RUNNER_TEMP/sunmark-ssh/known_hosts")
+          archive="sunmark-${GITHUB_SHA}.tar.gz"
+          tar --exclude=__pycache__ -czf "$RUNNER_TEMP/$archive" deploy
+          ssh "${args[@]}" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'umask 077; mkdir -p .sunmark-upload; chmod 700 .sunmark-upload'
+          scp "${args[@]}" -P "$DEPLOY_PORT" "$RUNNER_TEMP/$archive" "$DEPLOY_USER@$DEPLOY_HOST:.sunmark-upload/$archive"
+          ssh "${args[@]}" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "sudo -n bash -s -- '$GITHUB_SHA' '$WEB_DIGEST' '$API_DIGEST'" <<'REMOTE'
+          set -euo pipefail
+          revision=$1; web=$2; api=$3
+          [[ "$revision" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$web" =~ ^sha256:[a-f0-9]{64}$ && "$api" =~ ^sha256:[a-f0-9]{64}$ ]]
+          operator_dir=$(getent passwd "${SUDO_USER:-root}" | cut -d: -f6)
+          archive="$operator_dir/.sunmark-upload/sunmark-$revision.tar.gz"
+          directory="/opt/sunmark/releases/$revision"
+          if [[ ! -d "$directory/deploy" ]]; then
+              install -d -m 755 "$directory"
+              tar --no-same-owner -xzf "$archive" -C "$directory"
+              chmod -R go-w "$directory"
+          fi
+          rm -f "$archive"
+          bash "$directory/deploy/scripts/deploy.sh" "ghcr.io/hamedaravane/sunmark-web@$web" "ghcr.io/hamedaravane/sunmark-server@$api"
+          REMOTE
+      - name: Remove SSH material
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/sunmark-ssh"

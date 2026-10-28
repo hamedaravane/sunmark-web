@@ -1,0 +1,10 @@
+[Unit]
+Description=Restore latest Sunmark off-server backup into a disposable database
+After=docker.service network-online.target
+[Service]
+Type=oneshot
+ExecStart=/opt/sunmark/current/deploy/scripts/restore.sh latest
+TimeoutStartSec=1800
+Nice=10
+CPUQuota=40%
+MemoryMax=512M
