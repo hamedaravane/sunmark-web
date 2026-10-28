@@ -102,24 +102,29 @@ export function drawComponent(
         });
     } else if (has('trade-icon')) {
         drawTradeIcon(g, box, !!el.closest('button:disabled'));
+    } else if (has('match-controls') && el.closest('.is-desktop')) {
+        drawSurface(g, box, 'inset', { quiet: true, flat: true, radius: 24, accent: 0x527b8b });
     } else if (has('match-controls') && el.closest('.is-wide')) {
         const display = canvasDisplay(g.scene);
         matchFace(
             g,
-            { x: box.x, y: 0, width: display.width - box.x, height: display.height },
+            { x: box.x, y: box.y, width: display.width - box.x, height: display.height - box.y },
             MATCH_INK.base,
             undefined,
             0,
         );
     } else if (has('match-bar')) {
         const display = canvasDisplay(g.scene);
-        matchFace(
-            g,
-            el.closest('.is-wide') ? box : headerBackdrop(box, display.width),
-            MATCH_INK.base,
-            undefined,
-            0,
-        );
+        if (el.closest('.is-desktop'))
+            drawSurface(g, box, 'inset', { quiet: true, flat: true, radius: 20 });
+        else
+            matchFace(
+                g,
+                el.closest('.is-wide') ? box : headerBackdrop(box, display.width),
+                MATCH_INK.base,
+                undefined,
+                0,
+            );
         g.lineStyle(1, UI_INK.gold, 0.4).lineBetween(
             box.x + 14,
             box.y + box.height - 1,
@@ -166,12 +171,13 @@ export function drawComponent(
             drawNameSelection(g, el, box);
         }
     } else if (has('resource-hand')) {
-        drawSurface(g, { ...box, height: box.height + 14 }, 'inset', {
-            radius: 24,
-            quiet: true,
-            accent: 0x7e9dc6,
-            flat: true,
-        });
+        if (!el.closest('.is-desktop'))
+            drawSurface(g, { ...box, height: box.height + 14 }, 'inset', {
+                radius: 24,
+                quiet: true,
+                accent: 0x7e9dc6,
+                flat: true,
+            });
     } else if (has('bottom-space')) {
         const display = canvasDisplay(g.scene);
         g.fillStyle(MATCH_INK.base).fillRect(
@@ -181,7 +187,8 @@ export function drawComponent(
             Math.max(0, display.height - box.y),
         );
     } else if (has('action-dock')) {
-        g.fillStyle(MATCH_INK.base).fillRect(box.x, box.y, box.width, box.height);
+        if (!el.closest('.is-desktop'))
+            g.fillStyle(MATCH_INK.base).fillRect(box.x, box.y, box.width, box.height);
     } else if (has('menu-panel')) {
         drawSurface(g, box, 'inset', { radius: 32, accent: 0xe4b86c });
         for (const direction of [-1, 1])
@@ -289,10 +296,11 @@ export function drawComponent(
             Math.max(2, box.height - 10),
             1,
         );
-    } else if (has('turn-receipt') && !el.closest('.placement-guidance')) {
+    } else if (has('turn-receipt') && !el.closest('.placement-guidance, .is-desktop')) {
         drawSurface(g, box, 'card', { radius: 18, quiet: true, flat: true });
     } else if (has('placement-guidance')) {
-        drawSurface(g, box, 'card', { radius: 18, quiet: true, flat: true });
+        if (!el.closest('.is-desktop'))
+            drawSurface(g, box, 'card', { radius: 18, quiet: true, flat: true });
     } else if (has('trade-side')) {
         drawSurface(g, box, el.classList.contains('trade-side--give') ? 'coral' : 'turquoise', {
             radius: 18,

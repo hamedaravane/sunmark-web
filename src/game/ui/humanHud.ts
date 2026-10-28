@@ -62,8 +62,11 @@ export function humanHeader(session: GameSession): string {
 /** Passive production changes this inventory even on an opponent's roll. */
 export function humanHand(session: GameSession): string {
     const human = session.humanPlayer!;
-    return RESOURCE_TYPES.map(
-        (r) =>
-            `<div class="hand-resource" data-resource="${r}" aria-label="${FA.resources[r]} ${number(human.resources[r])}">${resourceIcon(r)}<span class="resource-count">${number(human.resources[r])}</span><span class="resource-label">${FA.resources[r]}</span></div>`,
-    ).join('');
+    return (
+        '<h2 class="hand-caption">منابع تو</h2>' +
+        RESOURCE_TYPES.map(
+            (r) =>
+                `<div class="hand-resource" data-resource="${r}" aria-label="${FA.resources[r]} ${number(human.resources[r])}">${resourceIcon(r)}<span class="resource-count">${number(human.resources[r])}</span><span class="resource-label">${FA.resources[r]}</span></div>`,
+        ).join('')
+    );
 }

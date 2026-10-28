@@ -3,7 +3,7 @@ import { OnlineClient, type Intent } from './client';
 import { OnlineScene } from './scene';
 import { newDrafts, onlineMarkup, resources } from './markup';
 import './style.css';
-import { responsiveLayout } from '../game/ui/responsiveLayout';
+import { responsiveLayout, responsiveProperties } from '../game/ui/responsiveLayout';
 export function startOnline(root: HTMLElement, onExit: () => void) {
     let storage: Storage | null = null;
     try {
@@ -228,15 +228,17 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
     };
     semantics.addEventListener('click', click);
     semantics.addEventListener('input', input);
-    const resize = new ResizeObserver(([entry]) => {
-        const layout = responsiveLayout(entry.contentRect.width, entry.contentRect.height);
+    const resize = new ResizeObserver(() => {
+        const layout = responsiveLayout(root.clientWidth, root.clientHeight);
         semantics.classList.toggle('is-wide', layout.wide);
-        semantics.style.setProperty('--controls-width', `${layout.controlsWidth}px`);
+        semantics.classList.toggle('is-desktop', layout.desktop);
+        for (const [key, value] of Object.entries(responsiveProperties(layout)))
+            semantics.style.setProperty(key, value);
         if (root.clientWidth && root.clientHeight)
             game.scale.resize(root.clientWidth, root.clientHeight);
         scene.invalidate();
     });
-    resize.observe(semantics);
+    resize.observe(root);
     const disconnect = client.subscribe(render);
     render();
     const invite = new URL(location.href).searchParams.get('invite');

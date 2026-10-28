@@ -12,7 +12,8 @@ import { BottomSheet, type SheetContent } from './bottomSheet';
 import { number } from './components';
 import { sheetContent } from './sheets';
 import { matchGeometry } from './matchGeometry';
-import { responsiveLayout } from './responsiveLayout';
+import { responsiveLayout, responsiveProperties } from './responsiveLayout';
+import { desktopShortcuts, desktopTurnHeading } from './desktopMarkup';
 import { type GameSession } from './session';
 import type { AppPlatform } from '../../pwa/app';
 import { appContent, updateContent } from '../../pwa/markup';
@@ -46,9 +47,10 @@ export class GameHud {
         parent.className = 'game-app is-menu';
         parent.innerHTML = `<section class="main-menu" aria-label="آغاز بازی"><div class="menu-panel"></div></section>
             <section class="match-screen" aria-label="صفحه بازی" hidden>
+                <header class="match-bar"></header>
                 <div class="match-controls">
-                    <header class="match-bar"></header><div class="board-roll"></div><div class="context-line"></div>
-                    <section class="resource-hand" aria-label="منابع شما"></section><section class="action-dock" aria-label="کنترل‌های نوبت"></section><div class="bottom-space"></div>
+                    <header class="command-heading"></header><div class="board-roll"></div><div class="context-line"></div>
+                    <section class="resource-hand" aria-label="منابع شما"></section><section class="action-dock" aria-label="کنترل‌های نوبت"></section>${desktopShortcuts()}<div class="bottom-space"></div>
                 </div>
                 <div class="board-viewport"><div class="board-stage"><div class="board-canvas" aria-hidden="true"></div><p class="board-loading">در حال آماده‌سازی جزیره…</p></div></div>
             </section><div class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>`;
@@ -63,7 +65,7 @@ export class GameHud {
         this.sizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
                 if (entry.contentRect.height <= 0) continue;
-                if (entry.target.classList.contains('match-screen')) {
+                if (entry.target === parent) {
                     parent.classList.toggle('is-compact', entry.contentRect.height < 720);
                     const layout = responsiveLayout(
                         entry.contentRect.width,
@@ -71,12 +73,16 @@ export class GameHud {
                     );
                     const match = this.part('.match-screen');
                     match.classList.toggle('is-wide', layout.wide);
-                    match.style.setProperty('--controls-width', `${layout.controlsWidth}px`);
+                    match.classList.toggle('is-desktop', layout.desktop);
+                    parent.classList.toggle('is-desktop', layout.desktop);
+                    for (const [key, value] of Object.entries(responsiveProperties(layout)))
+                        match.style.setProperty(key, value);
                 } else {
                     const geometry = matchGeometry(
                         entry.contentRect.width,
                         entry.contentRect.height,
                         this.part('.match-screen').classList.contains('is-wide'),
+                        this.part('.match-screen').classList.contains('is-desktop'),
                     );
                     this.part('.match-screen').classList.toggle(
                         'dice-on-ledge',
@@ -89,7 +95,7 @@ export class GameHud {
                 }
             }
         });
-        this.sizeObserver.observe(this.part('.match-screen'));
+        this.sizeObserver.observe(parent);
         this.sizeObserver.observe(this.part('.board-stage'));
         this.render();
         if (!app.installed) session.openSheet({ kind: 'app' });
@@ -128,6 +134,7 @@ export class GameHud {
         const human = this.session.humanPlayer!;
         const surface = turnSurface(state, human.id, !!this.session.practice);
         this.updatePart('.match-bar', humanHeader(this.session));
+        this.updatePart('.command-heading', desktopTurnHeading(this.session));
         this.part('.match-screen').classList.toggle('is-awaiting-roll', surface.hero);
         this.updatePart('.board-roll', heroDice(this.session));
         const receiptId = this.session.transition?.id ?? 0;

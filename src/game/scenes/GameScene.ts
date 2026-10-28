@@ -40,6 +40,7 @@ export class GameScene extends Scene {
     private boardObjects!: GameObjects.Container;
     private coast: GameObjects.Graphics | null = null;
     private layout: BoardLayout = fitBoard(390, 468);
+    private detailScale = 1;
     private renderedState: GameState | null = null;
     private renderedPlacement: unknown;
     private inputAdapter: BoardInput;
@@ -123,11 +124,14 @@ export class GameScene extends Scene {
             width: rect.width,
             height: rect.height,
         });
-        this.layout = matchGeometry(
+        const geometry = matchGeometry(
             rect.width,
             rect.height,
             this.viewport.closest('.match-screen')?.classList.contains('is-wide'),
-        ).board;
+            this.viewport.closest('.match-screen')?.classList.contains('is-desktop'),
+        );
+        this.layout = geometry.board;
+        this.detailScale = geometry.detailScale;
         this.effects?.clear();
         this.layoutListeners.forEach((listener) => listener());
         this.render(true);
@@ -269,8 +273,11 @@ export class GameScene extends Scene {
                 const road = createRoadPiece(this, {
                     x: (a.x + b.x) / 2,
                     y: (a.y + b.y) / 2,
-                    length: Math.min(28, Math.hypot(b.x - a.x, b.y - a.y) * 0.74),
-                    thickness: 8,
+                    length: Math.min(
+                        28 * this.detailScale,
+                        Math.hypot(b.x - a.x, b.y - a.y) * 0.74,
+                    ),
+                    thickness: 8 * this.detailScale,
                     angle: Math.atan2(b.y - a.y, b.x - a.x),
                     color: owner?.color ?? active.color,
                     state: { legal: eligible, preview: !owner, selected },
@@ -291,7 +298,7 @@ export class GameScene extends Scene {
                 !selected &&
                 !owner
             ) {
-                this.circle(p.x, p.y, 4, active.color, 0.8, 0xf3ead8);
+                this.circle(p.x, p.y, 4 * this.detailScale, active.color, 0.8, 0xf3ead8);
                 continue;
             }
             if (owner || eligible) {
@@ -301,7 +308,7 @@ export class GameScene extends Scene {
                     x: p.x,
                     y: p.y,
                     kind: city ? 'city' : 'settlement',
-                    size: city ? 25 : 21,
+                    size: (city ? 25 : 21) * this.detailScale,
                     color: owner?.color ?? active.color,
                     state: { legal: eligible, preview: selected || !owner, selected },
                 });
@@ -345,13 +352,19 @@ export class GameScene extends Scene {
         }
         if (tile.number !== null) {
             const token = this.add.graphics();
-            drawVectorArt(token, NUMBER_TOKEN_ART, x, y + radius * 0.48, 13 * NUMBER_TOKEN_SCALE);
+            drawVectorArt(
+                token,
+                NUMBER_TOKEN_ART,
+                x,
+                y + radius * 0.48,
+                13 * NUMBER_TOKEN_SCALE * this.detailScale,
+            );
             this.boardObjects.add(token);
             this.text(
                 x,
                 y + radius * 0.48,
                 number(tile.number),
-                14 * NUMBER_TOKEN_SCALE,
+                14 * NUMBER_TOKEN_SCALE * this.detailScale,
                 tile.number === 6 || tile.number === 8 ? '#a33d2e' : '#332a22',
             );
         }
@@ -370,7 +383,7 @@ export class GameScene extends Scene {
                 this,
                 x,
                 y - radius * AHRIMAN_OFFSET_RATIO,
-                Math.min(34, radius * 0.9),
+                Math.min(34 * this.detailScale, radius * 0.9),
                 preview,
             );
             this.boardObjects.add(marker);

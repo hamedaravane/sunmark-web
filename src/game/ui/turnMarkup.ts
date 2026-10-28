@@ -15,7 +15,7 @@ export function heroDice(session: GameSession): string {
     const state = session.state!;
     if (!turnSurface(state, session.humanPlayer!.id, !!session.practice).hero) return '';
     return button(
-        `<span class="hero-dice" aria-hidden="true">${diceFace(3)}${diceFace(5)}</span><span class="roll-caption">${state.phase === 'setup-roll' ? 'تاس آغازین' : 'تاس‌ها را لمس کن'}</span>`,
+        `<span class="hero-dice" aria-hidden="true">${diceFace(3)}${diceFace(5)}</span><span class="roll-caption">${state.phase === 'setup-roll' ? 'تاس آغازین' : 'تاس بریز'}</span>`,
         'roll-dice',
         {
             className: 'roll-object',
@@ -32,7 +32,7 @@ export function actionGuidance(session: GameSession): string {
     const state = session.state!,
         human = session.humanPlayer!;
     if (!session.isHumanTurn)
-        return `منتظر ${state.players[state.activePlayerIndex].name} · دارایی پایین، مال توست`;
+        return `منتظر ${state.players[state.activePlayerIndex].name} · منابع نمایش‌داده‌شده، مال توست`;
     const options = BUILD_TYPES.map((type) => getBuildOption(state, type, human.id));
     const ready = options.filter((o) => o.reason === null);
     if (ready.length) return `قابل ساخت: ${ready.map((o) => BUILD_LABELS[o.type]).join('، ')}`;
@@ -181,7 +181,7 @@ export function actionDock(session: GameSession): string {
                       className: 'button context-button',
                   })
                 : '';
-        tools = `<div class="dock-roll-options">${card}${warning || (!card ? '<p class="dock-idle">نوبت تو · تاس‌ها آماده‌اند</p>' : '')}</div>`;
+        tools = `<div class="dock-roll-options">${card}${warning || (!card ? '<p class="dock-idle dock-roll-hint">نوبت تو · تاس‌ها آماده‌اند</p>' : '')}</div>`;
     } else if (
         !isSetup(state) &&
         !['discard', 'robber', 'steal', 'road-building', 'finished'].includes(state.phase)
