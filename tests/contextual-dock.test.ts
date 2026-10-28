@@ -104,7 +104,7 @@ test.each([
 ])(
     'portrait %i preserves coastal clearance and a separate ocean action band',
     (width, height, top, bottom) => {
-        const chrome = width < 360 ? 112 + 42 + 60 + 84 + 6 : 124 + 42 + 66 + 84 + 6;
+        const chrome = width < 360 ? 112 + 48 + 60 + 84 + 6 : 124 + 48 + 66 + 84 + 6;
         const available = height - top - bottom - chrome;
         const { board, seaBand, dieSize, diceOnLedge } = matchGeometry(width, available);
         // Number medallions must remain distinct at the smallest supported portrait.

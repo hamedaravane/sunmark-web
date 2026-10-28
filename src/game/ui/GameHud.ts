@@ -12,6 +12,7 @@ import { BottomSheet, type SheetContent } from './bottomSheet';
 import { number } from './components';
 import { sheetContent } from './sheets';
 import { matchGeometry } from './matchGeometry';
+import { responsiveLayout } from './responsiveLayout';
 import { type GameSession } from './session';
 import type { AppPlatform } from '../../pwa/app';
 import { appContent, updateContent } from '../../pwa/markup';
@@ -45,9 +46,11 @@ export class GameHud {
         parent.className = 'game-app is-menu';
         parent.innerHTML = `<section class="main-menu" aria-label="آغاز بازی"><div class="menu-panel"></div></section>
             <section class="match-screen" aria-label="صفحه بازی" hidden>
-                <header class="match-bar"></header>
-                <div class="board-viewport"><div class="board-stage"><div class="board-canvas" aria-hidden="true"></div><p class="board-loading">در حال آماده‌سازی جزیره…</p></div></div><div class="context-line"></div>
-                <section class="resource-hand" aria-label="منابع شما"></section><section class="action-dock" aria-label="کنترل‌های نوبت"></section><div class="bottom-space"></div><div class="board-roll"></div>
+                <div class="match-controls">
+                    <header class="match-bar"></header><div class="board-roll"></div><div class="context-line"></div>
+                    <section class="resource-hand" aria-label="منابع شما"></section><section class="action-dock" aria-label="کنترل‌های نوبت"></section><div class="bottom-space"></div>
+                </div>
+                <div class="board-viewport"><div class="board-stage"><div class="board-canvas" aria-hidden="true"></div><p class="board-loading">در حال آماده‌سازی جزیره…</p></div></div>
             </section><div class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>`;
         this.boardViewport = parent.querySelector('.board-canvas')!;
         this.sheet = new BottomSheet(parent, () => session.closeSheet());
@@ -60,12 +63,20 @@ export class GameHud {
         this.sizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
                 if (entry.contentRect.height <= 0) continue;
-                if (entry.target.classList.contains('match-screen'))
+                if (entry.target.classList.contains('match-screen')) {
                     parent.classList.toggle('is-compact', entry.contentRect.height < 720);
-                else {
+                    const layout = responsiveLayout(
+                        entry.contentRect.width,
+                        entry.contentRect.height,
+                    );
+                    const match = this.part('.match-screen');
+                    match.classList.toggle('is-wide', layout.wide);
+                    match.style.setProperty('--controls-width', `${layout.controlsWidth}px`);
+                } else {
                     const geometry = matchGeometry(
                         entry.contentRect.width,
                         entry.contentRect.height,
+                        this.part('.match-screen').classList.contains('is-wide'),
                     );
                     this.part('.match-screen').classList.toggle(
                         'dice-on-ledge',

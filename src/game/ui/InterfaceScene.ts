@@ -311,6 +311,11 @@ export class InterfaceScene extends Scene {
         this.dock.container.setVisible(!!this.session.state);
         if (this.session.state)
             this.paintTree(match.querySelector<HTMLElement>('.action-dock')!, this.dock);
+        if (this.session.state && match.classList.contains('is-wide'))
+            this.scrollIndicator(
+                match.querySelector<HTMLElement>('.match-controls')!,
+                this.hud.graphics,
+            );
         const actionPhase = this.session.state?.phase === 'actions';
         if (actionPhase && !this.hadActionPhase)
             this.dockOpenedAt = this.motion.reduced ? -Infinity : time;
@@ -593,8 +598,8 @@ export class InterfaceScene extends Scene {
                 bottom = this.displayHeight;
             while (ancestor && ancestor !== this.parent) {
                 const overflow = getComputedStyle(ancestor);
-                const clipsX = ['hidden', 'clip'].includes(overflow.overflowX);
-                const clipsY = ['hidden', 'clip'].includes(overflow.overflowY);
+                const clipsX = ['hidden', 'clip', 'auto', 'scroll'].includes(overflow.overflowX);
+                const clipsY = ['hidden', 'clip', 'auto', 'scroll'].includes(overflow.overflowY);
                 if (!clipsX && !clipsY) {
                     ancestor = ancestor.parentElement;
                     continue;

@@ -12,10 +12,41 @@
     --header-height: 124px;
     --hand-height: 66px;
     --dock-height: 84px;
+    --context-height: 48px;
+    --match-rows: var(--header-height) minmax(0, 1fr) var(--context-height) var(--hand-height)
+        var(--dock-height) 6px;
     position: relative;
-    grid-template-rows:
-        var(--header-height) minmax(0, 1fr) 42px var(--hand-height) var(--dock-height)
-        6px;
+    grid-template-rows: var(--match-rows);
+    grid-template-areas: 'header' 'board' 'context' 'hand' 'dock' 'bottom';
+}
+.match-controls {
+    display: grid;
+    grid-area: 1 / 1 / -1 / -1;
+    grid-template-rows: var(--match-rows);
+    grid-template-areas: 'header' 'board' 'context' 'hand' 'dock' 'bottom';
+    min-height: 0;
+    min-width: 0;
+    pointer-events: none;
+}
+.match-bar {
+    grid-area: header;
+    pointer-events: auto;
+}
+.board-viewport {
+    grid-area: board;
+}
+.context-line {
+    grid-area: context;
+}
+.resource-hand {
+    grid-area: hand;
+}
+.action-dock {
+    grid-area: dock;
+    pointer-events: auto;
+}
+.bottom-space {
+    grid-area: bottom;
 }
 .match-bar {
     grid-template-rows: 62px 48px;
@@ -243,7 +274,10 @@
     color: #fff4dc;
 }
 .board-roll {
-    bottom: calc(var(--hand-height) + var(--dock-height) + 56px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(
+        var(--hand-height) + var(--dock-height) + var(--context-height) + 14px +
+            env(safe-area-inset-bottom, 0px)
+    );
 }
 .dice-on-ledge .board-roll {
     bottom: calc(7px + env(safe-area-inset-bottom, 0px));
@@ -813,4 +847,102 @@
 .result-actions .button {
     font-size: 13px;
     padding-inline: 8px;
+}
+
+/* The island uses the full remaining landscape area; the RTL rail owns all HUD controls. */
+.match-screen.is-wide {
+    --header-height: 112px;
+    --hand-height: 60px;
+    grid-template-columns: var(--controls-width) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'controls board';
+}
+.is-wide .match-controls {
+    grid-area: controls;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    pointer-events: auto;
+}
+.is-wide .match-controls::-webkit-scrollbar {
+    display: none;
+}
+.is-wide .match-controls > * {
+    flex-shrink: 0;
+}
+.is-wide .match-bar {
+    height: var(--header-height);
+    grid-template-rows: 54px 48px;
+    padding: 2px 8px 8px;
+}
+.is-wide .header-active {
+    min-height: 52px;
+    gap: 5px;
+    padding-inline: 4px;
+}
+.is-wide .header-active .player-avatar {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+}
+.is-wide .turn-heading strong {
+    font-size: 13px;
+    line-height: 18px;
+    max-height: 36px;
+}
+.is-wide .captain-score {
+    width: 36px;
+}
+.is-wide .header-personal,
+.is-wide .seat-chip {
+    gap: 4px;
+}
+.is-wide .seat-chip {
+    padding-inline: 5px;
+}
+.is-wide .seat-chip .player-avatar {
+    width: 23px;
+    height: 23px;
+    flex-basis: 23px;
+}
+.is-wide .seat-name {
+    font-size: 12px;
+}
+.is-wide .seat-turn {
+    display: none;
+}
+.match-screen.is-wide .board-roll {
+    position: static;
+    width: auto;
+    min-height: 104px;
+    align-items: center;
+}
+.is-wide .context-line {
+    min-height: var(--context-height);
+    margin-top: auto;
+}
+.is-wide .resource-hand {
+    height: var(--hand-height);
+    padding-inline: 8px;
+    gap: 4px;
+}
+.is-wide .hand-resource {
+    grid-template-columns: 24px minmax(0, auto);
+    grid-template-rows: 28px 17px;
+    padding-inline: 2px;
+}
+.is-wide .hand-resource .resource-icon {
+    --icon-size: 24px;
+}
+.is-wide .resource-count {
+    font-size: 19px;
+    line-height: 27px;
+}
+.is-wide .action-dock {
+    height: var(--dock-height);
+}
+.is-wide .bottom-space {
+    height: 6px;
 }
