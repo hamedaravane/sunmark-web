@@ -2,5 +2,7 @@
 export const BRAND = {
     name: 'Sunmark',
     persianName: 'سان‌مارک',
-    description: 'سان‌مارک؛ بازی راهبردی تک‌نفره با سه رقیب خودکار، در دنیایی از ایران باستان.',
+    url: 'https://sunmarkgame.top/',
+    description:
+        'سان‌مارک؛ بازی راهبردی رومیزی در دنیای ایران باستان، آفلاین با ربات‌ها یا آنلاین با دوستان.',
 } as const;

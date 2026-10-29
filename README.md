@@ -1,20 +1,21 @@
 # Sunmark Web
 
-**Sunmark (سان‌مارک)** is a mobile-first, Persian-language local strategy board game inspired by hex-based resource production and settlement building. Matches have one human and three automatic local bots, with a generated board, player-chosen opening settlements/roads in CATAN order, turn-based production, building, negotiated player/bot trades, bank trades, development cards, Ahriman, and a ten-point victory target.
+**Sunmark (سان‌مارک)** is a mobile-first, Persian-language strategy board game with offline play and online multiplayer. Play locally against three bots, or invite friends into a private four-seat online room with optional server bots. Matches feature a generated board, player-chosen opening settlements/roads, resource production, building, negotiated trades, development cards, Ahriman, and a ten-point victory target.
 
-[Play the game](https://hamedaravane.github.io/sunmark-web/)
+[Play Sunmark](https://sunmarkgame.top)
 
-This repository, **sunmark-web**, contains the Phaser web client and installable PWA. The game remains branded **Sunmark** throughout its menu, tutorial, browser, and install metadata. The NestJS backend belongs in the separate **sunmark-server** repository. Internal app/save identifiers are retained for compatibility; the renamed Pages path reuses the original same-origin save slot. See [release and installation compatibility](docs/PWA_RELEASE.md#repository-rename).
+This repository contains the Phaser 4/TypeScript web client, installable PWA, local full-stack development setup, and production deployment automation. Backend source is maintained in the private `sunmark-server` repository; its public, versioned Docker image lets contributors run the full game without access to that source. Existing app/save identifiers remain stable for compatibility; see [installation and saved-game compatibility](docs/PWA_RELEASE.md#repository-rename).
 
 ## Requirements
 
 - Node.js 24 LTS recommended (also supports Node 22.13+ within the 22 release line, and Node 26+)
 - npm
+- Docker/Compose for local online play (optional for offline frontend development)
 
 ## Commands
 
 ```sh
-npm install
+npm ci
 npm run dev
 npm run typecheck
 npm test
@@ -28,7 +29,7 @@ npm run build
 npm run preview
 ```
 
-The development server is available at `http://localhost:8080`. The production build is written to `dist/`; deploy the contents of that directory to a static web host.
+The development server is available at `http://localhost:8080`. `npm run build` writes the frontend to `dist/`; the production Docker image serves it alongside an HTTP/WebSocket proxy to the private API. Use [local online testing](docs/ONLINE_PLAY.md) when developing multiplayer.
 
 `npm run check` runs lint, formatting verification, Vitest, the production build (including TypeScript), and PWA artifact verification. `npm test` runs once; `npm run test:watch` reruns affected tests while developing. `npm run lint:fix` and `npm run format` apply fixes; the other checks do not rewrite source files.
 
@@ -36,25 +37,24 @@ Vitest shares the Vite configuration and runs explicit-import TypeScript tests f
 
 ESLint uses a flat configuration, TypeScript project-service analysis, recommended rules, and typed promise checks. Browser globals apply to game source; Node globals apply to tooling and tests. Core modules cannot import Phaser or presentation modules. Prettier owns formatting, with `eslint-config-prettier` disabling conflicting lint rules. The formatting baseline uses four spaces for code, two for JSON/Markdown/YAML, single quotes, and LF line endings; artwork, wireframes, build output, coverage, and the generated lockfile are excluded.
 
-## GitHub Pages
+## Production and CI/CD
 
-The playable game is published at [hamedaravane.github.io/sunmark-web](https://hamedaravane.github.io/sunmark-web/). This runs the current single-player game with local bots in the browser; it does not add online matchmaking or a server.
+The live game is **[sunmarkgame.top](https://sunmarkgame.top)**. GitHub Pages hosting is retired.
 
-`.github/workflows/deploy-pages.yml` deploys each push to `main` and supports manual runs from GitHub Actions or `gh workflow run deploy-pages.yml`. It installs locked dependencies with Node 24, checks lint/formatting/tests, type-checks and builds the game, uploads only `dist/`, and deploys through the `github-pages` environment. Official actions are pinned to verified release commits; publishing permissions are limited to the deployment job.
+Every push to `main` runs the [production workflow](.github/workflows/release.yml):
 
-The workflow reads the site's base path from Pages settings and passes it to Vite at build time. This preserves the shared local configuration while making JavaScript, CSS, terrain, ocean artwork, resource icons, and fonts load correctly below the repository URL. To reproduce the project-site build locally:
+1. Check contracts, types, lint, formatting, tests, build and PWA artifacts.
+2. Exercise the packaged HTTPS stack, multiplayer and backup/restore behavior.
+3. Publish an immutable frontend image to GHCR.
+4. Automatically deploy that exact version to production, with database backups, explicit migrations and health checks.
 
-```sh
-npm run build -- --base=/sunmark-web/
-```
-
-Pages must use **GitHub Actions** as its publishing source. The setup follows [GitHub's custom Pages workflow guidance](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) and [Vite's Pages deployment guidance](https://vite.dev/guide/static-deploy.html). Monitor publishing with `gh run list --workflow deploy-pages.yml`.
+Accepting changes into `main` authorizes deployment; routine releases need no manual approval or SSH commands. Failed CI checks prevent deployment. Caddy, the frontend, API and PostgreSQL run on an Ubuntu server under Docker Compose. [Production operations](deploy/README.md) covers configuration, encrypted off-server backups, restore drills and rollback.
 
 ## Installable app and offline play
 
-The two-button menu offers Play and Tutorial. Tutorial is a short, disposable exercise connecting dice, terrain production, road expansion, trading for a missing resource, and a settlement score change. It explains the ten-point goal up front and preserves the saved match; Play then resumes that match or starts ordinary setup. Non-installed browser visits show a dismissible installation modal with Android/Chrome or iPhone instructions; the browser’s Home Screen/install action also works. After offline preparation completes, all game art, fonts, and Anahita expressions are available without connectivity. One local match and its tutorial progress are saved automatically; the **بازی** button resumes unfinished games after reopening. Downloaded updates prompt for confirmation, save the match, and reload into the new release. Pending domestic-trade consent is restored without automatic payment.
+The menu offers **بازی** (offline Play), **بازی آنلاین** (Play Online), and **آموزش** (Tutorial). Tutorial is a short, disposable exercise connecting dice, terrain production, road expansion, trading for a missing resource, and a settlement score change. It explains the ten-point goal up front and preserves the saved match; Play then resumes that match or starts ordinary setup. Non-installed browser visits show a dismissible installation modal with Android/Chrome or iPhone instructions; the browser’s Home Screen/install action also works. After offline preparation completes, all game art, fonts, and Anahita expressions are available without connectivity. One local match and its tutorial progress are saved automatically; the **بازی** button resumes unfinished games after reopening. Downloaded updates prompt for confirmation, save the match, and reload into the new release. Pending domestic-trade consent is restored without automatic payment. Online play requires connectivity and stores confirmed match state on the server.
 
-Run `npm run pwa:check` after a production build to verify install metadata, icon dimensions, scoped launch URLs, controlled updates, and offline asset coverage. The Pages workflow runs this before deployment. Ordinary `npm run dev` does not register a service worker; use the production preview on localhost or HTTPS for PWA checks. See [docs/PWA_RELEASE.md](docs/PWA_RELEASE.md) for implementation, storage limits, icon reproduction, and the user’s Android/iPhone release checklist.
+Run `npm run pwa:check` after a production build to verify install metadata, icon dimensions, scoped launch URLs, controlled updates, and offline asset coverage. Production CI runs this before deployment. Ordinary `npm run dev` does not register a service worker; use the production preview on localhost or HTTPS for PWA checks. See [docs/PWA_RELEASE.md](docs/PWA_RELEASE.md) for implementation, storage limits, icon reproduction, and the user’s Android/iPhone release checklist.
 
 ## Project map
 
@@ -105,8 +105,6 @@ Actual-size before/after comparisons and the responsive layout decisions are doc
 
 ## Local online testing
 
-For public hosting, see [production deployment](deploy/README.md). It provides a separate HTTPS/private-database Compose stack, version-pinned release/deployment workflows, monitoring, encrypted off-server backups and restore procedures. Real infrastructure, credentials and launch acceptance still need operator setup and verification.
+For the live service and recovery procedures, see [production deployment](deploy/README.md). The desktop stack remains separate from production and uses local-only credentials and loopback ports.
 
-The online branch adds private four-seat rooms, guest sessions, host-selected bots, server-authoritative commands, trading consent and reconnection. Install Docker Desktop and use this repository's local-online helper; it pulls the separately published, versioned backend image from GHCR. No backend checkout is needed for normal use. The frontend, API and PostgreSQL run together on your desktop; no paid server is needed. See [Online play](docs/ONLINE_PLAY.md).
-
-The published GitHub Pages build remains a static frontend; it cannot host the game API itself. This change does not deploy a public backend. Offline Play and Tutorial are preserved.
+Online play includes private four-seat rooms, guest sessions, host-selected bots, server-authoritative commands, trading consent and reconnection. Install Docker Desktop and use this repository's local-online helper; it pulls the separately published, versioned backend image from GHCR. No backend checkout is needed for normal use. The frontend, API and PostgreSQL run together on your desktop; no paid server is needed. See [Online play](docs/ONLINE_PLAY.md).

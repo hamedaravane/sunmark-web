@@ -11,6 +11,7 @@ export default defineConfig({
                 return html
                     .replace(/%GAME_NAME%/g, BRAND.name)
                     .replace(/%GAME_PERSIAN_NAME%/g, BRAND.persianName)
+                    .replace(/%GAME_URL%/g, BRAND.url)
                     .replace(/%GAME_DESCRIPTION%/g, BRAND.description);
             },
         },

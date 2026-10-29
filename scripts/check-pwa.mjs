@@ -9,10 +9,8 @@ const worker = readFileSync(path.join(directory, 'sw.js'), 'utf8');
 const precached = new Set(
     [...worker.matchAll(/url:\s*["']([^"']+)["']/g)].map((match) => match[1]),
 );
-const base = new URL(
-    process.env.PWA_CHECK_BASE ??
-        `https://example.com${process.env.PAGES_BASE_PATH !== undefined ? `${process.env.PAGES_BASE_PATH}/` : '/sunmark-web/'}`,
-);
+const productionUrl = 'https://sunmarkgame.top/';
+const base = new URL(process.env.PWA_CHECK_BASE ?? productionUrl);
 const manifestUrl = new URL('manifest.webmanifest', base);
 assert.equal(manifest.name, 'Sunmark');
 assert.equal(manifest.short_name, manifest.name);
@@ -20,8 +18,10 @@ assert(html.includes(`<title>${manifest.name}</title>`), 'Browser and install ti
 assert(html.includes(`name="apple-mobile-web-app-title" content="${manifest.name}"`));
 assert(html.includes(`property="og:title" content="${manifest.name}"`));
 assert(html.includes(`property="og:description" content="${manifest.description}"`));
+assert(html.includes(`property="og:url" content="${productionUrl}"`));
+assert(html.includes(`rel="canonical" href="${productionUrl}"`));
 assert(
-    !/%GAME_(?:NAME|PERSIAN_NAME|DESCRIPTION)%/.test(html),
+    !/%GAME_(?:NAME|PERSIAN_NAME|DESCRIPTION|URL)%/.test(html),
     'Brand placeholders must be resolved',
 );
 assert.equal(
@@ -40,6 +40,7 @@ assert.equal(manifest.dir, 'rtl');
 assert.match(html, /rel="manifest"/);
 assert.match(html, /rel="apple-touch-icon"/);
 for (const [, location] of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
+    if (location === productionUrl) continue; // Canonical metadata, not a launch asset.
     const url = new URL(location, base);
     assert.equal(url.origin, base.origin);
     assert(

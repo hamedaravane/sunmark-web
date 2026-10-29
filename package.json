@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Sunmark \u2014 a mobile-first Persian-language strategy board game built with Phaser 4 and TypeScript.",
+  "description": "Sunmark — a mobile-first Persian-language strategy board game built with Phaser 4 and TypeScript.",
   "scripts": {
     "assets:optimize": "python3 scripts/optimize-images.py",
     "assets:check": "python3 scripts/optimize-images.py --check",
@@ -48,5 +48,13 @@
   },
   "engines": {
     "node": "^22.13.0 || ^24.0.0 || >=26.0.0"
+  },
+  "homepage": "https://sunmarkgame.top",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hamedaravane/sunmark-web.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hamedaravane/sunmark-web/issues"
   }
 }

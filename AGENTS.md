@@ -49,11 +49,11 @@ For visual or interface work, also read:
 
 ## Project checks
 
-- The user handles interactive/device testing and CI. Do not launch a browser, perform manual browser checks, or run/monitor CI unless explicitly requested. Favor low-cost TypeScript checks, scoped lint/format checks, and focused Node layout/unit tests for routine implementation verification.
+- The user handles interactive/device testing. Do not launch a browser or perform manual browser checks unless explicitly requested. Pushes to `main` automatically run CI and deploy to production. When the user authorizes publishing changes, commit/push and monitor that CI/CD run as part of the task; no separate routine CI/deployment approval is needed. Favor low-cost TypeScript checks, scoped lint/format checks, and focused Node layout/unit tests for local implementation verification.
 - `npm run typecheck` checks TypeScript.
 - `npm run build` type-checks and creates the Vite production build.
 - `npm test` runs Vitest rule, session, and layout tests in Node; `npm run test:watch` watches them. Keep Phaser runtime/browser imports out of these tests.
 - `npm run lint` checks ESLint rules, including core/presentation import boundaries; `npm run lint:fix` applies automatic fixes.
 - `npm run format:check` verifies Prettier formatting; `npm run format` formats the repository's supported text files.
-- `npm run check` runs lint, formatting, tests, and the type-checked production build. Leave this full verification and production-build/CI runs to the user unless explicitly requested; report the focused checks actually performed.
+- `npm run check` runs lint, formatting, tests, and the type-checked production build. The automatic release pipeline runs full verification and the production build. Prefer focused local checks unless broader local verification is required; report the checks actually performed.
 - Keep configuration small and shared between development and production unless a concrete deployment need requires a difference.

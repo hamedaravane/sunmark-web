@@ -109,7 +109,7 @@ describe('online frontend', () => {
             request.mockRestore();
         }
     });
-    it('keeps the public static Pages release offline when no backend is deployed', () => {
+    it('hides online play in an explicitly offline-only build', () => {
         vi.stubEnv('VITE_ONLINE_ENABLED', 'false');
         const markup = menuContent(new AppPlatform(), new GameSession());
         expect(markup).not.toContain('data-action="online"');

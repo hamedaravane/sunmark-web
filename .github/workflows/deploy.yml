@@ -31,7 +31,9 @@ concurrency:
 jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
-    environment: production
+    environment:
+      name: production
+      url: https://sunmarkgame.top
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
