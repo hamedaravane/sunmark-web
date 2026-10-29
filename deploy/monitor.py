@@ -185,8 +185,9 @@ def main():
         print("Heartbeat delivered; verify the external check is enabled")
         return 0
     now = time.time()
+    notifications_enabled = env.get("MONITOR_NOTIFICATIONS_ENABLED", "1") != "0"
     issues, metrics = collect(env, state, now)
-    if not issues and not metrics.get("maintenance"):
+    if notifications_enabled and not issues and not metrics.get("maintenance"):
         try:
             heartbeat(env.get("HEARTBEAT_URL", ""))
         except Exception:
@@ -201,7 +202,11 @@ def main():
     repeat = issues and now - previous["sent_at"] >= int(
         env.get("ALERT_REPEAT_SECONDS", 3600)
     )
-    if not metrics.get("maintenance") and (changed or repeat):
+    if (
+        notifications_enabled
+        and not metrics.get("maintenance")
+        and (changed or repeat)
+    ):
         text = (
             "Sunmark alert: " + "; ".join(issues)
             if issues

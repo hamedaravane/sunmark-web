@@ -74,6 +74,41 @@ const noNetworkSocket = () => {
     return socket;
 };
 describe('online frontend', () => {
+    it('uses the browser fetch receiver for first entry, guest creation and session restore', async () => {
+        let created = false;
+        const request = vi.spyOn(globalThis, 'fetch').mockImplementation(function (
+            this: unknown,
+            input,
+            init,
+        ) {
+            if (this !== globalThis) throw new TypeError('Illegal invocation');
+            if (String(input).endsWith('/session')) {
+                if (init?.method === 'POST') created = true;
+                return Promise.resolve(
+                    created
+                        ? json({ id: sessionId, name: 'New guest' })
+                        : json({ message: 'Guest session required' }, 401),
+                );
+            }
+            return Promise.resolve(json([]));
+        });
+        const client = new OnlineClient('https://game.example.test', null);
+        try {
+            await client.initialize();
+            expect(client.error).toBe('');
+            expect(client.session).toBeNull();
+            await client.guest('New guest');
+            expect(client.error).toBe('');
+            expect(client.session).toEqual({ id: sessionId, name: 'New guest' });
+            await client.initialize();
+            expect(client.error).toBe('');
+            expect(client.matches).toEqual([]);
+            expect(request).toHaveBeenCalledTimes(5);
+        } finally {
+            client.destroy();
+            request.mockRestore();
+        }
+    });
     it('keeps the public static Pages release offline when no backend is deployed', () => {
         vi.stubEnv('VITE_ONLINE_ENABLED', 'false');
         const markup = menuContent(new AppPlatform(), new GameSession());

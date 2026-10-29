@@ -108,6 +108,32 @@ class MonitorTests(unittest.TestCase):
             self.assertEqual(monitor.main(), 1)
             self.assertIn("heartbeat", deliver.call_args.args[1])
 
+    def test_disabled_notifications_preserve_checks_and_allow_later_delivery(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(
+            os.environ,
+            {
+                "SUNMARK_STATE_DIR": directory,
+                "MONITOR_NOTIFICATIONS_ENABLED": "0",
+            },
+        ), patch.object(monitor, "collect") as collect, patch.object(
+            monitor, "deliver"
+        ) as deliver, patch.object(monitor, "heartbeat") as heartbeat:
+            collect.return_value = ([], {"disk_percent": 10})
+            self.assertEqual(monitor.main(), 0)
+            collect.return_value = (["API unhealthy"], {"disk_percent": 10})
+            self.assertEqual(monitor.main(), 1)
+            status = json.loads((Path(directory) / "monitor-status.json").read_text())
+            self.assertEqual(status["issues"], ["API unhealthy"])
+            self.assertEqual(status["metrics"], {"disk_percent": 10})
+            heartbeat.assert_not_called()
+            deliver.assert_not_called()
+            self.assertFalse((Path(directory) / "alert-state.json").exists())
+
+            os.environ["MONITOR_NOTIFICATIONS_ENABLED"] = "1"
+            self.assertEqual(monitor.main(), 1)
+            deliver.assert_called_once()
+            self.assertIn("API unhealthy", deliver.call_args.args[1])
+
 
 class ConfigurationTests(unittest.TestCase):
     def test_nested_backup_reuses_operation_lock_but_another_operation_cannot_enter(

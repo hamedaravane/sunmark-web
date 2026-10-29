@@ -20,7 +20,7 @@ Services have read-only root filesystems, bounded temporary storage, restart pol
 
 ## First server setup
 
-Use a fresh Ubuntu 24.04 x86-64 server, a public IPv4 address, a real domain, an S3-compatible off-server bucket, an HTTPS JSON alert receiver, and an external heartbeat/dead-man monitoring check. Verify the Arvan region can pull Docker Hub and GHCR images. No backend source checkout is required on the server.
+Use a fresh Ubuntu 24.04 x86-64 server, a public IPv4 address, a real domain, and an S3-compatible off-server bucket. For external notifications, also prepare an HTTPS JSON alert receiver and an external heartbeat/dead-man monitoring check. Verify the Arvan region can pull Docker Hub and GHCR images. No backend source checkout is required on the server.
 
 1. Install an SSH public key through the provider or console. Confirm key login in a second terminal. Use `sshd-hardening.conf` to disable password login only after that check. Bootstrap deliberately does not change authentication or invent an SSH key.
 2. Point an A record such as `play.yourdomain.ir` at the server. Allow HTTP/HTTPS through the provider firewall; keep SSH limited to the operator/automation access you intend. GitHub-hosted runners need an SSH route; an operator-only IP firewall requires deploying manually from that operator connection or arranging runner access.
@@ -39,6 +39,8 @@ Use a fresh Ubuntu 24.04 x86-64 server, a public IPv4 address, a real domain, an
    - `/etc/sunmark/deploy.env`: replace the example hostname, ACME email and S3 Restic repository URL. Do not embed credentials in the URL.
    - `/etc/sunmark/backup.env`: bucket-scoped S3 access credentials. The example provider/region must be replaced with your actual storage settings.
    - `/etc/sunmark/monitor.env`: private HTTPS alert receiver and external heartbeat URL. Alerts POST JSON `{"text":"..."}`; this works with compatible incoming webhooks. Telegram's bot API needs a compatible relay/adapter. No notification destination is preconfigured.
+
+   To defer external notifications, set `MONITOR_NOTIFICATIONS_ENABLED=0` in `/etc/sunmark/monitor.env`. Local health checks, status files and failure exit codes remain active, but no alerts or heartbeats are sent. Restore it to `1` and configure/test both destinations when enabling notifications. Explicit `--test-alert` and `--test-heartbeat` commands still send test requests regardless of this setting.
 
 5. Save `/etc/sunmark/secrets/restic-password` somewhere safe outside this VM. Losing it makes encrypted backups unrecoverable. Preserve the other server credentials securely as well. The secrets directory is mode 0700. File-backed Compose secrets are read-only bind mounts, so individual mounted credential files are readable inside their intended non-root container; the private parent prevents other host users accessing them.
 6. Initialize and verify the off-server repository once:
@@ -80,13 +82,18 @@ The workflow uploads bundles beneath the operator's protected home directory, th
 After the first successful release:
 
 ```sh
-sudo /opt/sunmark/current/deploy/scripts/monitor.sh --test-alert
-sudo /opt/sunmark/current/deploy/scripts/monitor.sh --test-heartbeat
 sudo /opt/sunmark/current/deploy/scripts/restore.sh latest
 sudo /opt/sunmark/current/deploy/scripts/monitor.sh
 ```
 
-Verify receipt in the alert destination and enable the external dead-man check at one-minute intervals with at least five minutes of grace. The host monitor cannot send anything after total VM/network loss; the external check detects missing healthy heartbeats. Configure planned maintenance there when needed. These external accounts require operator setup.
+When external notifications are enabled, also run:
+
+```sh
+sudo /opt/sunmark/current/deploy/scripts/monitor.sh --test-alert
+sudo /opt/sunmark/current/deploy/scripts/monitor.sh --test-heartbeat
+```
+
+Verify receipt in the alert destination and enable the external dead-man check at one-minute intervals with at least five minutes of grace. The host monitor cannot send anything after total VM/network loss; the external check detects missing healthy heartbeats. Configure planned maintenance there when needed. These external accounts require operator setup. With notifications disabled, inspect the local status and journal manually.
 
 The minute monitor checks all four service health states, verified public HTTPS/database readiness, certificate expiry, disk/inodes, memory/load, off-server backup freshness and weekly restore-drill freshness. Alerts send on change, repeat hourly and send recovery notices. Failed alert delivery is retried on the next run. A maintenance marker suppresses local checks for up to 15 minutes; stale maintenance raises an alert. Local JSON status lives at `/var/lib/sunmark/monitor-status.json`; it is not exposed publicly. Alert URLs/credentials are not included in its output.
 
