@@ -1,4 +1,4 @@
-name: Publish frontend release image
+name: Check, publish and deploy production
 on:
   push:
     branches: [main]
@@ -36,6 +36,8 @@ jobs:
       - run: SUNMARK_TEST_LIVE_CLIENTS=1 bash deploy/tests/integration.sh
   publish:
     needs: [check, deployment-smoke]
+    outputs:
+      web_digest: ${{ steps.image.outputs.digest }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -70,3 +72,10 @@ jobs:
           DIGEST: ${{ steps.image.outputs.digest }}
         run: |
           printf 'Frontend image: `%s@%s`\n' "$IMAGE" "$DIGEST" >> "$GITHUB_STEP_SUMMARY"
+  deploy:
+    needs: publish
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      web_digest: ${{ needs.publish.outputs.web_digest }}
+    secrets: inherit

@@ -2,7 +2,7 @@
 
 This directory owns the single-VM production stack. It is separate from the desktop `compose.yml`. No credentials, domain, server or storage account are provisioned by committing these files.
 
-The frontend and backend are released as images. The VM downloads them; it does not build the game. Deployments record exact digests and preserve the previous image pair and deployment bundle. The production deployment action is manual, restricted to `main`, and uses the GitHub `production` environment.
+The frontend and backend are released as images. The VM downloads them; it does not build the game. Every push to `main` automatically runs checks, exercises the production stack, publishes the frontend image and deploys that exact image digest. Deployments preserve the previous image pair and deployment bundle. Production deployment is restricted to `main` and uses the GitHub `production` environment without a manual approval gate.
 
 ## Services and resource budget
 
@@ -53,11 +53,11 @@ Use a fresh Ubuntu 24.04 x86-64 server, a public IPv4 address, a real domain, an
 
 ## GitHub setup and deployment
 
-The `Publish frontend release image` workflow runs checks, deployment validation and the disposable HTTPS/backup smoke test before publishing `ghcr.io/hamedaravane/sunmark-web:<commit>`. Its summary records the immutable image digest. The existing backend workflow publishes backend images independently.
+The `Check, publish and deploy production` workflow runs checks, deployment validation and the disposable HTTPS/backup smoke test before publishing `ghcr.io/hamedaravane/sunmark-web:<commit>`. It passes the published immutable digest directly to the reusable deployment workflow from the same commit; no copying digests, SSH commands or manual dispatch is needed for routine releases. If checks or publication fail, deployment does not run. Release runs and production deployments are serialized so updates cannot overlap. The existing backend workflow publishes backend images independently.
 
 New GHCR packages can start private. Make the runtime packages public for anonymous server pulls, or perform a normal protected registry login on the server with read-only package credentials. Do not put registry tokens in this repository or workflow inputs.
 
-Configure the GitHub `production` environment, preferably restricted to `main` with owner review, and add:
+Configure the GitHub `production` environment with a deployment branch policy allowing only the `main` branch, no required reviewers or wait timer, and add:
 
 | Secret               | Value                                                          |
 | -------------------- | -------------------------------------------------------------- |
@@ -69,7 +69,7 @@ Configure the GitHub `production` environment, preferably restricted to `main` w
 
 Verify the host-key fingerprint against the Arvan console/server's `/etc/ssh/ssh_host_ed25519_key.pub`. Do not blindly trust a runtime `ssh-keyscan`. The deployment identity can install code/manage Docker as root; protect this key and restrict the production environment accordingly.
 
-Run `Deploy production release` on `main`, supplying the frontend digest from that commit's image workflow and acknowledging schema/rules/migration compatibility review. It derives the backend digest from `backend-image.json`; the pin's commit must match `contracts/backend.json`. When updating the backend, deliberately update the shared contract pin and this reviewed image digest together. The server also checks the web image's revision label matches the uploaded deployment bundle.
+Push or merge to `main` to release automatically. Treat acceptance into `main` as approval to deploy, including schema/rules/migration compatibility review. The deployment derives the backend digest from `backend-image.json`; the pin's commit must match `contracts/backend.json`. When updating the backend, deliberately update the shared contract pin and reviewed image digest together. The server also checks the web image's revision label matches the uploaded deployment bundle. `Deploy production release` remains available as a manual recovery entry point on `main`, using a compatible frontend digest from that same commit. Manually running the release workflow on `main` also checks, publishes and deploys.
 
 Deployment acquires a lock, validates protected settings and pulls images. For an existing database, it requires a healthy PostgreSQL container, stops writers and uploads an encrypted backup before Compose can restart or update PostgreSQL. On first install, it initializes PostgreSQL and backs up the empty database. It then applies migrations explicitly, waits for all services, checks public HTTPS/database readiness, and uploads a schema-current backup. Only then does it record the current/previous versions, switch `/opt/sunmark/current`, refresh systemd units and enable timers. Certificate issuance can take a few minutes; DNS and ports must already work.
 

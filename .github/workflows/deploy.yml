@@ -1,15 +1,28 @@
 name: Deploy production release
 on:
+  workflow_call:
+    inputs:
+      web_digest:
+        description: 'Immutable frontend digest published after this commit passed CI'
+        required: true
+        type: string
+    secrets:
+      DEPLOY_HOST:
+        required: true
+      DEPLOY_USER:
+        required: true
+      DEPLOY_PORT:
+        required: false
+      DEPLOY_SSH_KEY:
+        required: true
+      DEPLOY_KNOWN_HOSTS:
+        required: true
   workflow_dispatch:
     inputs:
       web_digest:
         description: 'Frontend digest: sha256: followed by 64 hex characters'
         required: true
         type: string
-      migration_reviewed:
-        description: 'I reviewed schema/rules compatibility, migration and recovery for this version pair'
-        required: true
-        type: boolean
 permissions:
   contents: read
 concurrency:
@@ -17,7 +30,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main' && inputs.migration_reviewed
+    if: github.ref == 'refs/heads/main'
     environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 25
