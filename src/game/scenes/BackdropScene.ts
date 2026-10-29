@@ -1,6 +1,6 @@
 import { Scene, type GameObjects } from 'phaser';
 import { TEXTURE_FILES, assetUrl } from '../assets';
-import type { GameSession } from '../ui/session';
+import type { MatchSession } from '../ui/matchSession';
 import type { Motion } from '../ui/motion';
 import { ProceduralOcean } from '../rendering/ProceduralOcean';
 import { configureDisplayCamera } from '../rendering/display';
@@ -11,7 +11,7 @@ export class BackdropScene extends Scene {
     private shade: GameObjects.Graphics;
     private ocean: ProceduralOcean;
     constructor(
-        private session: GameSession,
+        private session: MatchSession,
         private motion: Motion,
     ) {
         super('BackdropScene');

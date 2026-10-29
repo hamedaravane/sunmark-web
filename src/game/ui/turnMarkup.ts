@@ -1,7 +1,8 @@
+import { remoteState } from './matchState';
 import { BUILD_TYPES } from '../core/building';
-import { getBuildOption } from '../core/queries';
-import { resolutionActor } from '../core/robber';
-import { isSetup } from '../core/setup';
+import { getBuildOption } from './matchState';
+import { resolutionActor } from './matchState';
+import { isSetup } from './matchState';
 import { RESOURCE_TYPES } from '../core/types';
 import { PRACTICE_TASKS } from '../tutorial/practice';
 import { button, diceFace, escape, number, tradeIcon } from './components';
@@ -9,9 +10,9 @@ import { actionEmblem, developmentBack } from './developmentMarkup';
 import { goalMarkup, BUILD_LABELS, missingLabel } from './buildFeedback';
 import { costRow } from './sheets';
 import { transitionReceipt, turnSurface } from './turnSurface';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 
-export function heroDice(session: GameSession): string {
+export function heroDice(session: MatchSession): string {
     const state = session.state!;
     if (!turnSurface(state, session.humanPlayer!.id, !!session.practice).hero) return '';
     return button(
@@ -28,7 +29,7 @@ export function heroDice(session: GameSession): string {
 }
 
 /** Factual possibilities only: never chooses a route or a strategy for the player. */
-export function actionGuidance(session: GameSession): string {
+export function actionGuidance(session: MatchSession): string {
     const state = session.state!,
         human = session.humanPlayer!;
     if (!session.isHumanTurn)
@@ -46,7 +47,7 @@ export function actionGuidance(session: GameSession): string {
     return 'ساخت آماده نیست؛ کمبود و محل مجاز را با چکش ببین';
 }
 
-export function turnStatus(session: GameSession, showReceipt = true): string {
+export function turnStatus(session: MatchSession, showReceipt = true): string {
     const state = session.state!,
         human = session.humanPlayer!;
     const surface = turnSurface(state, human.id, !!session.practice);
@@ -66,7 +67,7 @@ export function turnStatus(session: GameSession, showReceipt = true): string {
             ? 'اهریمن را به خانه‌ای متفاوت ببر'
             : 'حریف، اهریمن را جابه‌جا می‌کند';
     if (!text && state.phase === 'road-building')
-        text = `${number(state.roadBuilding!.remaining)} راه رایگان · محل را ببین و تأیید کن`;
+        text = `${remoteState(state) ? '' : number(state.roadBuilding!.remaining) + ' '}راه رایگان · محل را ببین و تأیید کن`;
     if (!text && session.placement)
         text = isSetup(state)
             ? 'جانمایی آغازین · آبادی و راه رایگان‌اند'
@@ -102,7 +103,7 @@ export function turnStatus(session: GameSession, showReceipt = true): string {
     return `<p class="turn-receipt${session.error ? ' availability' : ''}">${escape(text)}</p>`;
 }
 
-export function primaryAction(session: GameSession) {
+export function primaryAction(session: MatchSession) {
     const state = session.state!,
         human = session.humanPlayer!;
     const surface = turnSurface(state, human.id, !!session.practice);
@@ -149,7 +150,7 @@ export function primaryAction(session: GameSession) {
 }
 
 /** One workspace, one primary decision. Native targets never move with feedback. */
-export function actionDock(session: GameSession): string {
+export function actionDock(session: MatchSession): string {
     const state = session.state!,
         human = session.humanPlayer!;
     const surface = turnSurface(state, human.id, !!session.practice);

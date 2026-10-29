@@ -1,9 +1,10 @@
 import { BUILD_TYPES, type BuildType } from '../core/building';
-import { getBuildOption, type BuildOption } from '../core/queries';
+import { type BuildOption } from '../core/queries';
+import { getBuildOption } from './matchState';
 import { RESOURCE_TYPES, type ResourceType } from '../core/types';
 import { escape, number, button } from './components';
 import { FA } from './messages.fa';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 
 export const BUILD_LABELS: Record<BuildType, string> = {
     road: 'راه',
@@ -49,20 +50,14 @@ export function buildInventory(option: BuildOption, hand: Record<ResourceType, n
 }
 
 export function goalMarkup(
-    session: GameSession,
+    session: MatchSession,
     hand = session.humanPlayer!.resources,
     comparison = false,
 ): string {
     const goal = session.buildGoal;
     if (!goal || !session.state) return '';
     const player = session.humanPlayer!;
-    const projected = {
-        ...session.state,
-        players: session.state.players.map((p) =>
-            p.id === player.id ? { ...p, resources: hand } : p,
-        ),
-    };
-    const option = getBuildOption(projected, goal, player.id);
+    const option = getBuildOption(session.state, goal, player.id, hand);
     const short = RESOURCE_TYPES.some((r) => option.missing[r]);
     const status =
         option.reason === 'road-supply' || option.reason === 'game-finished'
@@ -81,20 +76,16 @@ export function goalMarkup(
 
 /** Read-only comparison accounts for the payment as well as the resource received. */
 export function tradeBuildFeedback(
-    session: GameSession,
+    session: MatchSession,
     after: Record<ResourceType, number>,
 ): string {
     const state = session.state!;
     const human = session.humanPlayer!;
     if (RESOURCE_TYPES.some((r) => after[r] < 0)) return '';
-    const projected = {
-        ...state,
-        players: state.players.map((p) => (p.id === human.id ? { ...p, resources: after } : p)),
-    };
     return `${goalMarkup(session, after, true)}<details class="trade-build-feedback"><summary>اثر معامله بر ساخت‌ها</summary><p class="footnote">کمبود قبل ← بعد؛ پرداخت معامله هم حساب شده است.</p>${BUILD_TYPES.map(
         (type) => {
             const before = getBuildOption(state, type, human.id);
-            const next = getBuildOption(projected, type, human.id);
+            const next = getBuildOption(state, type, human.id, after);
             return `<p><strong>${BUILD_LABELS[type]}</strong> • کمبود قبل: ${missingLabel(before.missing)}؛ بعد: ${missingLabel(next.missing)}<br><span class="muted">${escape(locationReason(next))}${next.reason === null ? ' • پس از معامله قابل ساخت' : ''}${!session.isHumanTurn ? ' • ساخت در نوبت خودتان' : ''}</span></p>`;
         },
     ).join('')}</details>`;

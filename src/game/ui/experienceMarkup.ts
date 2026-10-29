@@ -1,8 +1,8 @@
 import { button } from './components';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 import type { SheetContent } from './bottomSheet';
 
-export function experienceSheet(session: GameSession): SheetContent {
+export function experienceSheet(session: MatchSession): SheetContent {
     const settings = session.preferences.snapshot;
     const haptics = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
     const toggle = (

@@ -1,6 +1,6 @@
 import { getVictoryPoints } from './scoring';
 import { BUILD_COSTS, getPlacementError, type BuildType, type ResourceCost } from './building';
-import { RESOURCE_TYPES, type GameState, type ResourceType } from './types';
+import { RESOURCE_TYPES, type GameState, type Player, type ResourceType } from './types';
 
 export interface BuildOption {
     type: BuildType;
@@ -17,17 +17,19 @@ export interface BuildOption {
 }
 
 export function getBuildOption(
-    state: GameState,
+    state: Pick<GameState, 'board' | 'phase' | 'activePlayerIndex'> & {
+        players: (Pick<Player, 'id'> & Partial<Pick<Player, 'resources'>>)[];
+    },
     type: BuildType,
     playerId = state.players[state.activePlayerIndex].id,
+    knownHand?: Record<ResourceType, number>,
 ): BuildOption {
     const player = state.players.find((p) => p.id === playerId)!;
+    const hand = knownHand ?? player.resources;
+    if (!hand) throw new Error('Build planning requires the viewer hand');
     const cost = BUILD_COSTS[type];
     const missing = Object.fromEntries(
-        RESOURCE_TYPES.map((resource) => [
-            resource,
-            Math.max(0, cost[resource] - player.resources[resource]),
-        ]),
+        RESOURCE_TYPES.map((resource) => [resource, Math.max(0, cost[resource] - hand[resource])]),
     ) as Record<ResourceType, number>;
     const ids = Object.keys(type === 'road' ? state.board.edges : state.board.vertices);
     const legalTargetIds =

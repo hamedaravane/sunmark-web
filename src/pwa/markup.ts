@@ -1,5 +1,5 @@
 import type { AppPlatform } from './app';
-import type { GameSession } from '../game/ui/session';
+import type { MatchSession } from '../game/ui/matchSession';
 import type { SheetContent } from '../game/ui/bottomSheet';
 import { button, escape } from '../game/ui/components';
 import { BRAND } from '../brand';
@@ -13,7 +13,7 @@ export function offlineLabel(app: AppPlatform): string {
         ? 'داریم بازی رو برای اجرای آفلاین آماده می‌کنیم…'
         : 'برای آماده‌سازی آفلاین، یک بار به اینترنت وصل شو.';
 }
-export function saveLabel(session: GameSession): string {
+export function saveLabel(session: MatchSession): string {
     if (session.saveStatus === 'unavailable')
         return 'ذخیره روی این دستگاه در دسترس نیست؛ با بستن برنامه ممکنه بازی از دست بره.';
     if (session.saveStatus === 'invalid')
@@ -21,13 +21,13 @@ export function saveLabel(session: GameSession): string {
     return 'بازی و پیشرفت آموزش، خودکار روی همین دستگاه ذخیره می‌شن.';
 }
 /** Menu stays at two actions; Play also resumes an unfinished saved match. */
-export function menuStatus(app: AppPlatform, session: GameSession): string {
+export function menuStatus(app: AppPlatform, session: MatchSession): string {
     return `<p class="footnote" role="status">${session.savedMatch?.state.phase !== 'finished' && session.savedMatch ? 'سفرت ذخیره شده؛ با «بازی» از همون‌جا ادامه بده.' : 'تو و سه رقیب؛ یک جزیره و ده امتیاز تا پیروزی.'}</p>
         ${session.saveStatus === 'unavailable' || session.saveStatus === 'invalid' ? `<p class="availability">${escape(saveLabel(session))}</p>` : ''}
         ${app.updateReady ? '<p class="footnote">نسخه تازه آماده‌ست؛ از منوی توقف داخل بازی هم می‌تونی به‌روزش کنی.</p>' : ''}`;
 }
 
-export function updateContent(app: AppPlatform, session: GameSession): SheetContent {
+export function updateContent(app: AppPlatform, session: MatchSession): SheetContent {
     const active = !!session.state && session.state.phase !== 'finished';
     return {
         title: 'نسخه تازهٔ سان‌مارک آماده‌ست',
@@ -51,7 +51,7 @@ export function installInstructions(app: AppPlatform): string {
     return 'اگه مرورگرت نصب برنامه رو پشتیبانی می‌کنه، از گزینه نصب کنار نوار آدرس یا منوی مرورگر استفاده کن. برای نصب روی گوشی، همین لینک رو توی Chrome اندروید یا Safari آیفون باز کن.';
 }
 
-export function appContent(app: AppPlatform, session: GameSession): SheetContent {
+export function appContent(app: AppPlatform, session: MatchSession): SheetContent {
     const instruction = installInstructions(app);
     return {
         title: `${BRAND.persianName}، همیشه همراهت`,

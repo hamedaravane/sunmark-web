@@ -1,7 +1,7 @@
 import { CANVAS, Scene, type GameObjects } from 'phaser';
 import { ART, assetUrl } from '../assets';
 import { RESOURCE_TYPES } from '../core/types';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 import { MOTION, type Motion } from './motion';
 import { UI_FONT_FAMILY } from './typography';
 import { drawRosette, drawSurface, UI_INK, type UiBox } from './graphicsTheme';
@@ -74,7 +74,7 @@ export class InterfaceScene extends Scene {
 
     constructor(
         private parent: HTMLElement,
-        private session: GameSession,
+        private session: MatchSession,
         private motion: Motion,
     ) {
         super('InterfaceScene');

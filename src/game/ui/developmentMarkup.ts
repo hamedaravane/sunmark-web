@@ -1,11 +1,13 @@
-import { developmentBuyError, developmentPlayError } from '../core/development';
+import { developmentDeckCount } from './matchState';
+import { developmentBuyError } from './matchState';
+import { developmentPlayError } from './matchState';
 import { DEVELOPMENT_COST } from '../core/developmentDeck';
-import { getVictoryPoints } from '../core/scoring';
+import { getVictoryPoints } from './matchState';
 import { RESOURCE_TYPES, type DevelopmentCard, type DevelopmentKind } from '../core/types';
 import { button, number, resourceIcon } from './components';
 import { resourceCost } from './constructionMarkup';
 import { FA } from './messages.fa';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 import type { SheetContent } from './bottomSheet';
 
 export const DEVELOPMENT_LABELS: Record<DevelopmentKind, string> = {
@@ -27,7 +29,7 @@ export const actionEmblem = (kind: string, size = 32) =>
     `<span class="action-emblem" data-emblem="${kind}" style="width:${size}px;height:${size}px" aria-hidden="true"></span>`;
 export const developmentBack = (size = 36) =>
     `<span class="development-back" style="width:${size}px;height:${Math.round(size * 1.3)}px" aria-hidden="true"></span>`;
-export function cardAvailability(session: GameSession, card: DevelopmentCard): string {
+export function cardAvailability(session: MatchSession, card: DevelopmentCard): string {
     if (card.kind === 'victory-point') return 'امتیاز مخفی';
     if (!session.isHumanTurn)
         return card.boughtOnRound >= session.state!.turn ? '◷ نوبت بعدِ تو' : 'در نوبت تو';
@@ -40,7 +42,7 @@ export function cardAvailability(session: GameSession, card: DevelopmentCard): s
             ? FA.errors[error]
             : '✓ آماده';
 }
-export function developmentSheet(session: GameSession): SheetContent {
+export function developmentSheet(session: MatchSession): SheetContent {
     const state = session.state!,
         human = session.humanPlayer!;
     const cards = state.development?.hands[human.id] ?? [];
@@ -66,7 +68,7 @@ export function developmentSheet(session: GameSession): SheetContent {
               : undefined,
         title: 'کارت‌های تو',
         key: `development:${selected?.id ?? 'hand'}`,
-        body: `${selected ? `<section class="development-feature" data-development-id="${selected.id}">${actionEmblem(selected.kind, 56)}<div><h3>${DEVELOPMENT_LABELS[selected.kind]}</h3><p class="card-status">${cardAvailability(session, selected)}</p></div><p>${DEVELOPMENT_DESCRIPTIONS[selected.kind]}</p>${selected.kind === 'monopoly' || selected.kind === 'year-of-plenty' ? resourcePicker(0) : ''}${selected.kind === 'year-of-plenty' ? resourcePicker(1) : ''}</section>` : '<p class="sheet-intro">یک کارت را برای دیدن اثر و زمان بازی انتخاب کن.</p>'}<div class="development-hand" role="group" aria-label="دست مخفی تو">${cards.length ? cards.map((c) => button(`${actionEmblem(c.kind, 38)}<strong>${DEVELOPMENT_LABELS[c.kind]}</strong><small>${cardAvailability(session, c)}</small>`, `development-select:${c.id}`, { className: 'development-card', pressed: c.id === selected?.id, label: `${DEVELOPMENT_LABELS[c.kind]}؛ ${cardAvailability(session, c)}؛ انتخاب کارت` })).join('') : '<p class="muted">هنوز کارتی نخریده‌ای.</p>'}</div><section class="development-purchase"><div class="purchase-heading">${developmentBack(34)}<span><h3>خرید یک کارت مخفی</h3><small>${number(state.development?.deck.length ?? 0)} کارت در دسته</small></span></div><p class="cost-legend">دارایی / هزینه</p>${resourceCost(DEVELOPMENT_COST, human.resources)}${error ? `<p class="availability">${FA.errors[error]}</p>` : '<p class="muted">هر بار یک کارت؛ تا منابع داری می‌توانی دوباره بخری.</p>'}${button('خرید یک کارت', 'buy-development', { className: 'button full-width', disabled: !!error || !!session.practice })}</section><p class="footnote">امتیاز مخفی حریف‌ها نمایش داده نمی‌شود.</p>${button('قوانین و زمان بازی کارت‌ها', 'open:development-rules', { className: 'button button--quiet full-width' })}`,
+        body: `${selected ? `<section class="development-feature" data-development-id="${selected.id}">${actionEmblem(selected.kind, 56)}<div><h3>${DEVELOPMENT_LABELS[selected.kind]}</h3><p class="card-status">${cardAvailability(session, selected)}</p></div><p>${DEVELOPMENT_DESCRIPTIONS[selected.kind]}</p>${selected.kind === 'monopoly' || selected.kind === 'year-of-plenty' ? resourcePicker(0) : ''}${selected.kind === 'year-of-plenty' ? resourcePicker(1) : ''}</section>` : '<p class="sheet-intro">یک کارت را برای دیدن اثر و زمان بازی انتخاب کن.</p>'}<div class="development-hand" role="group" aria-label="دست مخفی تو">${cards.length ? cards.map((c) => button(`${actionEmblem(c.kind, 38)}<strong>${DEVELOPMENT_LABELS[c.kind]}</strong><small>${cardAvailability(session, c)}</small>`, `development-select:${c.id}`, { className: 'development-card', pressed: c.id === selected?.id, label: `${DEVELOPMENT_LABELS[c.kind]}؛ ${cardAvailability(session, c)}؛ انتخاب کارت` })).join('') : '<p class="muted">هنوز کارتی نخریده‌ای.</p>'}</div><section class="development-purchase"><div class="purchase-heading">${developmentBack(34)}<span><h3>خرید یک کارت مخفی</h3><small>${number(developmentDeckCount(state))} کارت در دسته</small></span></div><p class="cost-legend">دارایی / هزینه</p>${resourceCost(DEVELOPMENT_COST, human.resources)}${error ? `<p class="availability">${FA.errors[error]}</p>` : '<p class="muted">هر بار یک کارت؛ تا منابع داری می‌توانی دوباره بخری.</p>'}${button('خرید یک کارت', 'buy-development', { className: 'button full-width', disabled: !!error || !!session.practice })}</section><p class="footnote">امتیاز مخفی حریف‌ها نمایش داده نمی‌شود.</p>${button('قوانین و زمان بازی کارت‌ها', 'open:development-rules', { className: 'button button--quiet full-width' })}`,
         footer: declaration
             ? button('اعلام پیروزی و نمایش امتیازهای مخفی', 'declare-victory', {
                   className: 'button button--primary full-width',

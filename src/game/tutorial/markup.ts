@@ -1,10 +1,10 @@
 import { artSprite, button, escape, number } from '../ui/components';
-import type { GameSession } from '../ui/session';
+import type { MatchSession } from '../ui/matchSession';
 import { pauseMenuBack } from '../ui/pauseMenu';
 import type { SheetContent } from '../ui/bottomSheet';
 import { CHAPTERS, LESSONS, type LessonId } from './lessons.fa';
 
-export function tutorialContent(session: GameSession): SheetContent {
+export function tutorialContent(session: MatchSession): SheetContent {
     const director = session.tutorial;
     const id = director.current!;
     const lesson = LESSONS[id];
@@ -20,7 +20,7 @@ export function tutorialContent(session: GameSession): SheetContent {
     };
 }
 
-export function journalContent(session: GameSession): SheetContent {
+export function journalContent(session: MatchSession): SheetContent {
     const director = session.tutorial;
     return {
         title: 'آموزش و آناهیتا',

@@ -1,9 +1,9 @@
 import { button, escape, number } from './components';
 import { PHASE_LABELS } from './sheets';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 
 /** Public turn context only. Private inventory stays in the human hand projection. */
-export function desktopTurnHeading(session: GameSession): string {
+export function desktopTurnHeading(session: MatchSession): string {
     const state = session.state!;
     const actor = state.players[state.activePlayerIndex];
     const title =

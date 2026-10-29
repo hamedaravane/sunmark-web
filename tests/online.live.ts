@@ -7,7 +7,8 @@ import { chooseBotCommand } from '../src/game/core/bot';
 import type { GameState } from '../src/game/core/types';
 import { commandEnvelopeSchema } from '../src/online/shared/src/game/protocol';
 import type { GameView } from '../src/online/shared/src/online/wire';
-import { onlineMarkup, newDrafts } from '../src/online/markup';
+import { OnlineSession } from '../src/online/session';
+import { humanHeader } from '../src/game/ui/humanHud';
 const base = process.env.SUNMARK_TEST_API_URL;
 if (!base) throw new Error('SUNMARK_TEST_API_URL is required for live integration');
 const origin = process.env.SUNMARK_TEST_WEB_ORIGIN ?? 'http://localhost:8080';
@@ -138,9 +139,66 @@ function plan(view: GameView): Intent {
     });
     return parsed.intent;
 }
+/** Dispatch through the session methods used by the shared HUD, not the raw transport. */
+async function act(session: OnlineSession, intent: Intent) {
+    session.closeSheet();
+    switch (intent.kind) {
+        case 'setup-roll':
+        case 'roll':
+            session.roll();
+            break;
+        case 'setup':
+        case 'build':
+            if (!session.placement || session.placement.kind !== intent.type)
+                session.chooseBuild(intent.type);
+            session.preview(intent.targetId);
+            session.primary();
+            break;
+        case 'robber':
+            session.preview(intent.targetId);
+            session.primary();
+            break;
+        case 'end-turn':
+            session.confirmEndTurn();
+            break;
+        case 'trade':
+            session.chooseTrade('give', intent.give);
+            session.chooseTrade('receive', intent.receive);
+            session.chooseTradeRatio(intent.ratio);
+            session.confirmTrade();
+            break;
+        case 'buy-development':
+            session.buyCard();
+            break;
+        case 'play-development':
+            session.selectDevelopment(intent.cardId);
+            if (intent.choice?.resource)
+                session.chooseDevelopmentResource(0, intent.choice.resource);
+            if (intent.choice?.resources)
+                intent.choice.resources.forEach((r, i) =>
+                    session.chooseDevelopmentResource(i === 0 ? 0 : 1, r),
+                );
+            session.playCard();
+            break;
+        case 'discard':
+            session.discardDraft = { ...intent.resources };
+            session.confirmDiscard();
+            break;
+        case 'steal':
+            session.stealFrom(intent.victimId);
+            break;
+        case 'declare-victory':
+            session.declareVictory();
+            break;
+        default:
+            throw new Error(`Unexpected planner intent: ${intent.kind}`);
+    }
+    await wait(() => !session.client.busy);
+}
 test('four real frontend clients complete an online match, recover a lost acknowledgement, reconnect and create a rematch', async () => {
     const browsers = Array.from({ length: 4 }, browser);
     const clients = browsers.map((b) => b.client);
+    const presentations: OnlineSession[] = [];
     try {
         for (let i = 0; i < clients.length; i++) {
             await clients[i].guest(`Live ${i}`);
@@ -158,9 +216,10 @@ test('four real frontend clients complete an online match, recover a lost acknow
         await wait(() => clients.every((c) => c.connected));
         const initial = clients[0].snapshot;
         if (!initial?.game) throw new Error('Game missing');
-        expect(onlineMarkup(clients[0], newDrafts())).toContain('جزیره بازی');
+        presentations.push(...clients.map((client) => new OnlineSession(client, () => {})));
+        expect(humanHeader(presentations[0])).toContain('header-personal');
         browsers[0].loseAck();
-        await clients[0].command({ kind: 'setup-roll' });
+        await act(presentations[0], { kind: 'setup-roll' });
         expect(clients[0].pending).not.toBeNull();
         await clients[0].retry();
         expect(clients[0].pending).toBeNull();
@@ -178,7 +237,9 @@ test('four real frontend clients complete an online match, recover a lost acknow
             await client.open(id);
             const game = client.snapshot?.game;
             if (!game) throw new Error('Missing live view');
-            await client.command(plan(game));
+            const beforeRevision = client.snapshot!.revision;
+            await act(presentations[index], plan(game));
+            expect(client.snapshot!.revision).toBeGreaterThan(beforeRevision);
             if (client.error || client.pending)
                 throw new Error(`Live move failed at ${game.phase}: ${client.error}`);
             snapshot = client.snapshot;
@@ -202,6 +263,7 @@ test('four real frontend clients complete an online match, recover a lost acknow
             `Online full match completed in ${steps} moves; winner ${snapshot?.game?.winnerId}`,
         );
     } finally {
+        presentations.forEach((p) => p.destroy());
         clients.forEach((client) => client.destroy());
     }
 });
@@ -254,6 +316,7 @@ test('HTTP and socket boundaries reject outsiders, incompatible protocol version
 test('a host can explicitly add three server bots and complete setup through realtime updates', async () => {
     const owner = browser();
     const client = owner.client;
+    let presentation: OnlineSession | null = null;
     try {
         await client.guest('Human with bots');
         await client.create('Bots live setup');
@@ -264,12 +327,15 @@ test('a host can explicitly add three server bots and complete setup through rea
         await client.lobby({ kind: 'ready', ready: true });
         await client.lobby({ kind: 'start' });
         await wait(() => client.connected);
+        presentation = new OnlineSession(client, () => {});
         for (let steps = 0; client.snapshot?.game?.phase.startsWith('setup-'); steps++) {
             if (steps > 40) throw new Error('Bot setup stalled');
             const game = client.snapshot.game;
             const revision = client.snapshot.revision;
             if (game.actorId === game.self.id) {
-                await client.command(plan(game));
+                const beforeRevision = client.snapshot!.revision;
+                await act(presentation, plan(game));
+                expect(client.snapshot!.revision).toBeGreaterThan(beforeRevision);
                 if (client.error) throw new Error(client.error);
             } else
                 await wait(() => Boolean(client.snapshot && client.snapshot.revision > revision));
@@ -279,6 +345,7 @@ test('a host can explicitly add three server bots and complete setup through rea
         ).toHaveLength(8);
         expect(client.snapshot?.seats.filter((seat) => seat.bot)).toHaveLength(3);
     } finally {
+        presentation?.destroy();
         client.destroy();
     }
 });

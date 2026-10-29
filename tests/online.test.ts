@@ -1,3 +1,10 @@
+import { OnlineSession } from '../src/online/session';
+import { actionDock } from '../src/game/ui/turnMarkup';
+import { humanHeader, humanHand } from '../src/game/ui/humanHud';
+import { advancedSheet } from '../src/game/ui/advancedMarkup';
+import { domesticContent } from '../src/game/ui/domesticSheet';
+import { sheetContent } from '../src/game/ui/sheets';
+import { viewerResources } from '../src/game/ui/matchState';
 import { menuContent } from '../src/game/ui/menu';
 import { GameSession } from '../src/game/ui/session';
 import { AppPlatform } from '../src/pwa/app';
@@ -5,7 +12,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { io } from 'socket.io-client';
 import { createGame } from '../src/game/core/game';
 import { OnlineClient } from '../src/online/client';
-import { onlineMarkup, newDrafts, validOffer, validDiscard } from '../src/online/markup';
+import { onlineMarkup, newDrafts } from '../src/online/markup';
 import { matchSnapshotSchema } from '../src/online/shared/src/online/wire';
 import type { paths } from '../src/online/shared/http';
 const matchId = '10000000-0000-4000-8000-000000000000';
@@ -137,15 +144,22 @@ describe('online frontend', () => {
         const client = new OnlineClient('http://unused', null);
         client.session = { id: sessionId, name: 'A' };
         client.snapshot = snapshot();
-        const draft = newDrafts();
-        draft.target = 0;
-        expect(onlineMarkup(client, draft)).toContain('data-online="confirm"');
+        client.snapshot.game!.phase = 'setup-settlement';
+        const session = new OnlineSession(client, () => {});
+        session.placement = { kind: 'settlement', targetId: 'selected' };
+        expect(actionDock(session)).toContain('data-action="primary"');
         const game = client.snapshot.game;
         if (!game) throw new Error('Missing fixture');
         game.phase = 'discard';
         game.discardObligations = { 'player-1': 4 };
-        expect(onlineMarkup(client, draft)).toContain('data-online="discard"');
-        draft.selected = 'trade';
+        session.state!.phase = 'discard';
+        session.state!.robberResolution = { discards: game.discardObligations, victims: [] };
+        session.sheet = { kind: 'discard' };
+        expect(advancedSheet(session)?.footer).toContain('data-action="confirm-discard"');
+        game.phase = 'actions';
+        session.state!.phase = 'actions';
+        session.sheet = { kind: 'domestic' };
+        session.trading.composing = false;
         client.snapshot.offers = [
             {
                 id: 1,
@@ -156,58 +170,120 @@ describe('online frontend', () => {
                 status: 'open',
             },
         ];
-        expect(onlineMarkup(client, draft)).toContain('data-online="accept:1"');
-        expect(onlineMarkup(client, draft)).toContain('data-online="counter:1"');
+        expect(domesticContent(session).body).toContain('data-action="deal-accept:1"');
+        expect(domesticContent(session).body).toContain('data-action="deal-counter:1"');
         client.snapshot.offers[0].status = 'accepted';
-        expect(onlineMarkup(client, draft)).toContain('data-online="trade-confirm:1"');
+        expect(domesticContent(session).body).toContain('data-action="deal-review:1"');
         game.winnerId = 'player-1';
         game.phase = 'finished';
         client.snapshot.status = 'finished';
-        expect(onlineMarkup(client, draft)).toContain('data-online="rematch"');
+        session.state!.phase = 'finished';
+        session.state!.winnerId = 'player-1';
+        session.sheet = { kind: 'results' };
+        expect(sheetContent(session).footer).toContain('data-action="new-game"');
+        session.destroy();
         client.destroy();
     });
-    it('keeps room entry separate and validates a private hand without opponent data', () => {
+    it('keeps room entry separate and sends started games to the shared match runtime', () => {
         const client = new OnlineClient('http://unused', null);
         client.session = { id: sessionId, name: 'A' };
         const draft = newDrafts();
         expect(onlineMarkup(client, draft)).not.toContain('data-draft="code"');
         draft.screen = 'join';
         expect(onlineMarkup(client, draft)).toContain('data-draft="code"');
-        expect(onlineMarkup(client, draft)).not.toContain('data-draft="lobby"');
-        const game = snapshot().game;
-        if (!game) throw new Error('Missing fixture');
-        game.self.resources.wood = 2;
-        game.discardObligations[game.self.id] = 2;
-        draft.discard.wood = 3;
-        expect(validDiscard(game, draft)).toBe(false);
-        draft.discard.wood = 2;
-        expect(validDiscard(game, draft)).toBe(true);
-        draft.to = 'player-2';
-        draft.offerGive.wood = 1;
-        draft.offerWant.brick = 1;
-        expect(validOffer(game, draft)).toBe(true);
-        draft.offerWant.wood = 1;
-        expect(validOffer(game, draft)).toBe(false);
-        draft.offerWant.wood = 0;
-        draft.offerGive.wood = 3;
-        expect(validOffer(game, draft)).toBe(false);
+        client.snapshot = snapshot();
+        expect(onlineMarkup(client, draft)).toBe('');
+    });
+    it('uses the common HUD and keeps remote private data out of public players', () => {
+        const client = new OnlineClient('http://unused', null);
+        client.snapshot = snapshot();
+        const session = new OnlineSession(client, () => {});
+        expect(humanHeader(session)).toContain('header-personal');
+        expect(humanHand(session)).toContain('hand-resource');
+        expect(actionDock(session)).toContain('dock-roll-options');
+        expect(session.state?.board).toBe(client.snapshot.game?.board);
+        expect(session.state?.players[1]).not.toHaveProperty('resources');
+        expect(session.state?.development.hands).not.toHaveProperty('player-2');
+        expect(() => viewerResources(session.state!, 'player-2')).toThrow('private');
+        session.destroy();
         client.destroy();
     });
-    it('keeps destination IDs out of player-facing choices and hides idle board targets', () => {
+    it('renders identical header, hand and dock from equivalent local and remote views', () => {
+        const local = new GameSession();
+        local.start(4, false, 'A');
+        const state = local.state!;
+        const remote = snapshot();
+        if (!remote.game) throw new Error('Missing view');
+        remote.game.board = state.board;
+        remote.game.turn = state.turn;
+        remote.game.setup = state.setup ?? null;
+        remote.game.players = remote.game.players.map((p, i) => ({
+            ...p,
+            name: state.players[i].name,
+            color: state.players[i].color,
+        }));
+        remote.seats = remote.seats.map((seat, i) => ({
+            ...seat,
+            name: state.players[i].name,
+            bot: i !== 0,
+        }));
         const client = new OnlineClient('http://unused', null);
-        client.session = { id: sessionId, name: 'A' };
+        client.snapshot = remote;
+        const online = new OnlineSession(client, () => {});
+        expect(humanHeader(online)).toBe(humanHeader(local));
+        expect(humanHand(online)).toBe(humanHand(local));
+        expect(actionDock(online)).toBe(actionDock(local));
+        online.destroy();
+        client.destroy();
+    });
+    it('validates remote trades using only this seat and never guesses opponent balances', () => {
+        const client = new OnlineClient('http://unused', null);
         client.snapshot = snapshot();
-        const game = client.snapshot.game;
-        if (!game) throw new Error('Missing fixture');
-        game.availableIntents = [
-            { kind: 'setup', type: 'settlement', targetId: 'private-internal-vertex' },
-        ];
-        const draft = newDrafts();
-        draft.tool = 'setup-settlement';
-        expect(onlineMarkup(client, draft)).not.toContain('private-internal-vertex');
-        draft.selected = 'destinations';
-        expect(onlineMarkup(client, draft)).toContain('data-online="select:0"');
-        expect(onlineMarkup(client, draft)).not.toContain('private-internal-vertex');
+        const view = client.snapshot.game!;
+        view.phase = 'actions';
+        view.self.resources.wood = 2;
+        const session = new OnlineSession(client, () => {});
+        session.trading.selectTarget('player-2');
+        session.trading.adjust('give', 'wood', 1);
+        session.trading.adjust('want', 'brick', 1);
+        expect(session.trading.draftError).toBeNull();
+        session.trading.adjust('give', 'wood', 1);
+        session.trading.adjust('give', 'wood', 1);
+        expect(session.trading.give.wood).toBe(2);
+        session.trading.adjust('want', 'wood', 1);
+        expect(session.trading.want.wood).toBe(0);
+        session.destroy();
+        client.destroy();
+    });
+    it('does not replay shared feedback when the socket snapshot arrives before its HTTP receipt', async () => {
+        const before = snapshot();
+        const after = snapshot();
+        before.game!.phase = 'roll';
+        before.game!.availableIntents = [{ kind: 'roll' }];
+        after.revision = 1;
+        after.game!.phase = 'actions';
+        after.game!.lastRoll = [3, 4];
+        const request = vi.fn<typeof fetch>();
+        request
+            .mockResolvedValueOnce(json(after))
+            .mockResolvedValueOnce(json({ commandId, revision: 1, snapshot: after }));
+        const client = new OnlineClient('http://unused', null, request, noNetworkSocket);
+        client.snapshot = before;
+        const session = new OnlineSession(client, () => {});
+        await client.open(matchId);
+        const shown = session.transition;
+        expect(shown?.action.kind).toBe('roll');
+        client.pending = {
+            protocolVersion: 1,
+            matchId,
+            commandId,
+            expectedRevision: 0,
+            intent: { kind: 'roll' },
+        };
+        await client.retry();
+        expect(client.pending).toBeNull();
+        expect(session.transition).toBe(shown);
+        session.destroy();
         client.destroy();
     });
     it('restores pending commands without replaying them, then explicitly retries the same UUID', async () => {

@@ -1,13 +1,15 @@
-import { developmentPlayError } from '../core/development';
-import { getVictoryPoints } from '../core/scoring';
-import { isSetup } from '../core/setup';
-import { RESOURCE_TYPES, type GameState } from '../core/types';
+import { viewerResources } from './matchState';
+import type { MatchState } from './matchState';
+import { developmentPlayError } from './matchState';
+import { getVictoryPoints } from './matchState';
+import { isSetup } from './matchState';
+import { RESOURCE_TYPES } from '../core/types';
 import { number } from './components';
 import { FA } from './messages.fa';
-import type { MatchTransition } from './transitions';
+import type { PresentedTransition as MatchTransition } from './transitions';
 
 /** A presentation projection; never grants an action or reads an opponent's private cards. */
-export function turnSurface(state: GameState, humanId: string, practice = false) {
+export function turnSurface(state: MatchState, humanId: string, practice = false) {
     const ownTurn = state.players[state.activePlayerIndex].id === humanId;
     const canDeclare =
         !practice &&
@@ -34,13 +36,13 @@ export function transitionReceipt(transition: MatchTransition | null, humanId: s
     const { before, after, action } = transition;
     const actor = before.players[before.activePlayerIndex];
     const own = actor.id === humanId;
-    const previous = before.players.find((p) => p.id === humanId)!;
-    const human = after.players.find((p) => p.id === humanId)!;
+    const previous = viewerResources(before, humanId);
+    const human = viewerResources(after, humanId);
     if (action.kind === 'roll') {
         const total = after.lastRoll![0] + after.lastRoll![1];
         if (total === 7) return `${own ? 'تاس' : `تاس ${actor.name}`} ۷ · بدون تولید`;
-        const gains = RESOURCE_TYPES.filter((r) => human.resources[r] > previous.resources[r]).map(
-            (r) => `+${number(human.resources[r] - previous.resources[r])} ${FA.resources[r]}`,
+        const gains = RESOURCE_TYPES.filter((r) => human[r] > previous[r]).map(
+            (r) => `+${number(human[r] - previous[r])} ${FA.resources[r]}`,
         );
         return `تاس ${number(total)} · ${gains.join(' · ') || (own ? 'این بار منبعی نگرفتی' : `${actor.name} تاس ریخت`)}`;
     }

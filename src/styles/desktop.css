@@ -216,7 +216,36 @@
     max-height: min(760px, calc(var(--app-height) - 64px));
     border-radius: 24px;
 }
-.game-app.is-desktop > .narrator-sheet {
-    --portrait-height: clamp(180px, calc(var(--app-height) * 0.32), 340px);
+/* Desktop narration sits at the foot of the island, with a full-height companion
+   beside the dialogue. Mobile retains its existing stacked portrait/sheet. */
+.game-app.is-desktop > .narrator-sheet[open] {
+    --portrait-height: clamp(320px, calc(var(--app-height) * 0.65), 640px);
+    --portrait-overlap: 0px;
+    inset: auto auto max(24px, env(safe-area-inset-bottom))
+        max(24px, calc((100vw - var(--play-width)) / 2));
+    width: calc(var(--play-width) - var(--controls-width) - var(--play-gap));
+    max-width: calc(100vw - 48px);
+    max-height: calc(var(--app-height) - var(--play-header) - 72px);
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(220px, 0.36fr) minmax(0, 0.64fr);
+    align-items: end;
+    gap: 12px;
+    direction: ltr;
+    overflow: hidden;
     border-radius: 0;
+}
+.game-app.is-desktop .narrator-stage {
+    height: var(--portrait-height);
+    min-width: 0;
+}
+.game-app.is-desktop .narrator-hero {
+    width: min(100%, calc(var(--portrait-height) * var(--portrait-ratio))) !important;
+    bottom: 0;
+}
+.game-app.is-desktop .narrator-panel {
+    direction: rtl;
+    min-width: 0;
+    max-height: min(480px, calc(var(--app-height) * 0.54));
 }

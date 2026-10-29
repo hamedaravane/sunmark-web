@@ -1,5 +1,6 @@
+import type { MatchState } from './matchState';
 import { getOwnedPorts, getPortOwnerId, getPortTradeRatio } from '../core/ports';
-import type { Board, GameState, Port, TradeRatio } from '../core/types';
+import type { Board, Port, TradeRatio } from '../core/types';
 import { button, escape, number, resourceIcon } from './components';
 import { FA } from './messages.fa';
 
@@ -24,7 +25,7 @@ export function ownedPortsMarkup(board: Board, playerId: string): string {
         : '<p class="muted">هنوز به بندری دسترسی ندارید؛ نرخ بانک ۴ به ۱ است.</p>';
 }
 
-export function portDirectory(state: GameState): string {
+export function portDirectory(state: MatchState): string {
     return `<details class="port-directory"><summary>بندرهای جزیره (${number(state.board.ports.length)})</summary><div class="port-list">${state.board.ports
         .map((port) => {
             const owner = state.players.find(

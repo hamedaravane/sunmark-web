@@ -112,14 +112,23 @@ Final trade completion or rejection returns to the board automatically; pending 
 
 The main menu now adds Play Online without changing offline Play/Tutorial. Its separate OnlineScene draws the existing procedural board/pieces/ports and shared enamel surfaces with Phaser Graphics/Text. Transparent semantic controls provide layout, keyboard input and scrolling; focused native text fields remain editable. Room entry, invitations, ready/bot seats and the action panel are Persian/RTL. The online shell also fills the viewport and uses the shared responsive breakpoint: matches place the scrollable action panel beside the board in landscape, while lobby forms stay centered at a readable maximum width. Safe insets protect both sides of the controls. Board targets also have an in-game destination list and explicit final confirmation. Resources and private development choices remain owned by the authenticated seat; opponent standings show public counts/scores only. Reconnection never swaps to another seat's hand. See ONLINE_PLAY.md for scope and device-test limits.
 
-## Online presentation
+## Shared match presentation
 
-The authenticated online session keeps a separate protocol adapter rather than
-constructing an offline `GameState` from private projections. Its room flow and
-board-first match composition reuse the same procedural ocean/coast, terrain,
-pieces, Ahriman, number-token art, enamel materials, avatar seals, resources and
-dice. Native transparent inputs/buttons remain the semantic interaction layer.
-The self hand and score stay fixed while public turn ownership changes. Workspaces
-separate placement, maritime trades, cards and consent-based player trades;
-public player details never synthesize an opponent hand. See ONLINE_PLAY.md for
-module boundaries, local validation and remaining device-review scope.
+Offline and online matches both mount `game/matchRuntime.ts` and the same
+GameHud, GameScene, InterfaceScene, BackdropScene, feedback and native sheets.
+Authority is a session adapter concern: local GameSession runs rules and bots;
+OnlineSession sends authenticated intents and reads a private server projection.
+MatchSession/MatchState define the presentation boundary without inventing unknown
+opponent hands or deck contents. The online room renderer serves entry/lobbies only.
+
+The canvas and background always cover the full viewport. Desktop bounds apply to
+the tabletop/control composition, never to the canvas origin or backdrop size.
+All match input and Graphics measurements use the shared canvas/viewport coordinate
+path, including device-pixel-ratio changes. See ONLINE_PLAY.md for adapter ownership,
+privacy, retries, feedback and validation.
+
+Desktop Anahita conversations sit at the bottom of the island area, with a larger
+full-body illustration in the left column and the RTL dialogue beside her.
+The dialogue body scrolls independently while its actions stay in the footer.
+The desktop composition uses the same shared layout variables as the tabletop;
+phones retain the existing stacked portrait and bottom sheet.

@@ -1,5 +1,5 @@
 import type { AppPlatform } from './app';
-import type { GameSession } from '../game/ui/session';
+import type { MatchSession } from '../game/ui/matchSession';
 
 /** Prompt once per available release, after any existing conversation/workspace closes. */
 export class UpdateNotice {
@@ -8,7 +8,7 @@ export class UpdateNotice {
 
     constructor(
         private app: AppPlatform,
-        private session: GameSession,
+        private session: MatchSession,
     ) {
         this.removers = [app.subscribe(this.refresh), session.subscribe(this.refresh)];
         this.refresh();
@@ -27,8 +27,13 @@ export class UpdateNotice {
 }
 
 /** Save confirmed gameplay before accepting the reload; never discard a live unsaved match. */
-export async function applyUpdate(app: AppPlatform, session: GameSession): Promise<boolean> {
+export async function applyUpdate(app: AppPlatform, session: MatchSession): Promise<boolean> {
     if (!app.updateReady || app.updating) return false;
+    if (session.online?.pending) {
+        app.error = 'ابتدا نتیجه حرکت آنلاین را پیگیری کن؛ سپس به‌روزرسانی کن.';
+        app.changed();
+        return false;
+    }
     session.save();
     if (session.state && session.state.phase !== 'finished' && session.saveStatus !== 'saved') {
         app.error = 'بازی ذخیره نشد؛ فعلاً ادامه بده و بعد از پایان بازی به‌روزرسانی کن.';

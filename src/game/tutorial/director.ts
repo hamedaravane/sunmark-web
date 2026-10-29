@@ -1,13 +1,13 @@
-import { isSetup } from '../core/setup';
-import { getBuildOption, getPlayerSummary } from '../core/queries';
+import { isSetup, getBuildOption, getPlayerSummary } from '../ui/matchState';
+import type { MatchState } from '../ui/matchState';
 import { getPortOwnerId } from '../core/ports';
-import type { GameState, RuleErrorCode } from '../core/types';
+import type { RuleErrorCode } from '../core/types';
 import type { Placement, Sheet } from '../ui/session';
-import type { MatchTransition } from '../ui/transitions';
+import type { PresentedTransition as MatchTransition } from '../ui/transitions';
 import { LESSONS, type LessonId } from './lessons.fa';
 
 export interface TutorialContext {
-    state: GameState;
+    state: MatchState;
     humanPlayerId?: string;
     sheet: Sheet | null;
     placement: Placement | null;

@@ -3,9 +3,9 @@ import { menuStatus } from '../../pwa/markup';
 import { BRAND } from '../../brand';
 import { artSprite, button } from './components';
 import { actionEmblem } from './developmentMarkup';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 
-export function menuContent(app: AppPlatform, session: GameSession): string {
+export function menuContent(app: AppPlatform, session: MatchSession): string {
     return `<div class="menu-crown" aria-hidden="true">${artSprite('rosette', 76, 'menu-emblem')}</div>
         <p class="eyebrow">${BRAND.persianName} · سرزمین فرصت‌ها</p><h1 dir="ltr" lang="en">${BRAND.name}</h1>
         <p class="menu-invitation">جزیره‌ای تازه. هزار راه برای پیروزی.</p>

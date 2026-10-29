@@ -1,5 +1,5 @@
 import { tradeBuildFeedback } from './buildFeedback';
-import { getPlayerSummary } from '../core/queries';
+import { getPlayerSummary } from './matchState';
 import { previewTrade } from '../core/tradePreview';
 import { bundleSize } from '../core/domesticTrade';
 import { RESOURCE_TYPES } from '../core/types';
@@ -13,12 +13,12 @@ import {
     resourceIcon,
     resourceValue,
 } from './components';
-import { avatarForSeat } from './playerIdentity';
+import { matchAvatar, matchBot } from './headerModel';
 import { FA } from './messages.fa';
 import type { SheetContent } from './bottomSheet';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 
-export function tradeTabs(session: GameSession, domestic: boolean): string {
+export function tradeTabs(session: MatchSession, domestic: boolean): string {
     return `<nav class="trade-tabs" aria-label="روش معامله">${button('بازیکن‌ها', 'open:domestic', { pressed: domestic, className: 'button', disabled: session.state?.phase !== 'actions' })}${button('بانک و بندر', 'open:trade', { pressed: !domestic, className: 'button', disabled: !session.isHumanTurn })}</nav>`;
 }
 function bundle(bundle: ResourceBundle): string {
@@ -37,7 +37,7 @@ function terms(offer: TradeOffer, humanId: string) {
 function summary(give: ResourceBundle, want: ResourceBundle): string {
     return `<section class="deal-summary" aria-label="جزئیات از دید شما"><div><h3>تو می‌دی</h3><div class="deal-bundle">${bundle(give)}</div></div><div><h3>تو می‌گیری</h3><div class="deal-bundle">${bundle(want)}</div></div></section>`;
 }
-function inventory(session: GameSession): string {
+function inventory(session: MatchSession): string {
     const hand = session.humanPlayer!.resources;
     return `<p class="deal-hand-title">دارایی تو</p><div class="deal-hand">${RESOURCE_TYPES.map((r) => `<div class="deal-hand-item">${resourceValue(r, hand[r])}<span>${FA.resources[r]}</span></div>`).join('')}</div>`;
 }
@@ -48,7 +48,7 @@ function shortage(value: ResourceBundle): string {
             .join(' + ') || 'هیچ؛ منابع کامل می‌شه'
     );
 }
-function paymentWarning(session: GameSession, give: ResourceBundle): string {
+function paymentWarning(session: MatchSession, give: ResourceBundle): string {
     const { paymentMissing } = previewTrade(session.humanPlayer!.resources, give);
     return bundleSize(paymentMissing)
         ? `<p class="availability" role="status">برای پرداخت این پیشنهاد کم داری: ${shortage(paymentMissing)}. می‌تونی مقدارها رو در پیشنهاد متقابل عوض کنی.</p>`
@@ -71,7 +71,7 @@ const reasons = {
     unavailable: 'این پیشنهاد به کارم نمیاد؛ یه ترکیب دیگه امتحان کن.',
 } as const;
 
-export function domesticContent(session: GameSession): SheetContent {
+export function domesticContent(session: MatchSession): SheetContent {
     const state = session.state!;
     const human = session.humanPlayer!;
     const market = session.trading;
@@ -106,7 +106,9 @@ export function domesticContent(session: GameSession): SheetContent {
             .map((id) => {
                 const p = state.players.find((p) => p.id === id)!;
                 return button(
-                    `${playerAvatar(avatarForSeat(state.players.indexOf(p), state.players.indexOf(human)))}<span>${escape(p.name)} <span class="bot-label">ربات • ${number(getPlayerSummary(state, p.id).resources)} کارت</span></span>`,
+                    `${playerAvatar(
+                        matchAvatar(state, p.id, human.id),
+                    )}<span>${escape(p.name)} <span class="bot-label">${matchBot(state, p.id, human.id) ? 'ربات' : 'بازیکن'} • ${number(getPlayerSummary(state, p.id).resources)} کارت</span></span>`,
                     `deal-target:${id}`,
                     {
                         className: 'deal-target',
@@ -117,10 +119,12 @@ export function domesticContent(session: GameSession): SheetContent {
             })
             .join('');
         const all = session.isHumanTurn
-            ? button('همهٔ ربات‌ها', 'deal-target:all', {
-                  className: 'deal-target',
-                  pressed: market.target === null,
-              })
+            ? !session.online
+                ? button('همهٔ ربات‌ها', 'deal-target:all', {
+                      className: 'deal-target',
+                      pressed: market.target === null,
+                  })
+                : ''
             : '';
         const editor = RESOURCE_TYPES.map((r) => {
             const control = (side: 'give' | 'want') => {
@@ -135,7 +139,7 @@ export function domesticContent(session: GameSession): SheetContent {
             context,
             key: 'trade-compose',
             title: market.parentId ? 'پیشنهاد متقابل تو' : 'معامله با بازیکن‌ها',
-            body: `${tabs}${rules}<p class="sheet-intro">${session.isHumanTurn ? 'پیشنهادت رو به یک ربات یا هر سه بفرست؛ انتخاب نهایی با توئه.' : `نوبت ${escape(active.name)} است؛ فقط با همین بازیکن می‌تونی معامله کنی.`}</p><div class="deal-targets" role="group" aria-label="طرف معامله">${all}${targets}</div><p class="footnote">منابع و تعدادها رو انتخاب کن. یک منبع نمی‌تونه در هر دو طرف معامله باشه؛ نسبت معامله توافقیه.</p><div class="deal-editor-head"><span>منبع</span><span>تو می‌دی</span><span>تو می‌گیری</span></div>${editor}${paymentWarning(session, market.give)}${tradeBuildFeedback(session, previewTrade(human.resources, market.give, market.want).after)}<p class="availability" role="status">${escape(market.draftError ?? 'پیشنهاد آمادهٔ ارساله؛ هنوز چیزی جابه‌جا نمی‌شه.')}</p>`,
+            body: `${tabs}${rules}<p class="sheet-intro">${session.isHumanTurn ? (session.online ? 'طرف معامله را انتخاب کن؛ منابع فقط پس از تأیید نهایی جابه‌جا می‌شوند.' : 'پیشنهادت رو به یک ربات یا هر سه بفرست؛ انتخاب نهایی با توئه.') : `نوبت ${escape(active.name)} است؛ فقط با همین بازیکن می‌تونی معامله کنی.`}</p><div class="deal-targets" role="group" aria-label="طرف معامله">${all}${targets}</div><p class="footnote">منابع و تعدادها رو انتخاب کن. یک منبع نمی‌تونه در هر دو طرف معامله باشه؛ نسبت معامله توافقیه.</p><div class="deal-editor-head"><span>منبع</span><span>تو می‌دی</span><span>تو می‌گیری</span></div>${editor}${paymentWarning(session, market.give)}${tradeBuildFeedback(session, previewTrade(human.resources, market.give, market.want).after)}<p class="availability" role="status">${escape(market.draftError ?? 'پیشنهاد آمادهٔ ارساله؛ هنوز چیزی جابه‌جا نمی‌شه.')}</p>`,
             footer: `${summary(market.give, market.want)}${button(market.parentId ? 'ارسال پیشنهاد متقابل' : 'ارسال پیشنهاد', 'deal-send', { className: 'button button--primary full-width', disabled: !!market.draftError })}`,
         };
     }
@@ -168,14 +172,16 @@ export function domesticContent(session: GameSession): SheetContent {
                     : o.status === 'open' && incoming
                       ? `${button('قبول و بررسی نهایی', `deal-accept:${o.id}`, { className: 'button button--primary full-width', disabled: !!market.errorFor(o) })}${button('پیشنهاد متقابل', `deal-counter:${o.id}`, { className: 'button full-width' })}${button('رد پیشنهاد', `deal-reject:${o.id}`, { className: 'button full-width' })}`
                       : '';
-            return `<article class="deal-offer ${o.status === 'completed' ? 'deal-receipt' : ''}" aria-label="پیشنهاد ${number(o.id)}؛ ${statuses[o.status]}"><div class="rival-detail-heading" style="--owner:${color(partner.color)}">${playerAvatar(avatarForSeat(state.players.indexOf(partner), state.players.indexOf(human)))}<h3>${o.parentId ? 'پیشنهاد متقابل' : incoming ? 'پیشنهاد' : 'پیشنهاد تو به'} ${escape(partner.name)}</h3></div><p class="deal-status" role="status">${statuses[o.status]}</p>${o.reason ? `<p class="sheet-intro">${escape(reasons[o.reason])}</p>` : ''}${summary(own.give, own.want)}${live ? paymentWarning(session, own.give) : ''}${o.status === 'open' && incoming && market.errorFor(o) ? '<p class="availability">این پیشنهاد الان قابل انجام نیست؛ قبول‌کردن غیرفعاله. می‌تونی ردش کنی یا پیشنهاد متقابل بدی.</p>' : ''}<div class="deal-actions">${actions}${live && !(incoming && o.status === 'open') ? button(incoming ? 'بستن این پیشنهاد' : 'پس‌گرفتن پیشنهاد', `deal-withdraw:${o.id}`, { className: 'button button--quiet full-width' }) : ''}</div></article>`;
+            return `<article class="deal-offer ${o.status === 'completed' ? 'deal-receipt' : ''}" aria-label="پیشنهاد ${number(o.id)}؛ ${statuses[o.status]}"><div class="rival-detail-heading" style="--owner:${color(partner.color)}">${playerAvatar(
+                matchAvatar(state, partner.id, human.id),
+            )}<h3>${o.parentId ? 'پیشنهاد متقابل' : incoming ? 'پیشنهاد' : 'پیشنهاد تو به'} ${escape(partner.name)}</h3></div><p class="deal-status" role="status">${statuses[o.status]}</p>${o.reason ? `<p class="sheet-intro">${escape(reasons[o.reason])}</p>` : ''}${summary(own.give, own.want)}${live ? paymentWarning(session, own.give) : ''}${o.status === 'open' && incoming && market.errorFor(o) ? '<p class="availability">این پیشنهاد الان قابل انجام نیست؛ قبول‌کردن غیرفعاله. می‌تونی ردش کنی یا پیشنهاد متقابل بدی.</p>' : ''}<div class="deal-actions">${actions}${live && !(incoming && o.status === 'open') ? button(incoming ? 'بستن این پیشنهاد' : 'پس‌گرفتن پیشنهاد', `deal-withdraw:${o.id}`, { className: 'button button--quiet full-width' }) : ''}</div></article>`;
         })
         .join('');
     return {
         context,
         title: 'میز مذاکره',
         key: 'trade-conversation',
-        body: `${tabs}${market.message ? `<p class="sheet-intro" role="status">${escape(market.message)}</p>` : ''}${cards || '<p>پیشنهاد بازی وجود نداره؛ یک پیشنهاد تازه بساز.</p>'}${rules}<p class="footnote">بستن پنجره یا رفتن به بانک، پیشنهادهای باز تو رو می‌بنده؛ هیچ منبعی بدون تأیید نهایی جابه‌جا نمی‌شه.</p>`,
+        body: `${tabs}${market.message ? `<p class="sheet-intro" role="status">${escape(market.message)}</p>` : ''}${cards || '<p>پیشنهاد بازی وجود نداره؛ یک پیشنهاد تازه بساز.</p>'}${rules}<p class="footnote">${session.online ? 'بستن پنجره پیشنهادهای آنلاین را لغو نمی‌کند؛' : 'بستن پنجره یا رفتن به بانک، پیشنهادهای باز تو رو می‌بنده؛'} هیچ منبعی بدون تأیید نهایی جابه‌جا نمی‌شه.</p>`,
         footer: `${button('ساخت پیشنهاد تازه', 'deal-new', { className: 'button button--primary full-width', disabled: !market.allowed })}`,
     };
 }

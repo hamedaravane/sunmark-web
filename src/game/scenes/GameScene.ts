@@ -1,3 +1,4 @@
+import type { MatchState } from '../ui/matchState';
 import { createAhriman, AHRIMAN_OFFSET_RATIO } from '../rendering/ahriman';
 import {
     ensureTerrainTextures,
@@ -6,17 +7,17 @@ import {
 } from '../rendering/terrainTextures';
 import { TERRAIN_TEXTURE_RADIUS } from '../rendering/terrainArt';
 import { type GameObjects, Scene } from 'phaser';
-import type { GameState, HexTile } from '../core/types';
+import type { HexTile } from '../core/types';
 import { BoardInput } from '../rendering/boardInput';
 import { BoardEffects } from '../rendering/boardEffects';
 import { createBoardCoast } from '../rendering/boardCoast';
 import { boardToClient, boardToScreen, fitBoard, type BoardLayout } from '../ui/layout';
 import { matchGeometry } from '../ui/matchGeometry';
 import { number } from '../ui/components';
-import type { GameSession } from '../ui/session';
+import type { MatchSession } from '../ui/matchSession';
 import { UI_FONT_FAMILY } from '../ui/typography';
 import type { Motion } from '../ui/motion';
-import type { MatchTransition } from '../ui/transitions';
+import type { PresentedTransition as MatchTransition } from '../ui/transitions';
 import { ART, assetUrl } from '../assets';
 import { ensureResourceTextures, NUMBER_TOKEN_ART } from '../rendering/boardEmblems';
 import { drawVectorArt } from '../rendering/vectorArt';
@@ -41,7 +42,7 @@ export class GameScene extends Scene {
     private coast: GameObjects.Graphics | null = null;
     private layout: BoardLayout = fitBoard(390, 468);
     private detailScale = 1;
-    private renderedState: GameState | null = null;
+    private renderedState: MatchState | null = null;
     private renderedPlacement: unknown;
     private inputAdapter: BoardInput;
     private unsubscribe: () => void;
@@ -53,7 +54,7 @@ export class GameScene extends Scene {
     private prepared = false;
 
     constructor(
-        private session: GameSession,
+        private session: MatchSession,
         private motion: Motion,
         private viewport: HTMLElement,
         private onReady: (scene: GameScene) => void,

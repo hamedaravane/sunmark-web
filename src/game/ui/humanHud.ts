@@ -1,13 +1,13 @@
-import { isSetup } from '../core/setup';
+import { isSetup } from './matchState';
 import { button, diceFace, escape, number, playerAvatar, resourceIcon } from './components';
 import { RESOURCE_TYPES } from '../core/types';
 import { FA } from './messages.fa';
 import { PHASE_LABELS } from './sheets';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 import { headerPlayers } from './headerModel';
 
 /** The human captain keeps their identity and private score; opponents use public seals. */
-export function humanHeader(session: GameSession): string {
+export function humanHeader(session: MatchSession): string {
     const state = session.state!,
         human = session.humanPlayer!;
     const standings = headerPlayers(state, human.id);
@@ -48,7 +48,7 @@ export function humanHeader(session: GameSession): string {
                     className: `seat-chip${p.active ? ' is-active' : ''}`,
                     ownerColor: p.color,
                     pressed: session.sheet?.kind === 'player' && session.sheet.id === p.id,
-                    label: `${p.name}، ربات؛ ${number(p.score)} از ${number(state.victoryTarget)} امتیاز${p.active ? '؛ در حال بازی' : ''}؛ جزئیات بازیکن`,
+                    label: `${p.name}، ${p.bot ? 'ربات' : 'بازیکن'}؛ ${number(p.score)} از ${number(state.victoryTarget)} امتیاز${p.active ? '؛ در حال بازی' : ''}؛ جزئیات بازیکن`,
                 },
             ).replace(
                 '<button ',
@@ -60,7 +60,7 @@ export function humanHeader(session: GameSession): string {
 }
 
 /** Passive production changes this inventory even on an opponent's roll. */
-export function humanHand(session: GameSession): string {
+export function humanHand(session: MatchSession): string {
     const human = session.humanPlayer!;
     return (
         '<h2 class="hand-caption">منابع تو</h2>' +

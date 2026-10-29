@@ -2,19 +2,19 @@ import { DEVELOPMENT_LABELS, cardAvailability } from './developmentMarkup';
 import { heroDice, actionDock, turnStatus } from './turnMarkup';
 import { turnSurface } from './turnSurface';
 import type { UiBox } from './graphicsTheme';
-import type { MatchTransition } from './transitions';
-import type { GameState } from '../core/types';
+import type { PresentedTransition as MatchTransition } from './transitions';
+import type { MatchState } from './matchState';
 import { EXPERIENCE_DEFAULTS, type ExperienceOption } from './experiencePreferences';
 import { LESSONS, type LessonId } from '../tutorial/lessons.fa';
 import { BUILD_TYPES } from '../core/building';
 import { RESOURCE_TYPES, type ResourceType, type TradeRatio } from '../core/types';
 import { BottomSheet, type SheetContent } from './bottomSheet';
-import { number } from './components';
+import { number, button, escape } from './components';
 import { sheetContent } from './sheets';
 import { matchGeometry } from './matchGeometry';
 import { responsiveLayout, responsiveProperties } from './responsiveLayout';
 import { desktopShortcuts, desktopTurnHeading } from './desktopMarkup';
-import { type GameSession } from './session';
+import { type MatchSession } from './matchSession';
 import type { AppPlatform } from '../../pwa/app';
 import { appContent, updateContent } from '../../pwa/markup';
 import { applyUpdate } from '../../pwa/updateFlow';
@@ -27,7 +27,7 @@ export class GameHud {
     private sheet: BottomSheet;
     private unsubscribe: () => void;
     private unsubscribePlatform: () => void;
-    private rollOrigin: { state: GameState; box: UiBox } | null = null;
+    private rollOrigin: { state: MatchState; box: UiBox } | null = null;
     private lastNotice = '';
     private lastAnnouncedTransition = 0;
     private receiptId = 0;
@@ -41,7 +41,7 @@ export class GameHud {
 
     constructor(
         private parent: HTMLElement,
-        private session: GameSession,
+        private session: MatchSession,
         private app: AppPlatform,
     ) {
         parent.className = 'game-app is-menu';
@@ -75,8 +75,10 @@ export class GameHud {
                     match.classList.toggle('is-wide', layout.wide);
                     match.classList.toggle('is-desktop', layout.desktop);
                     parent.classList.toggle('is-desktop', layout.desktop);
-                    for (const [key, value] of Object.entries(responsiveProperties(layout)))
+                    for (const [key, value] of Object.entries(responsiveProperties(layout))) {
                         match.style.setProperty(key, value);
+                        parent.style.setProperty(key, value);
+                    }
                 } else {
                     const geometry = matchGeometry(
                         entry.contentRect.width,
@@ -98,7 +100,7 @@ export class GameHud {
         this.sizeObserver.observe(parent);
         this.sizeObserver.observe(this.part('.board-stage'));
         this.render();
-        if (!app.installed) session.openSheet({ kind: 'app' });
+        if (!app.installed && !session.online) session.openSheet({ kind: 'app' });
     }
 
     boardReady(): void {
@@ -151,6 +153,27 @@ export class GameHud {
                 }, 2800);
         }
         this.updatePart('.context-line', turnStatus(this.session, this.receiptActive));
+        const online = this.session.online;
+        this.parent.classList.toggle('is-online', !!online);
+        const status = this.parent.querySelector<HTMLElement>('.online-match-status');
+        status?.remove();
+        if (online && (online.pending || !online.connected || this.session.error)) {
+            const status = document.createElement('div');
+            status.className = 'online-match-status';
+            status.setAttribute('role', 'status');
+            status.textContent = online.pending
+                ? 'نتیجه حرکت در انتظار پاسخ است.'
+                : this.session.error || 'در حال اتصال دوباره به بازی…';
+            if (online.pending) {
+                const retry = document.createElement('button');
+                retry.dataset.action = 'online-retry';
+                retry.className = 'button';
+                retry.textContent = 'پیگیری همان حرکت';
+                retry.disabled = online.busy;
+                status.append(retry);
+            }
+            this.part('.match-controls').append(status);
+        }
         this.updatePart('.resource-hand', humanHand(this.session));
         this.part('.resource-hand').setAttribute('aria-label', `منابع ${human.name}`);
         this.updatePart('.action-dock', actionDock(this.session));
@@ -176,6 +199,42 @@ export class GameHud {
             this.lastAnnouncedTransition = transitionId;
         }
         this.sheet.render(this.content(), focusAction);
+        for (const button of this.parent.querySelectorAll<HTMLButtonElement>(
+            'button[data-network-disabled]',
+        )) {
+            button.disabled = false;
+            delete button.dataset.networkDisabled;
+        }
+        if (online?.busy || online?.pending) {
+            for (const button of this.parent.querySelectorAll<HTMLButtonElement>(
+                'button[data-action]',
+            )) {
+                const action = button.dataset.action?.split(':')[0] ?? '';
+                if (
+                    !button.disabled &&
+                    [
+                        'primary',
+                        'roll-dice',
+                        'build',
+                        'confirm-trade',
+                        'buy-development',
+                        'play-development',
+                        'declare-victory',
+                        'confirm-discard',
+                        'steal',
+                        'confirm-end-turn',
+                        'deal-send',
+                        'deal-accept',
+                        'deal-reject',
+                        'deal-finish',
+                        'deal-withdraw',
+                    ].includes(action)
+                ) {
+                    button.disabled = true;
+                    button.dataset.networkDisabled = 'true';
+                }
+            }
+        }
     }
     private restoreFocus(action: string): void {
         const preserved = [...this.parent.querySelectorAll<HTMLElement>('[data-action]')].find(
@@ -213,6 +272,12 @@ export class GameHud {
                     : kind === 'results'
                       ? 'emerald'
                       : 'lapis';
+        const online = this.session.online;
+        if (online?.pending) {
+            content.footer = `<p class="availability" role="status">نتیجه حرکت قبلی هنوز قطعی نیست.</p>${button('پیگیری همان حرکت', 'online-retry', { className: 'button button--primary full-width', disabled: online.busy })}${content.footer ?? ''}`;
+        } else if (online && this.session.error) {
+            content.context = `${content.context ?? ''}<p class="availability" role="alert">${escape(this.session.error)}</p>`;
+        }
         return content;
     }
 
@@ -228,6 +293,7 @@ export class GameHud {
             this.session.sheet?.kind === 'introduction'
         )
             this.session.closeSheet();
+        if (action === 'online-retry') this.session.online?.retry();
         if (action === 'online')
             this.parent.dispatchEvent(new CustomEvent('sunmark:online', { bubbles: true }));
         if (action === 'play' || action === 'tutorial')

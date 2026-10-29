@@ -1,13 +1,14 @@
+import { getPlayerSummary } from './matchState';
 import { resourceCount } from '../core/robber';
 import { RESOURCE_TYPES } from '../core/types';
 import { developmentSheet } from './developmentMarkup';
 import { button, escape, number, resourceIcon } from './components';
 import { FA } from './messages.fa';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 import type { SheetContent } from './bottomSheet';
 
 export { DEVELOPMENT_LABELS } from './developmentMarkup';
-export function advancedSheet(session: GameSession): SheetContent | null {
+export function advancedSheet(session: MatchSession): SheetContent | null {
     const state = session.state!;
     const human = session.humanPlayer!;
     if (session.sheet?.kind === 'discard') {
@@ -28,7 +29,7 @@ export function advancedSheet(session: GameSession): SheetContent | null {
                 .map((id) => {
                     const p = state.players.find((p) => p.id === id)!;
                     return button(
-                        `${escape(p.name)} • ${number(resourceCount(p.resources))} کارت منبع`,
+                        `${escape(p.name)} • ${number(getPlayerSummary(state, p.id).resources)} کارت منبع`,
                         `steal:${id}`,
                         { className: 'button full-width' },
                     );

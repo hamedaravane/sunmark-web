@@ -1,11 +1,23 @@
-import { getPlayerSummary } from '../core/queries';
-import type { GameState } from '../core/types';
+import { remoteState } from './matchState';
+import { getPlayerSummary } from './matchState';
+import type { MatchState } from './matchState';
 import { avatarForSeat } from './playerIdentity';
 import type { UiBox } from './graphicsTheme';
 
+export function matchAvatar(state: MatchState, id: string, humanId: string) {
+    return remoteState(state) && !state.bots[id]
+        ? ('human' as const)
+        : avatarForSeat(
+              state.players.findIndex((p) => p.id === id),
+              state.players.findIndex((p) => p.id === humanId),
+          );
+}
+export function matchBot(state: MatchState, id: string, humanId: string) {
+    return remoteState(state) ? !!state.bots[id] : id !== humanId;
+}
+
 /** Public standings only; exact opponent hands never enter the header projection. */
-export function headerPlayers(state: GameState, humanId: string) {
-    const humanSeat = state.players.findIndex((p) => p.id === humanId);
+export function headerPlayers(state: MatchState, humanId: string) {
     const scores = state.players.map((p) => getPlayerSummary(state, p.id, humanId).score);
     const publicScores = state.players.map((p) => getPlayerSummary(state, p.id).score);
     const highest = Math.max(...publicScores);
@@ -18,7 +30,8 @@ export function headerPlayers(state: GameState, humanId: string) {
         leading: highest > 0 && publicScores[seat] === highest,
         active: state.phase !== 'finished' && seat === state.activePlayerIndex,
         human: p.id === humanId,
-        avatar: avatarForSeat(seat, humanSeat),
+        avatar: matchAvatar(state, p.id, humanId),
+        bot: matchBot(state, p.id, humanId),
     }));
 }
 

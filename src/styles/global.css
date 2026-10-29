@@ -1757,3 +1757,13 @@ h3 {
 .placement-guidance .resource-value {
     line-height: 22px;
 }
+
+/* The shared canvas always fills the viewport; only the tabletop composition is bounded. */
+.is-online .online-match-status {
+    min-height: 48px;
+    color: #fff4dc;
+    padding: 8px;
+}
+.graphics-ui .online-match-status {
+    opacity: 0;
+}

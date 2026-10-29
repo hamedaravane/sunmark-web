@@ -1,5 +1,5 @@
 import { BUILD_TYPES } from '../core/building';
-import { getBuildOption } from '../core/queries';
+import { getBuildOption } from './matchState';
 import { RESOURCE_TYPES, type ResourceType } from '../core/types';
 import {
     BUILD_LABELS,
@@ -11,7 +11,7 @@ import {
 } from './buildFeedback';
 import { button, escape, number, resourceIcon } from './components';
 import type { SheetContent } from './bottomSheet';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 import { FA } from './messages.fa';
 
 export function resourceCost(
@@ -27,7 +27,7 @@ export function resourceCost(
         .join('')}</div>`;
 }
 
-export function constructionSheet(session: GameSession): SheetContent {
+export function constructionSheet(session: MatchSession): SheetContent {
     const state = session.state!;
     const human = session.humanPlayer!;
     const roadsRemaining =

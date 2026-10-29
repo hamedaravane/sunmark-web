@@ -1,7 +1,8 @@
-import { getVictoryPoints } from '../core/scoring';
+import { viewerResources } from './matchState';
+import { getVictoryPoints } from './matchState';
 import type { BuildType } from '../core/building';
 import { RESOURCE_TYPES } from '../core/types';
-import type { MatchTransition } from './transitions';
+import type { PresentedTransition as MatchTransition } from './transitions';
 
 export type FeedbackCue =
     | 'road'
@@ -28,8 +29,12 @@ export interface FeedbackEvent {
 export function feedbackEvent(t: MatchTransition, humanId: string): FeedbackEvent | null {
     const { before, after, action } = t;
     const actor = before.players[before.activePlayerIndex].id;
-    const human = after.players.find((p) => p.id === humanId);
-    const previous = before.players.find((p) => p.id === humanId);
+    const human = after.players.some((p) => p.id === humanId)
+        ? viewerResources(after, humanId)
+        : null;
+    const previous = before.players.some((p) => p.id === humanId)
+        ? viewerResources(before, humanId)
+        : null;
     if (!human || !previous || before === after) return null;
     if (after.winnerId && !before.winnerId)
         return { cue: 'victory', personal: after.winnerId === humanId };
@@ -45,7 +50,7 @@ export function feedbackEvent(t: MatchTransition, humanId: string): FeedbackEven
         return { cue: 'point', personal: false, construction };
     if (action.kind === 'build' || action.kind === 'setup')
         return { cue: action.type, personal: actor === humanId };
-    const lost = RESOURCE_TYPES.some((r) => human.resources[r] < previous.resources[r]);
+    const lost = RESOURCE_TYPES.some((r) => human[r] < previous[r]);
     if (lost && ['discard', 'steal', 'play-development'].includes(action.kind))
         return { cue: 'loss', personal: true };
     if (
@@ -58,7 +63,7 @@ export function feedbackEvent(t: MatchTransition, humanId: string): FeedbackEven
         (action.kind === 'domestic-trade' && [action.terms.from, action.terms.to].includes(humanId))
     )
         return { cue: 'trade', personal: true };
-    if (RESOURCE_TYPES.some((r) => human.resources[r] > previous.resources[r]))
+    if (RESOURCE_TYPES.some((r) => human[r] > previous[r]))
         return { cue: 'resources', personal: true };
     if (['buy-development', 'play-development'].includes(action.kind) && actor === humanId)
         return { cue: 'development', personal: true };

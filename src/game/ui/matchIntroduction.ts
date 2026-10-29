@@ -1,9 +1,9 @@
 import type { SheetContent } from './bottomSheet';
 import { artSprite, button, color, escape, number, playerAvatar } from './components';
 import { avatarForSeat } from './playerIdentity';
-import type { GameSession } from './session';
+import type { MatchSession } from './matchSession';
 
-export function introductionContent(session: GameSession, ready: boolean): SheetContent {
+export function introductionContent(session: MatchSession, ready: boolean): SheetContent {
     const state = session.state!;
     const humanSeat = state.players.findIndex((p) => p.id === session.humanPlayer!.id);
     const preferences = session.preferences.snapshot;

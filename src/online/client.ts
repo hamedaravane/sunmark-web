@@ -26,6 +26,12 @@ export class OnlineClient {
     busy = false;
     error = '';
     pending: z.infer<typeof pendingSchema> | null = null;
+    receipt: {
+        commandId: string;
+        revision: number;
+        expectedRevision: number;
+        intent: Intent;
+    } | null = null;
     private socket: Socket | null = null;
     private listeners = new Set<() => void>();
     private matchId: string | null = null;
@@ -150,7 +156,7 @@ export class OnlineClient {
         );
     }
     async command(intent: Intent) {
-        if (!this.snapshot || this.pending) return;
+        if (!this.snapshot || this.pending || this.busy) return;
         this.pending = onlineCommandSchema.parse({
             protocolVersion: 1,
             matchId: this.snapshot.id,
@@ -167,6 +173,14 @@ export class OnlineClient {
         return this.run(async () => {
             try {
                 const response = commandResponseSchema.parse(await this.http('/commands', pending));
+                if (response.commandId !== pending.commandId)
+                    throw new Error('Mismatched command receipt');
+                this.receipt = {
+                    commandId: response.commandId,
+                    revision: response.snapshot.revision,
+                    expectedRevision: pending.expectedRevision,
+                    intent: pending.intent,
+                };
                 this.pending = null;
                 this.accept(response.snapshot);
                 this.connect();
@@ -267,6 +281,12 @@ export class OnlineClient {
             );
     }
     back() {
+        if (this.pending) {
+            this.error = 'ابتدا نتیجه حرکت قبلی را پیگیری کن.';
+            this.emit();
+            return;
+        }
+        this.receipt = null;
         this.snapshot = null;
         this.matchId = null;
         this.socket?.disconnect();

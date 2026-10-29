@@ -1,11 +1,14 @@
+import { viewerResources } from './matchState';
+import type { MatchState } from './matchState';
 import type { GameScene } from '../scenes/GameScene';
-import { RESOURCE_TYPES, type GameState, type ResourceType } from '../core/types';
+import { RESOURCE_TYPES, type ResourceType } from '../core/types';
 import { number } from './components';
 import type { Motion } from './motion';
-import type { GameSession, Placement, Sheet } from './session';
-import type { MatchTransition } from './transitions';
+import type { Placement, Sheet } from './session';
+import type { MatchSession } from './matchSession';
+import type { PresentedTransition as MatchTransition } from './transitions';
 import type { InterfaceScene } from './InterfaceScene';
-import { getVictoryPoints } from '../core/scoring';
+import { getVictoryPoints } from './matchState';
 import { GameAudio } from './GameAudio';
 import type { UiBox } from './graphicsTheme';
 
@@ -16,7 +19,7 @@ export class GameFeedback {
     private unsubscribeLayout: () => void;
     private unsubscribeMotion: () => void;
     private lastTransition: MatchTransition | null;
-    private lastState: GameState | null;
+    private lastState: MatchState | null;
     private lastSheet: Sheet | null;
     private lastPlacement: Placement | null;
     private lastError: string | null;
@@ -27,7 +30,7 @@ export class GameFeedback {
 
     constructor(
         private parent: HTMLElement,
-        private session: GameSession,
+        private session: MatchSession,
         private board: GameScene,
         private ui: InterfaceScene,
         motion: Motion,
@@ -95,11 +98,11 @@ export class GameFeedback {
         const { action, before, after } = transition;
         const active = after.players[after.activePlayerIndex];
         const humanId = this.session.humanPlayer!.id;
-        const human = after.players.find((p) => p.id === humanId)!;
-        const previousHuman = before.players.find((p) => p.id === humanId)!;
+        const human = viewerResources(after, humanId);
+        const previousHuman = viewerResources(before, humanId);
         this.audio.play(transition, humanId);
         for (const resource of RESOURCE_TYPES) {
-            const delta = human.resources[resource] - previousHuman.resources[resource];
+            const delta = human[resource] - previousHuman[resource];
             if (delta) {
                 this.ui.feedback?.resourceChange(
                     this.query(`.hand-resource[data-resource="${resource}"]`),

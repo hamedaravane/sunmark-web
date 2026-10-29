@@ -1,6 +1,6 @@
 import { feedbackEvent, type FeedbackCue, type FeedbackEvent } from './feedbackEvents';
 import type { ExperiencePreferences } from './experiencePreferences';
-import type { MatchTransition } from './transitions';
+import type { PresentedTransition as MatchTransition } from './transitions';
 import type { Motion } from './motion';
 
 // Muted stone taps and bronze-like intervals; no ambient loop or downloaded audio.

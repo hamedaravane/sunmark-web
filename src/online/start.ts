@@ -1,17 +1,13 @@
-import { canvasPixelSize } from '../game/rendering/displayGeometry';
 import { Game, AUTO, Scale } from 'phaser';
-import { OnlineClient, type Intent } from './client';
-import { OnlineScene } from './scene';
-import {
-    validOffer,
-    validDiscard,
-    actionGroup,
-    newDrafts,
-    onlineMarkup,
-    resources,
-} from './markup';
+import { OnlineClient } from './client';
+import { RoomScene } from './roomScene';
+import { OnlineSession } from './session';
+import { mountMatch } from '../game/matchRuntime';
+import { AppPlatform } from '../pwa/app';
+import { newDrafts, onlineMarkup } from './markup';
+import { canvasPixelSize } from '../game/rendering/displayGeometry';
 import './style.css';
-import { responsiveLayout, responsiveProperties } from '../game/ui/responsiveLayout';
+
 export function startOnline(root: HTMLElement, onExit: () => void) {
     let storage: Storage | null = null;
     try {
@@ -19,30 +15,28 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
     } catch {
         /* Optional storage. */
     }
-    const configured = import.meta.env.VITE_API_BASE_URL;
     const base = String(
-        configured ||
+        import.meta.env.VITE_API_BASE_URL ||
             (import.meta.env.DEV
                 ? `${location.protocol}//${location.hostname}:3000`
                 : location.origin),
     ).replace(/\/$/, '');
     const client = new OnlineClient(base, storage);
     const draft = newDrafts();
-    let revision = -1;
-    let matchId = '';
-    let parentId: number | undefined;
+    const invite = new URL(location.href).searchParams.get('invite');
+    if (invite) {
+        draft.code = invite;
+        draft.screen = 'join';
+    }
+    root.className = 'online-root';
     const canvas = document.createElement('div');
     canvas.className = 'online-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
     const semantics = document.createElement('div');
     semantics.className = 'online-semantics';
     semantics.dir = 'rtl';
-    root.className = 'online-root';
     root.append(canvas, semantics);
-    const select = (index: number) => {
-        draft.target = index;
-        render();
-    };
-    const scene = new OnlineScene(semantics, client, draft, select);
+    const scene = new RoomScene(semantics);
     const game = new Game({
         type: AUTO,
         parent: canvas,
@@ -52,60 +46,52 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
         scale: { mode: Scale.NONE },
         scene,
     });
+    let shared: { game: Game; session: OnlineSession; root: HTMLElement } | null = null;
     const render = () => {
-        const actionFocus =
-            semantics.querySelector<HTMLButtonElement>('button:focus')?.dataset.online;
-        const focused = semantics.querySelector<HTMLInputElement>('input:focus');
-        const key = focused?.dataset.draft;
-        const caret = focused?.selectionStart;
-        const panel = semantics.querySelector('.online-panel');
-        const scroll = panel?.scrollTop ?? 0;
-        const detailsScroll = semantics.querySelector('.online-details')?.scrollTop ?? 0;
-        if (
-            client.snapshot &&
-            (client.snapshot.id !== matchId || client.snapshot.revision !== revision)
-        ) {
-            if (client.snapshot.id !== matchId) draft.selected = '';
-            draft.notice = '';
-            revision = client.snapshot.revision;
-            matchId = client.snapshot.id;
-            draft.target = -1;
-            draft.tool = '';
+        if (client.snapshot?.game) {
+            if (!shared) {
+                canvas.hidden = true;
+                semantics.hidden = true;
+                game.loop.sleep();
+                const matchRoot = document.createElement('div');
+                root.append(matchRoot);
+                const session = new OnlineSession(client, () => client.back());
+                shared = {
+                    root: matchRoot,
+                    session,
+                    game: mountMatch(matchRoot, session, new AppPlatform()),
+                };
+            }
+            return;
         }
+        if (shared) {
+            shared.game.destroy(true);
+            shared.session.destroy();
+            shared.root.remove();
+            shared = null;
+            canvas.hidden = false;
+            semantics.hidden = false;
+            game.loop.wake();
+        }
+        const focus = semantics.querySelector<HTMLInputElement>('input:focus');
+        const key = focus?.dataset.draft,
+            caret = focus?.selectionStart;
+        const scroll = semantics.querySelector('.online-panel')?.scrollTop ?? 0;
         semantics.innerHTML = onlineMarkup(client, draft);
-        semantics.classList.toggle('has-game', !!client.snapshot?.game);
-        const nextPanel = semantics.querySelector('.online-panel');
-        if (nextPanel) nextPanel.scrollTop = scroll;
-        const details = semantics.querySelector('.online-details');
-        if (details) details.scrollTop = detailsScroll;
+        const panel = semantics.querySelector('.online-panel');
+        if (panel) panel.scrollTop = scroll;
         if (key) {
             const input = semantics.querySelector<HTMLInputElement>(`input[data-draft="${key}"]`);
             input?.focus({ preventScroll: true });
-            if (input?.type !== 'number' && caret !== null && caret !== undefined)
-                input?.setSelectionRange(caret, caret);
-        }
-        if (!key && actionFocus) {
-            [...semantics.querySelectorAll<HTMLButtonElement>('button')]
-                .find((button) => button.dataset.online === actionFocus)
-                ?.focus({ preventScroll: true });
+            if (caret != null) input?.setSelectionRange(caret, caret);
         }
         scene.invalidate();
     };
-    const execute = (intent: Intent) => {
-        draft.target = -1;
-        draft.tool = '';
-        void client.command(intent);
-    };
-    const bundle = (value: Record<string, number>) => ({
-        wood: value.wood ?? 0,
-        brick: value.brick ?? 0,
-        wheat: value.wheat ?? 0,
-        wool: value.wool ?? 0,
-        stone: value.stone ?? 0,
-    });
     const click = (event: MouseEvent) => {
-        if (!(event.target instanceof Element)) return;
-        const button = event.target.closest<HTMLButtonElement>('button[data-online]');
+        const button =
+            event.target instanceof Element
+                ? event.target.closest<HTMLButtonElement>('button[data-online]')
+                : null;
         if (!button || button.disabled) return;
         const [action, ...parts] = (button.dataset.online ?? '').split(':');
         const value = parts.join(':');
@@ -124,8 +110,7 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
                 void client.guest(draft.name.trim());
                 break;
             case 'create':
-            case 'rematch':
-                void client.create(draft.lobby);
+                void client.create(draft.lobby.trim());
                 break;
             case 'join':
                 void client.join(draft.code.trim().toLowerCase());
@@ -135,9 +120,6 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
                 break;
             case 'back':
                 client.back();
-                break;
-            case 'retry':
-                void client.retry();
                 break;
             case 'ready':
                 void client.lobby({
@@ -160,125 +142,24 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
                 url.searchParams.set('invite', client.snapshot?.code ?? '');
                 void (async () => {
                     try {
-                        if (!navigator.clipboard) throw new Error('clipboard unavailable');
+                        if (!navigator.clipboard) throw new Error('unavailable');
                         await navigator.clipboard.writeText(url.href);
-                        draft.notice = 'پیوند دعوت کپی شد. برای دوستانت بفرست.';
+                        draft.notice = 'پیوند دعوت کپی شد.';
                     } catch {
-                        draft.notice = `کپی خودکار ممکن نشد. کد دعوت: ${client.snapshot?.code ?? ''}`;
+                        draft.notice = `کد دعوت: ${client.snapshot?.code ?? ''}`;
                     }
                     render();
                 })();
-                break;
-            }
-            case 'player':
-                draft.selected = `player:${value}`;
-                render();
-                break;
-            case 'workspace':
-                draft.selected = value;
-                draft.tool = '';
-                draft.target = -1;
-                render();
-                break;
-            case 'tool': {
-                draft.tool = value;
-                draft.target = -1;
-                const choices =
-                    client.snapshot?.game?.availableIntents.filter(
-                        (intent) => actionGroup(intent) === value,
-                    ) ?? [];
-                if (choices.some((intent) => 'targetId' in intent)) draft.selected = '';
-                if (choices.length === 1)
-                    draft.target =
-                        client.snapshot?.game?.availableIntents.indexOf(choices[0]) ?? -1;
-                render();
-                break;
-            }
-            case 'select':
-                select(Number(value));
-                break;
-            case 'destinations':
-                draft.selected = draft.selected === 'destinations' ? '' : 'destinations';
-                render();
-                break;
-            case 'cancel':
-                draft.target = -1;
-                draft.tool = '';
-                render();
-                break;
-            case 'confirm': {
-                const intent = client.snapshot?.game?.availableIntents[draft.target];
-                if (intent) execute(intent);
-                break;
-            }
-            case 'discard':
-                if (!client.snapshot?.game || !validDiscard(client.snapshot.game, draft)) break;
-                execute({ kind: 'discard', resources: bundle(draft.discard) });
-                break;
-            case 'offer-form':
-                draft.selected = 'offer';
-                parentId = undefined;
-                render();
-                break;
-            case 'recipient':
-                draft.to = value;
-                render();
-                break;
-            case 'offer':
-                if (!client.snapshot?.game || !validOffer(client.snapshot.game, draft)) break;
-                execute({
-                    kind: 'offer',
-                    to: draft.to,
-                    give: bundle(draft.offerGive),
-                    want: bundle(draft.offerWant),
-                    ...(parentId === undefined ? {} : { parentId }),
-                });
-                draft.selected = '';
-                break;
-            case 'accept':
-            case 'reject':
-                execute({ kind: 'respond', offerId: Number(value), accept: action === 'accept' });
-                break;
-            case 'trade-confirm':
-                execute({ kind: 'confirm', offerId: Number(value) });
-                break;
-            case 'withdraw':
-                execute({ kind: 'withdraw', offerId: Number(value) });
-                break;
-            case 'counter': {
-                const offer = client.snapshot?.offers.find((o) => o.id === Number(value));
-                if (offer) {
-                    parentId = offer.id;
-                    draft.selected = 'offer';
-                    draft.to = offer.from;
-                    draft.offerGive = { ...offer.want };
-                    draft.offerWant = { ...offer.give };
-                    render();
-                }
                 break;
             }
         }
     };
     const input = (event: Event) => {
         if (!(event.target instanceof HTMLInputElement)) return;
-        const [key, resource] = event.target.dataset.draft?.split('.') ?? [];
+        const key = event.target.dataset.draft;
         if (key === 'name' || key === 'code' || key === 'lobby') draft[key] = event.target.value;
-        else if (
-            (key === 'discard' || key === 'offerGive' || key === 'offerWant') &&
-            resources.some((r) => r === resource) &&
-            resource
-        )
-            draft[key][resource] = Math.max(0, Math.floor(Number(event.target.value) || 0));
-        // Recompute validation without replacing the focused native input.
-        semantics.querySelectorAll<HTMLButtonElement>('button[data-online]').forEach((button) => {
+        for (const button of semantics.querySelectorAll<HTMLButtonElement>('button[data-online]')) {
             const action = button.dataset.online;
-            if (client.snapshot?.game && (action === 'offer' || action === 'discard'))
-                button.disabled =
-                    client.busy ||
-                    !!client.pending ||
-                    !(action === 'offer'
-                        ? validOffer(client.snapshot.game, draft)
-                        : validDiscard(client.snapshot.game, draft));
             if (action === 'guest' || action === 'create' || action === 'join')
                 button.disabled =
                     client.busy ||
@@ -289,26 +170,12 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
                               ? draft.lobby
                               : draft.code
                     ).trim();
-        });
+        }
         scene.invalidate();
     };
-    const keydown = (event: KeyboardEvent) => {
-        if (event.key === 'Escape' && (draft.selected || draft.tool)) {
-            draft.selected = '';
-            draft.tool = '';
-            draft.target = -1;
-            render();
-        }
-    };
-    semantics.addEventListener('keydown', keydown);
     semantics.addEventListener('click', click);
     semantics.addEventListener('input', input);
-    const resize = new ResizeObserver(() => {
-        const layout = responsiveLayout(root.clientWidth, root.clientHeight);
-        semantics.classList.toggle('is-wide', layout.wide);
-        semantics.classList.toggle('is-desktop', layout.desktop);
-        for (const [key, value] of Object.entries(responsiveProperties(layout)))
-            semantics.style.setProperty(key, value);
+    const resize = () => {
         if (root.clientWidth && root.clientHeight) {
             const size = canvasPixelSize(
                 root.clientWidth,
@@ -316,32 +183,25 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
                 window.devicePixelRatio,
             );
             game.scale.resize(size.width, size.height);
+            scene.invalidate();
         }
-        scene.invalidate();
-    });
-    resize.observe(root);
-    const refreshDensity = () => {
-        const size = canvasPixelSize(root.clientWidth, root.clientHeight, window.devicePixelRatio);
-        game.scale.resize(size.width, size.height);
-        scene.invalidate();
     };
-    window.addEventListener('resize', refreshDensity);
+    const observer = new ResizeObserver(resize);
+    observer.observe(root);
+    window.addEventListener('resize', resize);
     const disconnect = client.subscribe(render);
     render();
-    const invite = new URL(location.href).searchParams.get('invite');
-    if (invite) {
-        draft.code = invite;
-        draft.screen = 'join';
-    }
-    void client.initialize().then(() => render());
+    void client.initialize();
     return {
         client,
         destroy() {
             disconnect();
+            shared?.game.destroy(true);
+            shared?.session.destroy();
+            shared?.root.remove();
             client.destroy();
-            resize.disconnect();
-            window.removeEventListener('resize', refreshDensity);
-            semantics.removeEventListener('keydown', keydown);
+            observer.disconnect();
+            window.removeEventListener('resize', resize);
             semantics.removeEventListener('click', click);
             semantics.removeEventListener('input', input);
             game.destroy(true);

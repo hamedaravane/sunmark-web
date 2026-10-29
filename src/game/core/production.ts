@@ -9,7 +9,7 @@ export interface ProductionGrant {
 
 /** The same production ledger drives payment and its presentation. No state is changed. */
 export function getProduction(
-    state: Pick<GameState, 'board' | 'players'>,
+    state: { board: GameState['board']; players: Pick<GameState['players'][number], 'id'>[] },
     total: number,
 ): ProductionGrant[] {
     if (total === 7) return [];
