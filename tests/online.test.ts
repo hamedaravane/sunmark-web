@@ -5,7 +5,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { io } from 'socket.io-client';
 import { createGame } from '../src/game/core/game';
 import { OnlineClient } from '../src/online/client';
-import { onlineMarkup, newDrafts } from '../src/online/markup';
+import { onlineMarkup, newDrafts, validOffer, validDiscard } from '../src/online/markup';
 import { matchSnapshotSchema } from '../src/online/shared/src/online/wire';
 import type { paths } from '../src/online/shared/http';
 const matchId = '10000000-0000-4000-8000-000000000000';
@@ -145,6 +145,7 @@ describe('online frontend', () => {
         game.phase = 'discard';
         game.discardObligations = { 'player-1': 4 };
         expect(onlineMarkup(client, draft)).toContain('data-online="discard"');
+        draft.selected = 'trade';
         client.snapshot.offers = [
             {
                 id: 1,
@@ -163,6 +164,50 @@ describe('online frontend', () => {
         game.phase = 'finished';
         client.snapshot.status = 'finished';
         expect(onlineMarkup(client, draft)).toContain('data-online="rematch"');
+        client.destroy();
+    });
+    it('keeps room entry separate and validates a private hand without opponent data', () => {
+        const client = new OnlineClient('http://unused', null);
+        client.session = { id: sessionId, name: 'A' };
+        const draft = newDrafts();
+        expect(onlineMarkup(client, draft)).not.toContain('data-draft="code"');
+        draft.screen = 'join';
+        expect(onlineMarkup(client, draft)).toContain('data-draft="code"');
+        expect(onlineMarkup(client, draft)).not.toContain('data-draft="lobby"');
+        const game = snapshot().game;
+        if (!game) throw new Error('Missing fixture');
+        game.self.resources.wood = 2;
+        game.discardObligations[game.self.id] = 2;
+        draft.discard.wood = 3;
+        expect(validDiscard(game, draft)).toBe(false);
+        draft.discard.wood = 2;
+        expect(validDiscard(game, draft)).toBe(true);
+        draft.to = 'player-2';
+        draft.offerGive.wood = 1;
+        draft.offerWant.brick = 1;
+        expect(validOffer(game, draft)).toBe(true);
+        draft.offerWant.wood = 1;
+        expect(validOffer(game, draft)).toBe(false);
+        draft.offerWant.wood = 0;
+        draft.offerGive.wood = 3;
+        expect(validOffer(game, draft)).toBe(false);
+        client.destroy();
+    });
+    it('keeps destination IDs out of player-facing choices and hides idle board targets', () => {
+        const client = new OnlineClient('http://unused', null);
+        client.session = { id: sessionId, name: 'A' };
+        client.snapshot = snapshot();
+        const game = client.snapshot.game;
+        if (!game) throw new Error('Missing fixture');
+        game.availableIntents = [
+            { kind: 'setup', type: 'settlement', targetId: 'private-internal-vertex' },
+        ];
+        const draft = newDrafts();
+        draft.tool = 'setup-settlement';
+        expect(onlineMarkup(client, draft)).not.toContain('private-internal-vertex');
+        draft.selected = 'destinations';
+        expect(onlineMarkup(client, draft)).toContain('data-online="select:0"');
+        expect(onlineMarkup(client, draft)).not.toContain('private-internal-vertex');
         client.destroy();
     });
     it('restores pending commands without replaying them, then explicitly retries the same UUID', async () => {

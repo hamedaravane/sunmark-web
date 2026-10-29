@@ -50,3 +50,31 @@ SUNMARK_BUILD_BACKEND=1 SUNMARK_COMPOSE_OVERRIDE=compose.backend-dev.yml bash sc
 ```
 
 The override uses `sunmark-server-dev:local` for both API and migration services, with a backend build context at `../sunmark-server` (override SUNMARK_SERVER_PATH if needed). It also exposes the API's local development port. The default Compose file has no backend build context or source path dependency. CI cross-repository tests select this override explicitly when testing an unpublished backend revision.
+
+## Shared game presentation
+
+Online entry now separates the room list, room creation and joining with an invite.
+The four-seat lobby shows human/bot identity, readiness, the invitation code and
+copy feedback. Only the host can manage bot seats and start when all four are ready.
+
+Matches use the offline game's ocean, coast, terrain, pieces, number tokens,
+Ahriman, enamel palette, player seals, resource illustrations and ivory dice.
+The local player's score and hand stay fixed while the acting seat changes.
+Building, bank/port trading, development cards and player negotiation have separate
+workspaces; legal destinations appear on the board only while selecting a move.
+A numbered destination list remains available for keyboard input, followed by an
+explicit confirmation. Escape closes an optional workspace or placement draft.
+Player seals open public details without exposing opponent hands or hidden scores.
+
+`src/online/rooms.ts` owns room presentation; `markup.ts` composes match controls;
+`model.ts` holds local drafts and validation; `components.ts` escapes semantic
+markup. `start.ts` dispatches authenticated client operations and manages focus,
+resize and clipboard feedback. `scene.ts` paints shared game art over transparent
+native controls. Scroll regions use Phaser 4 external mask filters in WebGL and
+geometry masks in Canvas. Rendering uses the same bounded pixel-density sizing
+as offline play. Server snapshots, receipts, private projections and offline saves
+retain their existing ownership and contracts.
+
+Automated checks cover entry states, escaping, destination privacy, local trade
+and discard validation, pending-command recovery and the actual multiplayer client.
+Browser/device review of the redesigned screens remains a separate human check.

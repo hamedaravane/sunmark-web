@@ -1,17 +1,15 @@
 .online-root {
     position: absolute;
     inset: 0;
-    width: 100%;
     height: var(--app-height);
-    margin: auto;
     overflow: hidden;
-    background: #111b3b;
     font-family: Vazirmatn, Tahoma, sans-serif;
+    background: #111b3b;
 }
-.online-canvas {
+.online-canvas,
+.online-semantics {
     position: absolute;
     inset: 0;
-    pointer-events: auto;
 }
 .online-canvas canvas {
     display: block;
@@ -19,80 +17,96 @@
     height: 100%;
 }
 .online-semantics {
-    position: absolute;
-    inset: 0;
     display: flex;
     flex-direction: column;
-    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0
-        env(safe-area-inset-left, 0px);
+    gap: 8px;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+        env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
     pointer-events: none;
-    gap: 4px;
 }
 .online-semantics header {
+    flex: none;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    padding: 8px 12px;
-    pointer-events: auto;
+    gap: 12px;
+    padding: 8px 16px;
+}
+.online-semantics header h1 {
+    flex: 1;
+}
+.online-semantics header small {
+    font-size: 11px;
+    max-width: 100px;
+}
+.online-semantics :is(h1, h2, h3, p, small, strong) {
+    margin: 0;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
 }
 .online-semantics h1 {
-    font-size: 22px;
+    font-size: 18px;
 }
 .online-semantics h2 {
-    font-size: 19px;
+    font-size: 24px;
+}
+.online-semantics h3 {
+    font-size: 17px;
+}
+.online-semantics p {
+    font-size: 14px;
 }
 .online-semantics small {
     font-size: 12px;
 }
-.online-board {
-    flex: 0 0 48%;
-    min-height: 240px;
-    pointer-events: none;
-}
 .online-panel {
-    flex: 1;
-    min-height: 0;
-    min-width: 0;
     width: 100%;
-    max-width: 640px;
-    margin-inline: auto;
+    max-width: 480px;
+    margin: auto;
+    min-height: 0;
     overflow: auto;
     overscroll-behavior: contain;
-    pointer-events: auto;
-    padding: 12px 14px calc(24px + env(safe-area-inset-bottom));
+    padding: 20px 20px 28px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    scrollbar-width: thin;
+    gap: 16px;
+    pointer-events: auto;
+    scrollbar-width: none;
 }
-.online-semantics button {
+.online-semantics :is(button, input) {
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.6;
     min-height: 48px;
     min-width: 48px;
-    padding: 10px 14px;
     border: 0;
-    border-radius: 12px;
-    font-size: 15px;
     background: transparent;
-    box-shadow: none;
+    padding: 12px 16px;
+    border-radius: 14px;
+}
+.online-semantics button {
+    cursor: pointer;
+}
+.online-semantics button:disabled {
+    cursor: default;
+}
+.online-semantics :is(button, input):focus-visible {
+    outline: 3px solid #ffcf75;
+    outline-offset: 2px;
 }
 .online-semantics label {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 }
 .online-semantics input {
+    width: 100%;
     min-width: 0;
-    max-width: 100%;
-    border: 0;
-    padding: 12px;
-    font: inherit;
-    background: transparent;
-    min-height: 48px;
     direction: rtl;
-    caret-color: #ffcf75;
-    outline-offset: 2px;
+}
+.online-semantics input[data-draft='code'] {
+    direction: ltr;
+    letter-spacing: 3px;
+    text-align: center;
 }
 .online-semantics [data-paint] {
     color: transparent !important;
@@ -100,94 +114,288 @@
 }
 .online-semantics input:focus {
     color: #fff4dc !important;
-    outline: 2px solid #ffcf75;
+    caret-color: #ffcf75;
 }
-.online-semantics button:focus-visible {
-    outline: 2px solid #ffcf75;
+.online-card,
+.online-welcome,
+.online-invite {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
 }
-.online-card {
+.online-welcome {
+    text-align: center;
+    padding-block: 28px;
+}
+.online-invite {
+    text-align: center;
+}
+.online-invite h2 {
+    direction: ltr;
+    letter-spacing: 3px;
+}
+.online-seats {
+    display: grid;
+    gap: 10px;
+}
+.online-seat {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+}
+.online-seat button {
+    grid-column: 2;
+    padding: 8px;
+}
+[data-avatar] {
+    display: block;
+    width: 40px;
+    height: 40px;
+    flex: none;
+}
+.online-board[hidden] {
+    display: none;
+}
+.online-board {
+    min-height: 0;
+}
+.has-game {
+    display: grid;
+    grid-template-rows: 64px 112px minmax(140px, 1fr) auto;
+    gap: 0;
+}
+.has-game > header {
+    grid-row: 1;
+}
+.has-game .online-board {
+    grid-row: 3;
+    grid-column: 1;
+}
+.has-game .online-panel {
+    display: contents;
+}
+.online-match-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    grid-row: 2;
+    grid-column: 1;
+    align-self: start;
+    height: 64px;
+}
+.online-player {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    min-width: 0;
+    border-radius: 14px;
+}
+.online-player > div {
+    min-width: 0;
+}
+.online-player strong {
+    display: block;
+    font-size: 12px;
+    line-height: 1.4;
+}
+.online-player small {
+    display: block;
+    font-size: 10px;
+}
+.online-turn {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+}
+.online-turn strong {
+    font-size: 13px;
+}
+.online-turn small {
+    display: block;
+}
+.online-dice {
+    display: flex;
+    gap: 4px;
+}
+[data-die] {
+    display: block;
+    width: 28px;
+    height: 28px;
+}
+.online-standings {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    padding: 0 12px;
+    grid-row: 2;
+    grid-column: 1;
+    align-self: end;
+}
+.online-standings [data-avatar] {
+    width: 26px;
+    height: 26px;
+}
+.online-standings .online-player {
+    padding: 4px;
+}
+.online-hand {
+    grid-row: 4;
+    grid-column: 1;
+    display: flex;
+    gap: 5px;
+    padding: 8px 12px;
+}
+.online-resource {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 5px;
+}
+.online-resource [data-resource] {
+    width: 26px;
+    height: 26px;
+}
+.online-resource strong {
+    font-size: 19px;
+    text-align: center;
+}
+.online-resource small {
+    grid-column: 1/-1;
+    text-align: center;
+    font-size: 10px;
+}
+.online-workspace {
+    grid-row: 5;
+    pointer-events: auto;
+    padding: 8px 12px max(12px, env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 10px 0;
-    border-bottom: 1px solid transparent;
+    min-height: 0;
 }
-.online-standings,
-.online-hand,
 .online-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-}
-.online-standings span {
-    flex: 1 1 40%;
-    font-size: 12px;
-}
-.online-hand span {
-    flex: 1 1 28%;
+    gap: 6px;
 }
 .online-actions button {
-    flex: 1 1 40%;
+    flex: 1 1 22%;
+    padding: 10px 6px;
+    font-size: 12px;
+}
+.online-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 30vh;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
 }
 .online-choices {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    max-height: 200px;
-    overflow: auto;
-}
-.online-choices button {
-    flex: 1 1 40%;
-}
-@media (max-height: 720px) {
-    .online-board {
-        min-height: 220px;
-        flex-basis: 33%;
-    }
-    .online-semantics header {
-        padding: 4px 10px;
-    }
-    .online-semantics h1 {
-        font-size: 18px;
-    }
-}
-
-.online-semantics.is-wide.has-game {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+.online-details:empty {
+    display: none;
+}
+.online-details label {
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    align-items: center;
+}
+.has-game [role='alert'],
+.has-game .online-notice {
+    grid-row: 3;
+    grid-column: 1;
+    align-self: start;
+    z-index: 1;
+    padding: 12px;
+    pointer-events: auto;
+}
+@media (max-width: 359px), (max-height: 720px) {
+    .has-game {
+        grid-template-rows: 56px 104px minmax(110px, 1fr) auto;
+    }
+    .online-match-header {
+        padding-inline: 8px;
+    }
+    .online-dice {
+        display: none;
+    }
+    .online-standings {
+        padding-inline: 8px;
+    }
+}
+.online-semantics.is-wide.has-game {
     grid-template-columns: var(--controls-width) minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
-    grid-template-areas: 'header header' 'panel board';
+    grid-template-rows: 64px 112px minmax(0, 1fr) auto;
 }
 .is-wide.has-game > header {
-    grid-area: header;
+    grid-column: 1/-1;
 }
 .is-wide.has-game .online-board {
-    grid-area: board;
-    min-height: 0;
+    grid-column: 2;
+    grid-row: 2/6;
 }
-.is-wide.has-game .online-panel {
-    grid-area: panel;
-    max-width: none;
+.is-wide.has-game .online-workspace {
+    grid-column: 1;
+    grid-row: 3;
+    overflow: auto;
 }
-
+.is-wide.has-game .online-hand {
+    grid-row: 4;
+}
+.is-wide.has-game .online-details {
+    max-height: none;
+    overflow: visible;
+}
 .online-semantics.is-desktop {
-    inset: 0;
     width: var(--play-width);
     height: var(--play-height);
     margin: auto;
-    gap: var(--play-gap);
 }
-.online-semantics.is-desktop.has-game {
-    grid-template-rows: var(--play-header) minmax(0, 1fr);
+.is-desktop.has-game {
+    gap: 12px;
 }
-.online-semantics.is-desktop > header {
-    padding: 12px 20px;
+.online-semantics :is(button, input) {
+    pointer-events: auto;
 }
-.online-semantics.is-desktop .online-panel {
-    padding: 20px;
-    gap: 16px;
+.online-feedback:empty {
+    display: none;
 }
-.online-semantics.is-desktop.has-game .online-panel {
-    align-self: center;
-    max-height: 100%;
+.online-feedback {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.has-game .online-feedback {
+    grid-row: 3;
+    grid-column: 1;
+    z-index: 2;
+    align-self: start;
+    margin: 12px;
+    max-height: 140px;
+    overflow: auto;
+    pointer-events: auto;
+}
+.is-wide.has-game .online-feedback {
+    grid-column: 2;
+    grid-row: 2;
+}
+.online-semantics .online-player {
+    min-width: 0;
+    padding: 6px 8px;
+    text-align: start;
+}
+.online-semantics .online-standings .online-player {
+    padding: 4px;
 }

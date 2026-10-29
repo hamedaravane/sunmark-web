@@ -1,59 +1,16 @@
 import type { OnlineClient, Intent } from './client';
 import type { GameView } from './shared/src/online/wire';
-export const resources = ['wood', 'brick', 'wheat', 'wool', 'stone'] as const;
-export const resourceLabels = {
-    wood: 'چوب',
-    brick: 'آجر',
-    wheat: 'گندم',
-    wool: 'پشم',
-    stone: 'سنگ',
-};
-export const cardLabels = {
-    knight: 'شوالیه',
-    'victory-point': 'امتیاز پیروزی',
-    'road-building': 'راه‌سازی',
-    monopoly: 'انحصار',
-    'year-of-plenty': 'فراوانی',
-};
-export const escape = (text: unknown) =>
-    String(text).replace(
-        /[&<>"']/g,
-        (char) =>
-            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char] ?? '',
-    );
-export interface Drafts {
-    name: string;
-    code: string;
-    lobby: string;
-    tool: string;
-    target: number;
-    give: string;
-    receive: string;
-    discard: Record<string, number>;
-    offerGive: Record<string, number>;
-    offerWant: Record<string, number>;
-    to: string;
-    selected: string;
-}
-export const newDrafts = (): Drafts => ({
-    name: '',
-    code: '',
-    lobby: 'بازی دوستانه',
-    tool: '',
-    target: -1,
-    give: 'wood',
-    receive: 'brick',
-    discard: {},
-    offerGive: {},
-    offerWant: {},
-    to: '',
-    selected: '',
-});
-const label = (text: string, kind = 'p') => `<${kind} data-paint>${escape(text)}</${kind}>`;
-const button = (text: string, action: string, disabled = false) =>
-    `<button data-paint data-online="${escape(action)}" ${disabled ? 'disabled' : ''}>${escape(text)}</button>`;
-const input = (title: string, key: string, value: string | number, type = 'text', max = '80') =>
-    `<label>${label(title, 'span')}<input data-paint aria-label="${escape(title)}" data-draft="${key}" value="${escape(value)}" type="${type}" ${type === 'number' ? 'min="0" max="999" step="1"' : `maxlength="${max}"`}></label>`;
+import {
+    resources,
+    resourceLabels,
+    cardLabels,
+    validOffer,
+    validDiscard,
+    type Drafts,
+} from './model';
+import { label, button, input, escape } from './components';
+import { roomMarkup } from './rooms';
+export { resources, newDrafts, validOffer, validDiscard, type Drafts } from './model';
 export function intentLabel(intent: Intent, game: GameView): string {
     switch (intent.kind) {
         case 'setup-roll':
@@ -91,53 +48,10 @@ export function actionGroup(intent: Intent) {
 }
 export function onlineMarkup(client: OnlineClient, draft: Drafts) {
     const snapshot = client.snapshot;
-    const busy = client.busy;
+    const busy = client.busy || !!client.pending;
     let body = '';
-    if (!client.session) {
-        body =
-            label('با نام خود وارد شوید. نشست شما روی همین مرورگر حفظ می‌شود.') +
-            input('نام شما', 'name', draft.name) +
-            button('ورود مهمان', 'guest', busy);
-    } else if (!snapshot) {
-        body =
-            label(`درود ${client.session.name}`, 'h2') +
-            input('نام بازی', 'lobby', draft.lobby) +
-            button('ساخت اتاق خصوصی', 'create', busy) +
-            input('کد دعوت', 'code', draft.code, 'text', '12') +
-            button('پیوستن با کد', 'join', busy) +
-            client.matches
-                .map((m) =>
-                    button(
-                        `${m.name} · ${m.status === 'finished' ? 'پایان‌یافته' : 'ادامه بازی'}`,
-                        `open:${m.id}`,
-                        busy,
-                    ),
-                )
-                .join('');
-    } else if (snapshot.status === 'lobby') {
-        body =
-            label(snapshot.name, 'h2') +
-            label(`کد دعوت: ${snapshot.code}`) +
-            button('کپی پیوند دعوت', 'invite') +
-            snapshot.seats
-                .map(
-                    (seat, index) =>
-                        `<section class="online-card">${label(`${seat.isYou ? 'شما · ' : ''}${seat.occupied ? seat.name : 'جای خالی'} · ${seat.ready ? 'آماده' : 'منتظر'}`)}${snapshot.host && index > 0 && !seat.isYou && !(!seat.bot && seat.occupied) ? button(seat.bot ? 'حذف ربات' : 'افزودن ربات', `bot:${index}:${!seat.bot}`, busy) : ''}</section>`,
-                )
-                .join('') +
-            button(
-                snapshot.seats.find((s) => s.isYou)?.ready ? 'لغو آمادگی' : 'آماده‌ام',
-                'ready',
-                busy,
-            ) +
-            (snapshot.host
-                ? button(
-                      'آغاز بازی',
-                      'start',
-                      busy || snapshot.seats.some((s) => !s.occupied || !s.ready),
-                  )
-                : '');
-    } else if (snapshot.game) {
+    if (!snapshot?.game || snapshot.status === 'lobby') body = roomMarkup(client, draft);
+    else if (snapshot.game) {
         const game = snapshot.game;
         const actor = game.players.find((p) => p.id === game.actorId);
         const phases = {
@@ -152,31 +66,69 @@ export function onlineMarkup(client: OnlineClient, draft: Drafts) {
             'road-building': 'راه رایگان',
             finished: 'پایان بازی',
         };
+        const player = (p: GameView['players'][number]) =>
+            `<button data-online="player:${escape(p.id)}" class="online-player ${p.id === game.actorId ? 'is-acting' : ''}" data-surface="${p.id === game.actorId ? 'lapis' : 'inset'}"><span data-avatar="${snapshot.seats.find((seat) => seat.playerId === p.id)?.bot ? 'atlas' : 'human'}" data-owner="${p.color.toString(16).padStart(6, '0')}" aria-hidden="true"></span><div>${label(`${p.name}${p.id === game.self.id ? ' · شما' : ''}`, 'strong')}${label(`${p.id === game.self.id ? game.self.score : p.publicScore} / ${game.victoryTarget} امتیاز`, 'small')}</div></button>`;
         body =
-            label(`${snapshot.name} · ${phases[game.phase]}`, 'h2') +
-            label(
-                game.winnerId
-                    ? `برنده: ${game.players.find((p) => p.id === game.winnerId)?.name ?? ''}`
-                    : `نوبت ${actor?.name ?? ''}${game.actorId === game.self.id ? ' · شما' : ''}`,
-            ) +
-            label(game.lastRoll ? `تاس: ${game.lastRoll.join(' + ')}` : 'تاس هنوز ریخته نشده است') +
-            `<div class="online-standings">${game.players.map((p) => label(`${p.name}: ${p.publicScore} امتیاز · ${p.resourceCount} منبع · ${p.developmentCount} کارت`, 'span')).join('')}</div>` +
-            `<div class="online-hand">${resources.map((r) => label(`${resourceLabels[r]}: ${game.self.resources[r]}`, 'span')).join('')}</div>` +
-            label(`امتیاز شما: ${game.self.score}`) +
-            game.self.developmentCards
-                .map((card) =>
-                    label(
-                        `${cardLabels[card.kind]} · ${card.boughtOnRound === game.turn ? 'خرید این دور' : 'در دست'}`,
-                        'span',
-                    ),
-                )
-                .join('');
+            `<div class="online-match-header">${player(game.players.find((p) => p.id === game.self.id) ?? game.players[0])}<div class="online-turn">${label(game.winnerId ? `پیروز: ${game.players.find((p) => p.id === game.winnerId)?.name ?? ''}` : game.actorId === game.self.id ? 'نوبت شماست' : `نوبت ${actor?.name ?? ''}`, 'strong')}${label(phases[game.phase], 'small')}</div><div class="online-dice" aria-label="${game.lastRoll ? `تاس ${game.lastRoll.join(' و ')}` : 'تاس هنوز ریخته نشده'}">${(game.lastRoll ?? [0, 0]).map((value) => `<span data-die="${value}" aria-hidden="true"></span>`).join('')}</div></div>` +
+            `<div class="online-standings">${game.players
+                .filter((p) => p.id !== game.self.id)
+                .map(player)
+                .join('')}</div>` +
+            `<div class="online-hand">${resources.map((r) => `<div class="online-resource" data-surface="${{ wood: 'emerald', brick: 'coral', wheat: 'honey', wool: 'turquoise', stone: 'lapis' }[r]}"><span data-resource="${r}" aria-hidden="true"></span>${label(String(game.self.resources[r]), 'strong')}${label(resourceLabels[r], 'small')}</div>`).join('')}</div>`;
+        body += `<div class="online-workspace" data-surface="inset">`;
         const groups = [
             ...new Map(
                 game.availableIntents.map((intent) => [actionGroup(intent), intent]),
             ).entries(),
         ];
-        body += `<div class="online-actions">${groups.map(([key, intent]) => button(intentLabel(intent, game), `tool:${key}`, busy || !!client.pending)).join('')}</div>`;
+        const category = (intent: Intent) =>
+            intent.kind === 'build' ||
+            intent.kind === 'setup' ||
+            intent.kind === 'robber' ||
+            intent.kind === 'steal'
+                ? 'build'
+                : intent.kind === 'trade'
+                  ? 'bank'
+                  : intent.kind === 'play-development' || intent.kind === 'buy-development'
+                    ? 'cards'
+                    : 'primary';
+        const primary = groups.filter(([, intent]) => category(intent) === 'primary');
+        body += `<div class="online-actions">${primary.map(([key, intent]) => button(intentLabel(intent, game), `tool:${key}`, busy)).join('')}${(['build', 'bank', 'cards'] as const).map((key) => (groups.some(([, intent]) => category(intent) === key) ? button({ build: 'ساخت و مقصد', bank: 'بانک و بندر', cards: 'کارت‌ها' }[key], `workspace:${key}`, busy) : '')).join('')}${game.phase === 'actions' || snapshot.offers.some((offer) => ['open', 'accepted'].includes(offer.status)) ? button(`تجارت${snapshot.offers.some((offer) => offer.to === game.self.id && offer.status === 'open') ? ' · پیشنهاد تازه' : ' با بازیکنان'}`, 'workspace:trade', busy) : ''}</div>`;
+        body += `<div class="online-details">`;
+        if (draft.selected) body += button('بستن پنل', 'workspace:');
+        if (draft.selected.startsWith('player:')) {
+            const selectedPlayer = game.players.find((p) => `player:${p.id}` === draft.selected);
+            if (selectedPlayer)
+                body +=
+                    label(selectedPlayer.name, 'h3') +
+                    label(
+                        `${selectedPlayer.publicScore} امتیاز آشکار · ${selectedPlayer.resourceCount} منبع · ${selectedPlayer.developmentCount} کارت پیشرفت · ${selectedPlayer.playedKnights} شوالیه بازی‌شده`,
+                    ) +
+                    label('دست و امتیاز پنهان حریفان خصوصی است.', 'small');
+        }
+        if (['build', 'bank', 'cards'].includes(draft.selected)) {
+            body +=
+                label(
+                    {
+                        build: 'ساخت و انتخاب مقصد',
+                        bank: 'مبادله با بانک و بندر',
+                        cards: 'کارت‌های پیشرفت',
+                    }[draft.selected] ?? '',
+                    'h3',
+                ) +
+                `<div class="online-choices">${groups
+                    .filter(([, intent]) => category(intent) === draft.selected)
+                    .map(([key, intent]) => button(intentLabel(intent, game), `tool:${key}`, busy))
+                    .join('')}</div>`;
+            if (draft.selected === 'cards')
+                body += game.self.developmentCards
+                    .map((card) =>
+                        label(
+                            `${cardLabels[card.kind]} · ${card.boughtOnRound === game.turn ? 'از نوبت بعد قابل بازی' : 'در دست'}`,
+                        ),
+                    )
+                    .join('');
+        }
         if (draft.tool) {
             const choices = game.availableIntents.filter(
                 (intent) => actionGroup(intent) === draft.tool,
@@ -188,30 +140,39 @@ export function onlineMarkup(client: OnlineClient, draft: Drafts) {
                         (c) => c.kind === 'build' || c.kind === 'setup' || c.kind === 'robber',
                     )
                 )
-                    body += `<div class="online-choices">${choices.map((intent, i) => button(`${i + 1} · ${'targetId' in intent ? intent.targetId : ''}`, `select:${game.availableIntents.indexOf(intent)}`, busy)).join('')}</div>`;
+                    body +=
+                        button('فهرست مقصدها', 'destinations') +
+                        (draft.selected === 'destinations'
+                            ? `<div class="online-choices">${choices.map((intent, i) => button(`مقصد ${(i + 1).toLocaleString('fa-IR')}`, `select:${game.availableIntents.indexOf(intent)}`, busy)).join('')}</div>`
+                            : '');
                 else
                     body += `<div class="online-choices">${choices.map((intent) => button(intentLabel(intent, game), `select:${game.availableIntents.indexOf(intent)}`, busy)).join('')}</div>`;
             }
         }
+        if (draft.tool && draft.target < 0) body += button('لغو انتخاب', 'cancel');
         const chosen = game.availableIntents[draft.target];
         if (chosen)
             body +=
-                label(
-                    `انتخاب: ${intentLabel(chosen, game)}${'targetId' in chosen ? ` · ${chosen.targetId}` : ''}`,
-                ) +
+                label(`انتخاب: ${intentLabel(chosen, game)}`) +
                 button('تأیید حرکت', 'confirm', busy || !!client.pending) +
                 button('لغو انتخاب', 'cancel');
         const discard = game.discardObligations[game.self.id] ?? 0;
-        if (game.actorId === game.self.id && game.phase === 'discard')
+        if (discard > 0)
             body +=
                 label(`دقیقاً ${discard} منبع را انتخاب کنید.`) +
                 resources
                     .map((r) =>
-                        input(resourceLabels[r], `discard.${r}`, draft.discard[r] ?? 0, 'number'),
+                        input(
+                            resourceLabels[r],
+                            `discard.${r}`,
+                            draft.discard[r] ?? 0,
+                            'number',
+                            String(game.self.resources[r]),
+                        ),
                     )
                     .join('') +
-                button('تأیید دورریختن', 'discard', busy || !!client.pending);
-        if (game.phase === 'actions') {
+                button('تأیید دورریختن', 'discard', busy || !validDiscard(game, draft));
+        if (game.phase === 'actions' && ['trade', 'offer'].includes(draft.selected)) {
             body += button('پیشنهاد تجارت', 'offer-form', busy || !!client.pending);
             if (draft.selected === 'offer')
                 body +=
@@ -245,9 +206,11 @@ export function onlineMarkup(client: OnlineClient, draft: Drafts) {
                                 ),
                         )
                         .join('') +
-                    button('ارسال پیشنهاد', 'offer', busy || !draft.to || !!client.pending);
+                    button('ارسال پیشنهاد', 'offer', busy || !validOffer(game, draft));
         }
-        for (const offer of snapshot.offers) {
+        for (const offer of snapshot.offers.filter(() =>
+            ['trade', 'offer'].includes(draft.selected),
+        )) {
             body += `<section class="online-card">${label(`پیشنهاد ${offer.id} · ${game.players.find((p) => p.id === offer.from)?.name ?? ''} ← ${game.players.find((p) => p.id === offer.to)?.name ?? ''}`)}${label(
                 `پرداخت: ${resources
                     .filter((r) => offer.give[r])
@@ -256,9 +219,20 @@ export function onlineMarkup(client: OnlineClient, draft: Drafts) {
                     .filter((r) => offer.want[r])
                     .map((r) => `${offer.want[r]} ${resourceLabels[r]}`)
                     .join('، ')}`,
-            )}${label({ open: 'منتظر پاسخ', accepted: 'پذیرفته‌شده؛ در انتظار تأیید نهایی', rejected: 'رد شد', countered: 'پیشنهاد متقابل', withdrawn: 'پس گرفته شد', completed: 'انجام شد', expired: 'نامعتبر' }[offer.status])}${offer.status === 'open' && offer.to === game.self.id ? button('قبول', `accept:${offer.id}`, busy || !!client.pending) + button('رد', `reject:${offer.id}`, busy || !!client.pending) + button('پیشنهاد متقابل', `counter:${offer.id}`) : ''}${offer.status === 'accepted' ? button('تأیید نهایی مبادله', `trade-confirm:${offer.id}`, busy || !!client.pending) : ''}${['open', 'accepted'].includes(offer.status) ? button('انصراف', `withdraw:${offer.id}`, busy || !!client.pending) : ''}</section>`;
+            )}${label({ open: 'منتظر پاسخ', accepted: 'پذیرفته‌شده؛ در انتظار تأیید نهایی', rejected: 'رد شد', countered: 'پیشنهاد متقابل', withdrawn: 'پس گرفته شد', completed: 'انجام شد', expired: 'نامعتبر' }[offer.status])}${offer.status === 'open' && offer.to === game.self.id ? button('قبول', `accept:${offer.id}`, busy || !!client.pending) + button('رد', `reject:${offer.id}`, busy || !!client.pending) + button('پیشنهاد متقابل', `counter:${offer.id}`) : ''}${offer.status === 'accepted' && [offer.from, offer.to].includes(game.self.id) ? button('تأیید نهایی مبادله', `trade-confirm:${offer.id}`, busy || !!client.pending) : ''}${['open', 'accepted'].includes(offer.status) && [offer.from, offer.to].includes(game.self.id) ? button('انصراف', `withdraw:${offer.id}`, busy || !!client.pending) : ''}</section>`;
         }
-        if (game.winnerId) body += button('بازی دوباره با اتاق تازه', 'rematch', busy);
+        if (game.winnerId)
+            body +=
+                label('بازی به پایان رسید. برای یک سفر تازه اتاق دیگری بساز.', 'p') +
+                button('بازی دوباره با اتاق تازه', 'rematch', busy);
+        body += '</div></div>';
     }
-    return `<header>${label('بازی آنلاین', 'h1')}${button(snapshot ? 'اتاق‌ها' : 'بازگشت', snapshot ? 'back' : 'exit')}${label(client.connected ? 'متصل' : snapshot ? 'در حال اتصال مجدد…' : 'اتاق خصوصی با دوستان', 'small')}</header><section class="online-board" aria-label="جزیره بازی" ${snapshot?.game ? '' : 'hidden'}></section><main class="online-panel">${client.error ? `<p data-paint role="alert">${escape(client.error)}</p>` : ''}${client.pending ? label('نتیجه درخواست قبلی هنوز قطعی نیست. ابتدا همان درخواست را پیگیری کنید.') + button('پیگیری همان درخواست', 'retry', busy) : ''}${body}</main>`;
+    const status = client.busy
+        ? 'در حال انجام…'
+        : client.connected
+          ? 'متصل به بازی'
+          : snapshot
+            ? 'در حال اتصال مجدد…'
+            : 'اتاق خصوصی با دوستان';
+    return `<header data-surface="inset">${label('بازی آنلاین', 'h1')}${button(snapshot ? 'اتاق‌ها' : 'منو', snapshot ? 'back' : 'exit')}${label(status, 'small')}</header><section class="online-board" aria-label="جزیره بازی" ${snapshot?.game ? '' : 'hidden'}></section><main class="online-panel" aria-label="${snapshot?.game ? 'کنترل بازی' : 'تالار بازی'}"><aside class="online-feedback" aria-live="polite" data-surface="inset">${client.error ? `<p data-paint role="alert">${escape(client.error)}</p>` : ''}${draft.notice ? `<p class="online-notice" data-paint role="status">${escape(draft.notice)}</p>` : ''}${client.pending ? label('پاسخ حرکت قبلی نرسیده است. برای جلوگیری از حرکت تکراری، همان درخواست را پیگیری کن.') + button('پیگیری حرکت قبلی', 'retry', client.busy) : ''}</aside>${body}</main>`;
 }
