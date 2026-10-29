@@ -15,7 +15,7 @@ docker compose --profile tools run --rm -T migrate
 docker compose up -d --wait api web
 ```
 
-The default backend tag is its full Git commit SHA, synchronized with `contracts/backend.json`. Set `SUNMARK_SERVER_IMAGE` to an explicit GHCR digest reference for strict immutable pinning or to a different compatible image intentionally. There is no latest tag dependency. `api:check` detects drift between the checked-in default image revision and pinned contract. The backend's Publish backend image workflow builds amd64/arm64 images using its managed package-write token; no registry secret belongs in frontend source or Compose.
+The default backend tag is its full Git commit SHA, synchronized with `contracts/backend.json`. Set `SUNMARK_SERVER_IMAGE` to an explicit GHCR digest reference for strict immutable pinning or to a different compatible image intentionally. There is no latest tag dependency. `api:check` detects drift between the checked-in default image revision and pinned contract. The backend's Publish backend image workflow builds Linux amd64 images matching production using its managed package-write token; no registry secret belongs in frontend source or Compose.
 
 A newly published GHCR package is normally private. The package owner must make sunmark-server public once for anonymous pulls (GitHub profile → Packages → sunmark-server → Package settings → Change visibility), or desktop users must perform a normal Docker registry login for a private package. Publication and anonymous pull availability must be verified separately from adding the workflow.
 
