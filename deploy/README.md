@@ -55,6 +55,8 @@ Use a fresh Ubuntu 24.04 x86-64 server, a public IPv4 address, a real domain, an
 
 The `Check, publish and deploy production` workflow runs checks, deployment validation and the disposable HTTPS/backup smoke test before publishing `ghcr.io/hamedaravane/sunmark-web:<commit>`. It passes the published immutable digest directly to the reusable deployment workflow from the same commit; no copying digests, SSH commands or manual dispatch is needed for routine releases. If checks or publication fail, deployment does not run. Release runs and production deployments are serialized so updates cannot overlap. The existing backend workflow publishes backend images independently.
 
+Deployment SSH connections send encrypted keep-alives every 15 seconds and tolerate eight missed replies, with bounded connection attempts. This supports long, quiet backup/image-pull phases while retaining strict host verification.
+
 New GHCR packages can start private. Make the runtime packages public for anonymous server pulls, or perform a normal protected registry login on the server with read-only package credentials. Do not put registry tokens in this repository or workflow inputs.
 
 Configure the GitHub `production` environment with a deployment branch policy allowing only the `main` branch, no required reviewers or wait timer, and add:

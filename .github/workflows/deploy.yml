@@ -67,7 +67,9 @@ jobs:
           [[ "$DEPLOY_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
           DEPLOY_PORT=${DEPLOY_PORT:-22}
           [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]] && ((DEPLOY_PORT > 0 && DEPLOY_PORT < 65536))
-          args=(-i "$RUNNER_TEMP/sunmark-ssh/key" -o BatchMode=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$RUNNER_TEMP/sunmark-ssh/known_hosts")
+          # Keep long, quiet backup/pull operations from losing an idle SSH transport.
+          # Retain host verification and fail within a bounded interval on a real outage.
+          args=(-i "$RUNNER_TEMP/sunmark-ssh/key" -o BatchMode=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$RUNNER_TEMP/sunmark-ssh/known_hosts" -o ServerAliveInterval=15 -o ServerAliveCountMax=8 -o ConnectTimeout=30 -o ConnectionAttempts=3)
           archive="sunmark-${GITHUB_SHA}.tar.gz"
           tar --exclude=__pycache__ -czf "$RUNNER_TEMP/$archive" deploy
           ssh "${args[@]}" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'umask 077; mkdir -p .sunmark-upload; chmod 700 .sunmark-upload'
