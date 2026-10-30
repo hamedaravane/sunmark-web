@@ -58,6 +58,11 @@ compose() {
         --env-file "$SUNMARK_CONFIG_DIR/deploy.env" --env-file "$SUNMARK_RELEASE_FILE" \
         -f "$DEPLOY_DIR/compose.production.yml" "$@"
 }
+restic_bounded() {
+    local duration=$1
+    shift
+    timeout --signal=TERM --kill-after=10s "$duration" restic "$@"
+}
 load_backup() {
     load_private_env "$SUNMARK_CONFIG_DIR/backup.env"
     [[ ${RESTIC_REPOSITORY:-} == s3:https://* ]] || fail 'Use an off-server HTTPS S3-compatible Restic repository'

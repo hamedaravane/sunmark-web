@@ -12,7 +12,10 @@ for secret in postgres-password app-password database-url; do
 done
 [[ -f "$SUNMARK_CONFIG_DIR/postgres-init.sh" ]] || fail 'Run bootstrap to install the stable PostgreSQL initialization file'
 load_backup
-restic snapshots --quiet >/dev/null || fail 'Initialize and verify the off-server Restic repository first'
+# Under the host operation lock, remove only locks Restic identifies as stale.
+# Never use --remove-all: a live storage operation must retain its lock.
+restic_bounded 90s unlock || fail 'Could not clear stale backup locks; running services were not changed'
+restic_bounded 90s snapshots --quiet >/dev/null || fail 'Off-server backup storage is unavailable; running services were not changed'
 candidate=$(mktemp "$SUNMARK_STATE_DIR/releases/release.XXXXXX.env")
 RELEASE_DIR=$(dirname "$DEPLOY_DIR")
 [[ "$RELEASE_DIR" =~ ^[a-zA-Z0-9_./-]+$ ]] || fail 'Release path contains unsupported characters'
@@ -27,16 +30,35 @@ if [[ "$revision" =~ ^[a-f0-9]{40}$ ]]; then
     [[ "$image_revision" == "$revision" ]] || fail 'Frontend image revision does not match the deployment bundle'
 fi
 date +%s > "$SUNMARK_STATE_DIR/maintenance"
-trap 'rm -f "$SUNMARK_STATE_DIR/maintenance"' EXIT
+writers_stopped=false
+recover_before_database_changes() {
+    status=$?
+    trap - EXIT
+    if $writers_stopped; then
+        echo 'Deployment stopped before database changes; restarting existing game containers' >&2
+        # start reuses the existing containers: no candidate images or schema changes.
+        compose start --wait --wait-timeout 120 api web || echo 'Existing game containers could not be restarted; operator recovery is required' >&2
+    fi
+    rm -f "$SUNMARK_STATE_DIR/maintenance"
+    exit "$status"
+}
+trap recover_before_database_changes EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 # Back up an existing healthy database before Compose can recreate it, including
 # when its pinned PostgreSQL image changes. Stop writers before the backup.
 postgres_id=$(compose ps -a -q postgres)
 if [[ -n "$postgres_id" ]]; then
     health=$(docker_local inspect "$postgres_id" --format '{{.State.Health.Status}}')
     [[ "$health" == healthy ]] || fail 'Existing PostgreSQL is unhealthy; recover it before deploying'
+    writers_stopped=true
     compose stop web api
     "$DEPLOY_DIR/scripts/backup.sh"
 fi
+# From here PostgreSQL or migrations may change; automatic restart of the old
+# application is no longer safe. Preserve the failed release for operator review.
+writers_stopped=false
 compose up -d --wait --wait-timeout 120 postgres
 if [[ -z "$postgres_id" ]]; then
     "$DEPLOY_DIR/scripts/backup.sh"
