@@ -137,7 +137,7 @@ describe('online frontend', () => {
         client.snapshot.seats[1] = { ...client.snapshot.seats[1], occupied: false, ready: false };
         const markup = onlineMarkup(client, newDrafts());
         expect(markup).toContain('data-online="bot:1:true"');
-        expect(markup).toContain('data-online="ready"');
+        expect(markup).toContain('data-online="start"');
         expect(markup).toContain('data-online="invite"');
     });
     it('exposes confirmation, mandatory discards, trade consent and rematch controls', () => {
@@ -336,4 +336,69 @@ describe('online frontend', () => {
             client.destroy();
         }
     });
+});
+
+describe('simple online entry', () => {
+    it('exposes quick/private actions without a room-name field', () => {
+        const client = new OnlineClient('http://unused', null);
+        client.session = { id: sessionId, name: 'A' };
+        const markup = onlineMarkup(client, newDrafts());
+        expect(markup).toContain('data-online="quick"');
+        expect(markup).toContain('data-online="create"');
+        expect(markup).toContain('data-online="screen:join"');
+        expect(markup).not.toContain('data-draft="lobby"');
+        const draft = newDrafts();
+        draft.screen = 'join';
+        expect(onlineMarkup(client, draft)).toContain('inputmode="numeric"');
+    });
+    it('shows queue progress, allows cancellation and opens an automatically assigned match', async () => {
+        vi.useFakeTimers();
+        const request = vi.fn(async (_input: Parameters<typeof fetch>[0], init?: RequestInit) => {
+            const action = JSON.parse(String(init?.body)) as { kind: string };
+            return json(
+                action.kind === 'cancel'
+                    ? { state: 'idle', count: 0, snapshot: null }
+                    : { state: 'waiting', count: 3, snapshot: null },
+            );
+        });
+        const client = new OnlineClient('http://unused', null, request, noNetworkSocket);
+        try {
+            client.session = { id: sessionId, name: 'A' };
+            await client.quickMatch();
+            expect(onlineMarkup(client, newDrafts())).toContain('data-online="cancel-search"');
+            await client.quickMatch('cancel');
+            await vi.advanceTimersByTimeAsync(5000);
+            expect(request).toHaveBeenCalledTimes(2);
+            request.mockResolvedValueOnce(
+                json({ state: 'matched', count: 4, snapshot: snapshot() }),
+            );
+            await client.quickMatch();
+            expect(client.snapshot?.game?.self.id).toBe('player-1');
+        } finally {
+            client.destroy();
+            vi.useRealTimers();
+        }
+    });
+});
+
+it('expired online cookies return to sign-in without erasing saved seat recovery', async () => {
+    const storage = new Map<string, string>();
+    const client = new OnlineClient(
+        'http://unused',
+        {
+            getItem: (key) => storage.get(key) ?? null,
+            setItem: (key, value) => {
+                storage.set(key, value);
+            },
+            removeItem: (key) => {
+                storage.delete(key);
+            },
+        },
+        async () => json({ message: 'Expired' }, 401),
+    );
+    client.session = { id: sessionId, name: 'A' };
+    await client.create();
+    expect(client.session).toBeNull();
+    expect(onlineMarkup(client, newDrafts())).toContain('data-online="account"');
+    client.destroy();
 });

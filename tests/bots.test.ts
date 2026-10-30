@@ -55,7 +55,8 @@ test('menu keeps offline Play and Tutorial alongside Online; practice pauses bot
         const app = new AppPlatform();
         app.updateReady = true;
         const menu = menuContent(app, session);
-        expect(menu.match(/<button\b/g)).toHaveLength(3);
+        expect(menu.match(/<button\b/g)).toHaveLength(4);
+        expect(menu).toContain('data-action="account"');
         expect(menu).toContain('data-action="online"');
         expect(menu).toContain('data-action="play"');
         expect(menu).toContain('data-action="tutorial"');

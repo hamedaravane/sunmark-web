@@ -9,6 +9,7 @@ if (!revision || !/^[a-f0-9]{40}$/.test(revision))
 const root = new URL('../', import.meta.url);
 const directory = await mkdtemp(join(tmpdir(), 'sunmark-contract-'));
 const paths = {
+    'src/online/account.schemas.ts': 'src/online/shared/src/online/account.schemas.ts',
     'contracts/openapi.json': 'contracts/openapi.json',
     'src/game/protocol.ts': 'src/online/shared/src/game/protocol.ts',
     'src/online/schemas.ts': 'src/online/shared/src/online/schemas.ts',

@@ -1,3 +1,5 @@
+import { restoreIdentity } from '../account/identity';
+import { showAccount } from '../account/account';
 import { Game, AUTO, Scale } from 'phaser';
 import { OnlineClient } from './client';
 import { RoomScene } from './roomScene';
@@ -22,6 +24,8 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
                 : location.origin),
     ).replace(/\/$/, '');
     const client = new OnlineClient(base, storage);
+    let disposed = false;
+    let accountOpen = false;
     const draft = newDrafts();
     const invite = new URL(location.href).searchParams.get('invite');
     if (invite) {
@@ -48,6 +52,7 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
     });
     let shared: { game: Game; session: OnlineSession; root: HTMLElement } | null = null;
     const render = () => {
+        if (disposed) return;
         if (client.snapshot?.game) {
             if (!shared) {
                 canvas.hidden = true;
@@ -96,21 +101,40 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
         const [action, ...parts] = (button.dataset.online ?? '').split(':');
         const value = parts.join(':');
         switch (action) {
+            case 'account':
+                if (accountOpen) break;
+                accountOpen = true;
+                void showAccount(root, false, true)
+                    .then(async () => {
+                        if (disposed) return;
+                        if (await restoreIdentity()) {
+                            await client.initialize();
+                            if (!client.snapshot && !client.pending)
+                                await client.quickMatch('poll');
+                        }
+                        render();
+                    })
+                    .finally(() => {
+                        accountOpen = false;
+                    });
+                break;
+            case 'quick':
+                void client.quickMatch();
+                break;
+            case 'cancel-search':
+                void client.quickMatch('cancel');
+                break;
             case 'exit':
                 onExit();
                 break;
             case 'screen':
-                if (value === 'home' || value === 'create' || value === 'join')
-                    draft.screen = value;
+                if (value === 'home' || value === 'join') draft.screen = value;
                 draft.notice = '';
                 render();
                 semantics.querySelector<HTMLInputElement>('input')?.focus();
                 break;
-            case 'guest':
-                void client.guest(draft.name.trim());
-                break;
             case 'create':
-                void client.create(draft.lobby.trim());
+                void client.create();
                 break;
             case 'join':
                 void client.join(draft.code.trim().toLowerCase());
@@ -157,22 +181,30 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
     const input = (event: Event) => {
         if (!(event.target instanceof HTMLInputElement)) return;
         const key = event.target.dataset.draft;
-        if (key === 'name' || key === 'code' || key === 'lobby') draft[key] = event.target.value;
-        for (const button of semantics.querySelectorAll<HTMLButtonElement>('button[data-online]')) {
-            const action = button.dataset.online;
-            if (action === 'guest' || action === 'create' || action === 'join')
-                button.disabled =
-                    client.busy ||
-                    !(
-                        action === 'guest'
-                            ? draft.name
-                            : action === 'create'
-                              ? draft.lobby
-                              : draft.code
-                    ).trim();
+        if (key === 'code') {
+            draft.code = event.target.value
+                .replace(/[۰-۹٠-٩]/g, (c) =>
+                    String(c.charCodeAt(0) - (c >= '۰' && c <= '۹' ? 1776 : 1632)),
+                )
+                .trim();
+            event.target.value = draft.code;
         }
+        const join = semantics.querySelector<HTMLButtonElement>('button[data-online="join"]');
+        if (join) join.disabled = client.busy || !/^(?:[0-9]{5}|[a-f0-9]{12})$/i.test(draft.code);
         scene.invalidate();
     };
+    const keydown = (event: KeyboardEvent) => {
+        if (
+            event.key === 'Enter' &&
+            event.target instanceof HTMLInputElement &&
+            event.target.dataset.draft === 'code' &&
+            /^(?:[0-9]{5}|[a-f0-9]{12})$/i.test(draft.code)
+        ) {
+            event.preventDefault();
+            void client.join(draft.code.toLowerCase());
+        }
+    };
+    semantics.addEventListener('keydown', keydown);
     semantics.addEventListener('click', click);
     semantics.addEventListener('input', input);
     const resize = () => {
@@ -191,11 +223,28 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
     window.addEventListener('resize', resize);
     const disconnect = client.subscribe(render);
     render();
-    void client.initialize();
+    void (async () => {
+        // Existing guest cookies are upgraded explicitly; they are not accounts.
+        try {
+            const response = await fetch(`${base}/api/v1/online/account`, {
+                credentials: 'include',
+                signal: AbortSignal.timeout(10_000),
+            });
+            if (disposed || !response.ok) return;
+            await restoreIdentity();
+            await client.initialize();
+            if (!client.snapshot && !client.pending) await client.quickMatch('poll');
+        } catch {
+            client.error = 'اتصال برقرار نشد. برای ورود دوباره تلاش کن.';
+            render();
+        }
+    })();
     return {
         client,
         destroy() {
+            disposed = true;
             disconnect();
+            semantics.removeEventListener('keydown', keydown);
             shared?.game.destroy(true);
             shared?.session.destroy();
             shared?.root.remove();

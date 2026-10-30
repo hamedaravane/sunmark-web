@@ -214,10 +214,10 @@ export const guestSchema = z.strictObject({
   name: z.string().trim().min(1).max(80),
 });
 export const lobbyCreateSchema = z.strictObject({
-  name: z.string().trim().min(1).max(80),
+  name: z.string().trim().min(1).max(80).optional(),
 });
 export const joinSchema = z.strictObject({
-  code: z.string().regex(/^[a-f0-9]{12}$/i),
+  code: z.string().regex(/^(?:[0-9]{5}|[a-f0-9]{12})$/i),
 });
 export const lobbyActionSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('ready'), ready: z.boolean() }),
@@ -228,3 +228,7 @@ export const lobbyActionSchema = z.discriminatedUnion('kind', [
   }),
   z.strictObject({ kind: z.literal('start') }),
 ]);
+
+export const matchmakingActionSchema = z.strictObject({
+  kind: z.enum(['join', 'poll', 'cancel']),
+});
