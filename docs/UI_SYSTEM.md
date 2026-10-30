@@ -129,6 +129,8 @@ privacy, retries, feedback and validation.
 
 Desktop Anahita conversations sit at the bottom of the island area, with a larger
 full-body illustration in the left column and the RTL dialogue beside her.
+The illustration meets the viewport's bottom edge; only the dialogue panel keeps
+the 24-pixel bottom gutter (or a larger device safe-area inset).
 The dialogue body scrolls independently while its actions stay in the footer.
 The desktop composition uses the same shared layout variables as the tabletop;
 phones retain the existing stacked portrait and bottom sheet.

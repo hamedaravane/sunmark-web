@@ -221,8 +221,7 @@
 .game-app.is-desktop > .narrator-sheet[open] {
     --portrait-height: clamp(320px, calc(var(--app-height) * 0.65), 640px);
     --portrait-overlap: 0px;
-    inset: auto auto max(24px, env(safe-area-inset-bottom))
-        max(24px, calc((100vw - var(--play-width)) / 2));
+    inset: auto auto 0 max(24px, calc((100vw - var(--play-width)) / 2));
     width: calc(var(--play-width) - var(--controls-width) - var(--play-gap));
     max-width: calc(100vw - 48px);
     max-height: calc(var(--app-height) - var(--play-header) - 72px);
@@ -247,5 +246,6 @@
 .game-app.is-desktop .narrator-panel {
     direction: rtl;
     min-width: 0;
+    margin-bottom: max(24px, env(safe-area-inset-bottom));
     max-height: min(480px, calc(var(--app-height) * 0.54));
 }
