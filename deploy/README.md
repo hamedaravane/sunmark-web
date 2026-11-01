@@ -61,6 +61,12 @@ The `Check, publish and deploy production` workflow runs checks, deployment vali
 
 Deployment SSH connections send encrypted keep-alives every 15 seconds and tolerate eight missed replies, with bounded connection attempts. This supports long, quiet backup/image-pull phases while retaining strict host verification.
 
+Upload and deployment reuse one verified SSH master connection, avoiding separate
+TCP handshakes for each command. Connection setup makes six attempts with a
+15-second timeout; the workflow closes the control socket before deleting SSH
+material. Persistent runner-to-server routing failures still require network
+recovery or an operator connection using the same checked bundle and image pair.
+
 New GHCR packages can start private. Make the runtime packages public for anonymous server pulls, or perform a normal protected registry login on the server with read-only package credentials. Do not put registry tokens in this repository or workflow inputs.
 
 Configure the GitHub `production` environment with a deployment branch policy allowing only the `main` branch, no required reviewers or wait timer, and add:

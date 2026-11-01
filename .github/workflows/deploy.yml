@@ -69,7 +69,7 @@ jobs:
           [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]] && ((DEPLOY_PORT > 0 && DEPLOY_PORT < 65536))
           # Keep long, quiet backup/pull operations from losing an idle SSH transport.
           # Retain host verification and fail within a bounded interval on a real outage.
-          args=(-i "$RUNNER_TEMP/sunmark-ssh/key" -o BatchMode=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$RUNNER_TEMP/sunmark-ssh/known_hosts" -o ServerAliveInterval=15 -o ServerAliveCountMax=8 -o ConnectTimeout=30 -o ConnectionAttempts=3)
+          args=(-i "$RUNNER_TEMP/sunmark-ssh/key" -o BatchMode=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$RUNNER_TEMP/sunmark-ssh/known_hosts" -o ServerAliveInterval=15 -o ServerAliveCountMax=8 -o ConnectTimeout=15 -o ConnectionAttempts=6 -o ControlMaster=auto -o ControlPersist=60 -o "ControlPath=$RUNNER_TEMP/sunmark-ssh/control")
           archive="sunmark-${GITHUB_SHA}.tar.gz"
           tar --exclude=__pycache__ -czf "$RUNNER_TEMP/$archive" deploy
           ssh "${args[@]}" -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'umask 077; mkdir -p .sunmark-upload; chmod 700 .sunmark-upload'
@@ -93,4 +93,11 @@ jobs:
           REMOTE
       - name: Remove SSH material
         if: always()
-        run: rm -rf -- "$RUNNER_TEMP/sunmark-ssh"
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          if [[ -S "$RUNNER_TEMP/sunmark-ssh/control" ]]; then
+            ssh -S "$RUNNER_TEMP/sunmark-ssh/control" -O exit "$DEPLOY_USER@$DEPLOY_HOST" >/dev/null 2>&1 || true
+          fi
+          rm -rf -- "$RUNNER_TEMP/sunmark-ssh"
