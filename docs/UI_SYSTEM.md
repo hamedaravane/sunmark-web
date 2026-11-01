@@ -156,3 +156,8 @@ The operator's read-only user dashboard is a separate native HTML application at
 It uses Persian RTL, Vazirmatn, lapis/turquoise/gold colors, responsive tables and
 native accessible forms/dialogs. Server authorization protects every data request;
 the ordinary game never receives administrative user lists. See [ADMIN.md](ADMIN.md).
+
+Optional analytics uses a native consent dialog and account privacy control, sharing
+the existing account form typography and materials. It records no text entered in
+those forms. The admin's analytics tables and timelines use the same native admin
+layout; empty cohorts and small samples are labeled explicitly. See [ANALYTICS.md](ANALYTICS.md).

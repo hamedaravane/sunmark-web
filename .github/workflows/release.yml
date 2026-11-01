@@ -32,7 +32,7 @@ jobs:
         with: { node-version: '24', cache: npm }
       - run: npm ci --no-audit --no-fund
       - run: sudo apt-get update && sudo apt-get install -y restic
-      - run: docker build --target runtime -t sunmark-web:deployment-test .
+      - run: docker build --build-arg VITE_BUILD_ID=${{ github.sha }} --target runtime -t sunmark-web:deployment-test .
       - run: SUNMARK_TEST_LIVE_CLIENTS=1 bash deploy/tests/integration.sh
   publish:
     needs: [check, deployment-smoke]
@@ -58,6 +58,7 @@ jobs:
         with:
           context: .
           target: runtime
+          build-args: VITE_BUILD_ID=${{ github.sha }}
           platforms: linux/amd64
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ github.sha }}

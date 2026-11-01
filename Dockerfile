@@ -10,6 +10,8 @@ COPY . .
 CMD ["npm", "run", "check"]
 
 FROM test AS build
+ARG VITE_BUILD_ID=development
+ENV VITE_BUILD_ID=$VITE_BUILD_ID
 ARG VITE_API_BASE_URL=
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build

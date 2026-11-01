@@ -28,6 +28,7 @@ export const shell = () => `
     <section id="dashboard" hidden aria-labelledby="dashboard-title">
         <div class="page-heading"><div><p class="eyebrow">نمای کلی</p><h1 id="dashboard-title">بازیکنان سان‌مارک</h1><p class="muted">آدم‌هایی که به بازی شما پیوسته‌اند.</p></div><div class="refresh-group"><button id="refresh">به‌روزرسانی اطلاعات</button><small id="updated" class="muted"></small></div></div>
         <div id="stats" class="stats"></div>
+        <section id="analytics" class="users-panel analytics-panel" aria-label="بینش رفتار بازیکنان"></section>
         <section class="users-panel" aria-labelledby="users-title"><div class="panel-heading"><div><h2 id="users-title">حساب‌های ثبت‌شده</h2><p class="muted">اطلاعات پروفایل توسط خود بازیکن وارد شده است.</p></div><form id="search-form" role="search"><label class="sr-only" for="search">جست‌وجوی نام، نام کاربری یا شماره</label><input id="search" name="q" type="search" maxlength="80" placeholder="نام، نام کاربری یا شماره تلفن…" /><button type="submit">جست‌وجو</button></form></div><div id="user-list"></div><div class="pagination"><p id="page-info" class="muted"></p><div><button id="previous">صفحه قبل</button><button id="next">صفحه بعد</button></div></div></section>
         <p class="data-note">این آمار مربوط به حساب‌ها و بازی‌های آنلاین است. بازیکنان آفلاین شمرده نمی‌شوند. «بازی در جریان» وضعیت ذخیره‌شدهٔ بازی است و به معنی حضور بازیکن در همین لحظه نیست.</p>
     </section>

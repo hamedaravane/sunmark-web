@@ -380,6 +380,91 @@ dialog::backdrop {
     clip-path: inset(50%);
     white-space: nowrap;
 }
+.analytics-panel {
+    margin-bottom: 28px;
+}
+.insight-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    padding: 0 24px;
+}
+.retention {
+    margin-top: 16px;
+    font-size: 22px;
+    color: #f5d494;
+    line-height: 1.8;
+}
+.retention small {
+    display: block;
+    font-size: 12px;
+    color: #aabbca;
+}
+.insight-note {
+    padding: 0 24px 20px;
+}
+.insight-tables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.insight-tables > section {
+    min-width: 0;
+    overflow: auto;
+}
+.insight-tables h3,
+.insight-tables > section > p {
+    padding: 12px 24px;
+}
+.analytics-details {
+    padding: 24px;
+}
+.analytics-details summary {
+    cursor: pointer;
+    min-height: 48px;
+}
+.phase-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 16px 0;
+}
+.phase-tags span {
+    background: #122536;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 12px;
+}
+.user-analytics {
+    margin-top: 28px;
+}
+.activity-list {
+    padding-inline-start: 20px;
+}
+.activity-list li {
+    padding: 10px;
+    border-bottom: 1px solid #324557;
+}
+.activity-list time,
+.activity-list small {
+    display: block;
+    color: #aabbca;
+    font-size: 12px;
+    margin-top: 5px;
+}
+@media (max-width: 950px) {
+    .insight-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .insight-tables {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 480px) {
+    .insight-grid {
+        padding: 0 16px;
+    }
+}
 @media (max-width: 800px) {
     .stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));

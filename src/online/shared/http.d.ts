@@ -295,6 +295,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/analytics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAdminAnalytics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/analytics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAdminUserAnalytics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/overview": {
         parameters: {
             query?: never;
@@ -321,6 +353,38 @@ export interface paths {
         get: operations["getAdminUsers"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/preference": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAnalyticsPreference"];
+        put: operations["setAnalyticsPreference"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["recordAnalyticsEvents"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2793,6 +2857,142 @@ export interface operations {
             };
         };
     };
+    getAdminAnalytics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {number} */
+                        days: 7;
+                        players: number;
+                        sessions: number;
+                        events: number;
+                        activeSeconds: number;
+                        optedInAccounts: number;
+                        registeredAccounts: number;
+                        d1: {
+                            eligible: number;
+                            returned: number;
+                        };
+                        d7: {
+                            eligible: number;
+                            returned: number;
+                        };
+                        daily: {
+                            date: string;
+                            players: number;
+                            sessions: number;
+                            activeSeconds: number;
+                        }[];
+                        eventsByName: {
+                            /** @enum {string} */
+                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed";
+                            events: number;
+                            players: number;
+                        }[];
+                        phases: {
+                            phase: string;
+                            events: number;
+                        }[];
+                        builds: {
+                            build: string;
+                            players: number;
+                            events: number;
+                        }[];
+                        /** Format: date-time */
+                        checkedAt: string;
+                    };
+                };
+            };
+            /** @description Authenticated account required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Administrator access required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getAdminUserAnalytics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        enabled: boolean | null;
+                        /** Format: date-time */
+                        firstSeen: string | null;
+                        /** Format: date-time */
+                        lastSeen: string | null;
+                        events: {
+                            /** @enum {string} */
+                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed";
+                            build: string;
+                            /** Format: date-time */
+                            receivedAt: string;
+                            data: {
+                                /** @enum {string} */
+                                mode?: "hub" | "offline" | "online" | "practice";
+                                /** @enum {string} */
+                                phase?: "setup-roll" | "setup-settlement" | "setup-road" | "roll" | "discard" | "robber" | "steal" | "road-building" | "actions" | "finished";
+                                /** @enum {string} */
+                                action?: "buy-development" | "declare-victory" | "play-development" | "discard" | "steal" | "roll" | "end-turn" | "setup-roll" | "setup" | "build" | "robber" | "domestic-trade" | "trade";
+                                /** @enum {string} */
+                                screen?: "hub" | "board" | "construction" | "trade" | "development" | "tutorial" | "results" | "other";
+                                lesson?: number;
+                                activeMs?: number;
+                                connected?: boolean;
+                                /** Format: uuid */
+                                runId?: string;
+                            };
+                        }[];
+                    };
+                };
+            };
+            /** @description Authenticated account required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Administrator access required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getAdminOverview: {
         parameters: {
             query?: never;
@@ -2897,6 +3097,112 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    getAnalyticsPreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        accountId: string;
+                        enabled: boolean | null;
+                    };
+                };
+            };
+        };
+    };
+    setAnalyticsPreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    accountId: string;
+                    enabled: boolean;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        accountId: string;
+                        enabled: boolean | null;
+                    };
+                };
+            };
+        };
+    };
+    recordAnalyticsEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    accountId: string;
+                    events: {
+                        /** Format: uuid */
+                        id: string;
+                        /** Format: uuid */
+                        sessionId: string;
+                        /** @enum {string} */
+                        name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed";
+                        build: string;
+                        data: {
+                            /** @enum {string} */
+                            mode?: "hub" | "offline" | "online" | "practice";
+                            /** @enum {string} */
+                            phase?: "setup-roll" | "setup-settlement" | "setup-road" | "roll" | "discard" | "robber" | "steal" | "road-building" | "actions" | "finished";
+                            /** @enum {string} */
+                            action?: "buy-development" | "declare-victory" | "play-development" | "discard" | "steal" | "roll" | "end-turn" | "setup-roll" | "setup" | "build" | "robber" | "domestic-trade" | "trade";
+                            /** @enum {string} */
+                            screen?: "hub" | "board" | "construction" | "trade" | "development" | "tutorial" | "results" | "other";
+                            lesson?: number;
+                            activeMs?: number;
+                            connected?: boolean;
+                            /** Format: uuid */
+                            runId?: string;
+                        };
+                    }[];
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        accepted: number;
+                    };
+                };
             };
         };
     };

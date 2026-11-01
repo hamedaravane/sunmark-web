@@ -1,3 +1,4 @@
+import { configureAnalytics, analytics } from './analytics/browser';
 import { showAccount } from './account/account';
 import { playerIdentity, restoreIdentity } from './account/identity';
 import { refreshProgression } from './account/progression';
@@ -25,6 +26,7 @@ void loadUiFont().then(async () => {
             !(await restoreIdentity())
         )
             await showAccount(parent);
+        await configureAnalytics(parent);
         const offline = document.createElement('div');
         parent.append(offline);
         let game = StartGame(offline);
@@ -50,11 +52,13 @@ void loadUiFont().then(async () => {
                 refreshOfflineIdentity();
                 game.loop.wake();
                 void refreshProgression();
+                void configureAnalytics(parent);
             });
         });
         let online: { destroy(): void } | null = null;
         const openOnline = async (mode: 'casual' | 'ranked' = 'casual') => {
             if (online) return;
+            analytics.track('screen_view', { mode: 'online', screen: 'other' });
             const { startOnline } = await import('./online/start');
             offline.hidden = true;
             game.loop.sleep();

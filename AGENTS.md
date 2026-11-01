@@ -27,6 +27,8 @@ For visual or interface work, also read:
 
 ## Product and visual conventions
 
+- Prioritize sustained, voluntary player engagement and frequent return through enjoyable, understandable, reliable full matches. For meaningful feature changes, state the player problem, engagement hypothesis, success measure and guardrails; use observed data and player feedback with explicit sample-size limits. Follow `docs/PRODUCT_STRATEGY.md` and `docs/ANALYTICS.md`. Longer sessions alone are not evidence of improvement, and this priority never authorizes inventing fixed rules or expanding analytics beyond the documented permission/data boundary.
+
 - Design for mobile portrait first; 390 × 844 CSS pixels is the current reference size.
 - The interface is Persian and right-to-left. Keep all text as runtime text; never bake Persian words into image files.
 - Keep the board visually primary. Respect readable touch targets and the UI guidance in `docs/UI_SYSTEM.md`.

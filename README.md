@@ -114,3 +114,7 @@ Online play includes private four-seat rooms, guest sessions, host-selected bots
 ## Administration
 
 The protected, read-only [admin panel](https://sunmarkgame.top/admin.html) shows registered users and online game statistics. Access requires an explicitly authorized player account; ordinary accounts cannot read administrative data. See [admin setup and verification](docs/ADMIN.md).
+
+## Product learning
+
+Sustained, voluntary player engagement and repeat play guide product decisions. The protected admin panel includes optional player analytics, active-time estimates, behavior trends and return cohorts. See [product strategy](docs/PRODUCT_STRATEGY.md) and [analytics permissions, metrics and retention](docs/ANALYTICS.md).

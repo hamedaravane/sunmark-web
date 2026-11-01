@@ -1,3 +1,4 @@
+import { configureAnalytics } from '../analytics/browser';
 import {
     accountResponseSchema,
     registrationResponseSchema,
@@ -150,6 +151,9 @@ export function showAccount(
                     : null;
             if (!action || busy) return;
             if (action === 'done') close();
+            if (action === 'analytics') {
+                void configureAnalytics(parent, true);
+            }
             if (action === 'copy') {
                 void navigator.clipboard
                     ?.writeText(recovery)
@@ -178,6 +182,7 @@ export function showAccount(
                 void request('logout', {})
                     .then(() => {
                         saveIdentity(null);
+                        void configureAnalytics(parent);
                         mode = 'login';
                         render();
                     })

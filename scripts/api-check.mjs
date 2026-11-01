@@ -13,6 +13,7 @@ const metadata = z
     })
     .parse(JSON.parse(await readFile(new URL('contracts/backend.json', root), 'utf8')));
 const expected = [
+    'src/online/shared/src/analytics/analytics.schemas.ts',
     'src/online/shared/src/admin/admin.schemas.ts',
     'src/online/shared/src/online/progression.schemas.ts',
     'src/online/shared/src/online/account.schemas.ts',

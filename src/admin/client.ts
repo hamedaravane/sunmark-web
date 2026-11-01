@@ -1,4 +1,8 @@
 import type { z } from 'zod';
+import {
+    analyticsSummarySchema,
+    analyticsTimelineSchema,
+} from '../online/shared/src/analytics/analytics.schemas';
 import { adminUsersSchema, overviewSchema } from '../online/shared/src/admin/admin.schemas';
 import { accountResponseSchema, loginSchema } from '../online/shared/src/online/account.schemas';
 
@@ -45,6 +49,14 @@ export class AdminClient {
     }
     async overview(signal: AbortSignal) {
         return overviewSchema.parse(await this.json('admin/overview', signal));
+    }
+    async analytics(signal: AbortSignal) {
+        return analyticsSummarySchema.parse(await this.json('admin/analytics', signal));
+    }
+    async timeline(id: string, signal: AbortSignal) {
+        return analyticsTimelineSchema.parse(
+            await this.json('admin/users/' + encodeURIComponent(id) + '/analytics', signal),
+        );
     }
     async users(q: string, page: number, signal: AbortSignal) {
         const params = new URLSearchParams({ q, page: String(page), limit: '25' });

@@ -1,6 +1,7 @@
 import './style.css';
 import { AdminClient, AdminRequestError, type UserPage } from './client';
 import { shell, stats, userList, userDetail, number, date } from './markup';
+import { analyticsSummary, analyticsTimeline } from './analyticsMarkup';
 
 const root = document.querySelector<HTMLElement>('#admin-root');
 if (!root) throw new Error('Admin mount missing');
@@ -21,6 +22,7 @@ function clearPrivateData() {
     userPage = undefined;
     element('#dashboard').hidden = true;
     element('#stats').replaceChildren();
+    element('#analytics').replaceChildren();
     element('#user-list').replaceChildren();
     element('#detail-body').replaceChildren();
     element('#page-info').textContent = '';
@@ -49,9 +51,10 @@ async function load() {
     element('#dashboard').setAttribute('aria-busy', 'true');
     message.textContent = 'در حال دریافت اطلاعات…';
     try {
-        const [overview, users] = await Promise.all([
+        const [overview, users, insights] = await Promise.all([
             client.overview(current.signal),
             client.users(query, page, current.signal),
+            client.analytics(current.signal),
         ]);
         if (current.signal.aborted) return;
         userPage = users;
@@ -59,6 +62,7 @@ async function load() {
         element('#logout').hidden = false;
         element('#dashboard').hidden = false;
         element('#stats').innerHTML = stats(overview);
+        element('#analytics').innerHTML = analyticsSummary(insights);
         element('#user-list').innerHTML = userList(users);
         element('#updated').textContent = 'آخرین دریافت: ' + date(overview.checkedAt);
         element('#page-info').textContent =
@@ -144,6 +148,23 @@ element('#user-list').addEventListener('click', (event) => {
     const user = userPage?.users.find((user) => user.id === button?.dataset.user);
     if (!user) return;
     element('#detail-body').innerHTML = userDetail(user);
+    const timeline = document.createElement('div');
+    timeline.textContent = 'در حال دریافت فعالیت…';
+    element('#detail-body').append(timeline);
+    const current = request;
+    void client
+        .timeline(user.id, current.signal)
+        .then((data) => {
+            if (!current.signal.aborted && timeline.isConnected)
+                timeline.innerHTML = analyticsTimeline(data);
+        })
+        .catch((error) => {
+            if (!current.signal.aborted) {
+                timeline.textContent = 'دریافت فعالیت انجام نشد.';
+                if (error instanceof AdminRequestError && [401, 403].includes(error.status))
+                    report(error);
+            }
+        });
     detail.showModal();
 });
 element('#close-detail').addEventListener('click', () => detail.close());

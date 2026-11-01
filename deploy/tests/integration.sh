@@ -58,11 +58,13 @@ assert.match(admin.headers.get('content-security-policy'),/frame-ancestors 'none
 const adminRedirect=await fetch(base+'/admin',{redirect:'manual'});
 assert.equal(adminRedirect.status,302);
 assert.equal(adminRedirect.headers.get('location'),'/admin.html');
-for (const route of ['users','overview']) {
+for (const route of ['users','overview','analytics']) {
     const denied=await fetch(base+'/api/v1/admin/'+route);
     assert.equal(denied.status,401);
     assert.match(denied.headers.get('cache-control'),/no-store/);
 }
+const preferenceDenied=await fetch(base+'/api/v1/analytics/preference');
+assert.equal(preferenceDenied.status,401);
 const response=await fetch(base+'/api/v1/online/session',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({name:'Deployment smoke'})});
 assert.equal(response.status,201);
 assert.match(response.headers.get('set-cookie'),/HttpOnly/);

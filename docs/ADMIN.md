@@ -12,9 +12,13 @@ and phone are self-reported. Registration dates display in Tehran time. Stored
 game status does not establish current presence; offline players and visits are
 not tracked. Account progression and historical game counts can differ.
 
-This first version is read-only. It cannot edit users, change balances, delete data,
+The panel is read-only. It cannot edit users, change balances, delete data,
 view passwords/recovery credentials, or inspect private match hands. No CSV export
 or third-party analytics is installed.
+
+## Player insights
+
+The analytics section shows seven-day observed activity, daily counts, return cohorts, phase/build reach and the latest 50 permitted events in each user’s detail view. It measures only opted-in registered players from this release onward. It explicitly distinguishes these client observations from authoritative game totals. See [analytics definitions and privacy](ANALYTICS.md).
 
 ## Access and deployment
 

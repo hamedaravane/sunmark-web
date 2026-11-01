@@ -1,3 +1,5 @@
+import { analytics } from '../analytics/browser';
+import { observeMatch } from '../analytics/matchObserver';
 import { ScreenAwake } from '../pwa/screenAwake';
 import { AUTO, Game, Scale } from 'phaser';
 import { GameScene } from './scenes/GameScene';
@@ -14,16 +16,19 @@ import { UpdateNotice } from '../pwa/updateFlow';
 
 export function mountMatch(parent: HTMLElement, session: MatchSession, app: AppPlatform): Game {
     const disconnectPlatform = connectPlatform(app);
+    const telemetry = observeMatch(session, analytics.track, () => !parent.hidden);
     const awake = new ScreenAwake(
         navigator.wakeLock ? () => navigator.wakeLock.request('screen') : null,
     );
-    const refreshAwake = () =>
+    const refreshAwake = () => {
+        telemetry.refresh();
         awake.setActive(
             !!session.state &&
                 session.state.phase !== 'finished' &&
                 !document.hidden &&
                 !parent.hidden,
         );
+    };
     const disconnectAwake = session.subscribe(refreshAwake);
     const visible = new MutationObserver(refreshAwake);
     visible.observe(parent, { attributes: true, attributeFilter: ['hidden'] });
@@ -97,6 +102,7 @@ export function mountMatch(parent: HTMLElement, session: MatchSession, app: AppP
     window.addEventListener('resize', resize);
     game.events.once('destroy', () => {
         observer.disconnect();
+        telemetry.destroy();
         disconnectAwake();
         visible.disconnect();
         document.removeEventListener('visibilitychange', refreshAwake);
