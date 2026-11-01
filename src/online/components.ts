@@ -14,4 +14,4 @@ export const input = (
     type = 'text',
     max = '80',
 ) =>
-    `<label>${label(title, 'span')}<input data-paint aria-label="${escape(title)}" data-draft="${key}" autocomplete="${key === 'name' ? 'nickname' : 'off'}" value="${escape(value)}" type="${type}" ${type === 'number' ? `min="0" max="${escape(max === '80' ? '999' : max)}" step="1"` : `maxlength="${max}"`}></label>`;
+    `<label>${label(title, 'span')}<input data-paint aria-label="${escape(title)}" data-draft="${key}" autocomplete="${key === 'name' ? 'nickname' : 'off'}" ${key === 'code' ? 'inputmode="numeric" pattern="[0-9]{5}" enterkeyhint="go"' : ''} value="${escape(value)}" type="${type}" ${type === 'number' ? `min="0" max="${escape(max === '80' ? '999' : max)}" step="1"` : `maxlength="${max}"`}></label>`;

@@ -1,3 +1,4 @@
+import { ScreenAwake } from '../pwa/screenAwake';
 import { AUTO, Game, Scale } from 'phaser';
 import { GameScene } from './scenes/GameScene';
 import { GameHud } from './ui/GameHud';
@@ -13,6 +14,21 @@ import { UpdateNotice } from '../pwa/updateFlow';
 
 export function mountMatch(parent: HTMLElement, session: MatchSession, app: AppPlatform): Game {
     const disconnectPlatform = connectPlatform(app);
+    const awake = new ScreenAwake(
+        navigator.wakeLock ? () => navigator.wakeLock.request('screen') : null,
+    );
+    const refreshAwake = () =>
+        awake.setActive(
+            !!session.state &&
+                session.state.phase !== 'finished' &&
+                !document.hidden &&
+                !parent.hidden,
+        );
+    const disconnectAwake = session.subscribe(refreshAwake);
+    const visible = new MutationObserver(refreshAwake);
+    visible.observe(parent, { attributes: true, attributeFilter: ['hidden'] });
+    document.addEventListener('visibilitychange', refreshAwake);
+    refreshAwake();
     const motion = new Motion(session.preferences);
     const hud = new GameHud(parent, session, app);
     const updates = new UpdateNotice(app, session);
@@ -81,6 +97,10 @@ export function mountMatch(parent: HTMLElement, session: MatchSession, app: AppP
     window.addEventListener('resize', resize);
     game.events.once('destroy', () => {
         observer.disconnect();
+        disconnectAwake();
+        visible.disconnect();
+        document.removeEventListener('visibilitychange', refreshAwake);
+        awake.destroy();
         updates.destroy();
         disconnectPlatform();
         densityQuery.removeEventListener('change', densityChanged);

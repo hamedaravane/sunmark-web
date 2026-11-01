@@ -57,6 +57,7 @@ test('menu keeps offline Play and Tutorial alongside Online; practice pauses bot
         const menu = menuContent(app, session);
         expect(menu).toContain('aria-label="خانهٔ بازیکن"');
         expect(menu).toContain('data-action="hub:competitive"');
+        expect(menu).toContain('data-action="account"');
         expect(menu).toContain('data-action="online"');
         expect(menu).toContain('data-action="play"');
         expect(menu).toContain('data-action="tutorial"');

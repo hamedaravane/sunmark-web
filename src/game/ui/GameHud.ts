@@ -302,6 +302,8 @@ export class GameHud {
         )
             this.session.closeSheet();
         if (action === 'online-retry') this.session.online?.retry();
+        if (action === 'account')
+            this.parent.dispatchEvent(new CustomEvent('sunmark:account', { bubbles: true }));
         if (action === 'online')
             this.parent.dispatchEvent(new CustomEvent('sunmark:online', { bubbles: true }));
         if (

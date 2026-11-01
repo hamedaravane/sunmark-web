@@ -1,0 +1,159 @@
+.account-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: var(--app-height, 100dvh);
+    max-height: none;
+    margin: 0;
+    padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    border: 0;
+    overflow: auto;
+    color: #fff4dc;
+    background:
+        linear-gradient(150deg, #111b3be6, #143d4be8),
+        url('/assets/backgrounds/main-menu.webp') center / cover;
+    font-family: Vazirmatn, Tahoma, sans-serif;
+}
+.account-dialog::backdrop {
+    background: #111b3b;
+}
+.account-card {
+    width: min(100%, 480px);
+    margin: auto;
+    padding: clamp(22px, 5vw, 40px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border: 1px solid #d4b87d88;
+    border-radius: 28px;
+    background: linear-gradient(145deg, #314972, #202e50);
+    box-shadow:
+        0 20px 60px #07142b88,
+        inset 0 1px #fff4dc22;
+}
+.account-seal {
+    font-size: 48px;
+    text-align: center;
+    color: #ffcf75;
+    line-height: 1;
+}
+.account-card h1 {
+    font-size: 26px;
+    margin: 0;
+    text-align: center;
+    color: #ffcf75;
+}
+.account-eyebrow {
+    margin: 0;
+    color: #d8c69f;
+    text-align: center;
+    font-size: 13px;
+}
+.account-description,
+.account-note,
+.account-fields small {
+    margin: 0;
+    color: #d4dcec;
+    font-size: 13px;
+    line-height: 1.9;
+}
+.account-description {
+    text-align: center;
+}
+.account-fields {
+    display: grid;
+    gap: 14px;
+}
+.account-card label {
+    display: grid;
+    gap: 8px;
+    font-size: 14px;
+}
+.account-card input,
+.account-card select,
+.account-recovery {
+    font: inherit;
+    font-size: 16px;
+    min-width: 0;
+    width: 100%;
+    min-height: 50px;
+    padding: 12px;
+    border: 1px solid #8396b488;
+    border-radius: 12px;
+    background: #14233e;
+    color: #fff4dc;
+}
+.account-card :is(input, select, button, textarea):focus-visible {
+    outline: 3px solid #ffcf75;
+    outline-offset: 3px;
+}
+.account-card button {
+    font: inherit;
+    font-size: 15px;
+    min-height: 48px;
+    padding: 12px 16px;
+    color: #fff4dc;
+    background: #1c5669;
+    border: 1px solid #4d9aa6;
+    border-radius: 14px;
+    cursor: pointer;
+}
+.account-card button:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+.account-card .account-primary {
+    background: linear-gradient(#ffe29c, #f5bb56);
+    color: #3c2b24;
+    border-color: #e5ad55;
+    box-shadow: 0 4px #a66e32;
+}
+.account-row,
+.account-progress {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.account-progress span {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 2px solid #65768f;
+    font-size: 13px;
+    color: #bbc9df;
+}
+.account-progress .active {
+    border-color: #ffcf75;
+    color: #ffcf75;
+}
+.account-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+.account-card .account-links button {
+    background: transparent;
+    border: 0;
+    padding: 8px;
+    color: #b9e5e7;
+}
+.account-error {
+    color: #ffd1ce;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.8;
+}
+.account-error:empty {
+    display: none;
+}
+.account-recovery {
+    resize: none;
+    min-height: 90px;
+    overflow-wrap: anywhere;
+}
+@media (min-width: 900px) {
+    .account-dialog {
+        padding-block: 5vh;
+    }
+}

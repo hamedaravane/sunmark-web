@@ -5,6 +5,7 @@ import {
     matchListSchema,
     matchSnapshotSchema,
     commandResponseSchema,
+    matchmakingResponseSchema,
     type MatchSnapshot,
 } from './shared/src/online/wire';
 import { onlineCommandSchema } from './shared/src/online/schemas';
@@ -25,6 +26,8 @@ export class OnlineClient {
     connected = false;
     busy = false;
     error = '';
+    matchmaking: z.infer<typeof matchmakingResponseSchema> | null = null;
+    private queueTimer: ReturnType<typeof setTimeout> | null = null;
     pending: z.infer<typeof pendingSchema> | null = null;
     receipt: {
         commandId: string;
@@ -76,6 +79,7 @@ export class OnlineClient {
     private async http(path: string, body?: unknown) {
         const response = await this.request(`${this.base}/api/v1/online${path}`, {
             credentials: 'include',
+            signal: AbortSignal.timeout(15_000),
             ...(body === undefined
                 ? {}
                 : {
@@ -129,12 +133,36 @@ export class OnlineClient {
         this.matches = matchListSchema.parse(await this.http('/matches'));
         this.emit();
     }
-    async create(name: string) {
+    async create(name?: string) {
         return this.run(async () => {
-            const snapshot = await this.http('/matches', { name });
+            const snapshot = await this.http('/matches', name ? { name } : {});
             this.accept(snapshot);
             this.connect();
         });
+    }
+    async quickMatch(kind: 'join' | 'poll' | 'cancel' = 'join') {
+        if (this.pending || this.disposed) return;
+        if (this.queueTimer) clearTimeout(this.queueTimer);
+        this.queueTimer = null;
+        if (kind === 'join') this.matchmaking = { state: 'waiting', count: 1, snapshot: null };
+        await this.run(async () => {
+            this.matchmaking = matchmakingResponseSchema.parse(
+                await this.http('/matchmaking', { kind }),
+            );
+            if (this.matchmaking.snapshot) {
+                this.accept(this.matchmaking.snapshot);
+                this.connect();
+            }
+        });
+        // Poll only while searching, including after a transient network failure.
+        if (
+            !this.disposed &&
+            !this.snapshot &&
+            (this.matchmaking?.state === 'waiting' || (kind === 'join' && this.error))
+        )
+            this.queueTimer = setTimeout(() => {
+                void this.quickMatch('poll');
+            }, 3000);
     }
     async join(code: string) {
         return this.run(async () => {
@@ -207,12 +235,22 @@ export class OnlineClient {
         try {
             await action();
         } catch (error) {
+            if (error instanceof HttpError && error.status === 401) {
+                this.session = null;
+                this.snapshot = null;
+                this.matchmaking = null;
+                this.socket?.disconnect();
+                this.socket = null;
+                this.connected = false;
+            }
             this.error =
                 error instanceof HttpError && error.status === 409
                     ? 'وضعیت بازی تغییر کرده یا این حرکت مجاز نیست. وضعیت تازه را بررسی کنید.'
-                    : error instanceof HttpError && error.status === 401
-                      ? 'نشست شما پایان یافته است. دوباره وارد شوید.'
-                      : 'درخواست کامل نشد. اتصال را بررسی کنید و دوباره تلاش کنید.';
+                    : error instanceof HttpError && error.status === 404
+                      ? 'اتاقی با این کد پیدا نشد. کد را دوباره بررسی کن.'
+                      : error instanceof HttpError && error.status === 401
+                        ? 'نشست شما پایان یافته است. دوباره وارد شوید.'
+                        : 'درخواست کامل نشد. اتصال را بررسی کنید و دوباره تلاش کنید.';
         } finally {
             this.busy = false;
             this.emit();
@@ -297,6 +335,9 @@ export class OnlineClient {
         this.emit();
     }
     destroy() {
+        if (this.queueTimer) clearTimeout(this.queueTimer);
+        if (this.matchmaking?.state === 'waiting')
+            void this.http('/matchmaking', { kind: 'cancel' }).catch(() => {});
         this.disposed = true;
         this.socket?.disconnect();
         this.listeners.clear();

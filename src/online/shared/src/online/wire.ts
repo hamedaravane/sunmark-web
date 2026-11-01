@@ -101,3 +101,9 @@ export const matchListSchema = z.array(
     status: z.enum(['lobby', 'playing', 'finished']),
   }),
 );
+
+export const matchmakingResponseSchema = z.strictObject({
+  state: z.enum(['idle', 'waiting', 'matched']),
+  count: z.number().int().min(0).max(4),
+  snapshot: matchSnapshotSchema.nullable(),
+});

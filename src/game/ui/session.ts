@@ -1,3 +1,4 @@
+import { playerIdentity } from '../../account/identity';
 import { awardChanges } from './scoreMarkup';
 import {
     buyDevelopment,
@@ -164,6 +165,8 @@ export class GameSession {
         this.buildGoal = null;
         const { state, practice } = createPractice();
         this.gameState = state;
+        const identity = playerIdentity();
+        if (identity) state.players[0].name = identity.name;
         this.practice = practice;
         this.controlledPlayerId = state.players[0].id;
         this.trading.reset();
@@ -191,6 +194,11 @@ export class GameSession {
         this.requestName(this.sheet.count, this.sheet.guided);
     }
     private requestName(count: 3 | 4, guided: boolean): void {
+        const identity = playerIdentity();
+        if (identity) {
+            this.start(count, guided, identity.name, true);
+            return;
+        }
         const saved = this.savedMatch;
         const previous =
             this.humanPlayer?.name ??
@@ -214,6 +222,9 @@ export class GameSession {
         this.progressionMatchId = saved.progressionId ?? createProgressionId();
         this.gameState = saved.state;
         this.controlledPlayerId = saved.humanPlayerId ?? saved.state.players[0].id;
+        const identity = playerIdentity();
+        const self = this.gameState.players.find((p) => p.id === this.controlledPlayerId);
+        if (self && identity) self.name = identity.name;
         this.history = saved.history;
         // Old automatic-opening saves may still have an obsolete setup instruction queued.
         const tutorial =

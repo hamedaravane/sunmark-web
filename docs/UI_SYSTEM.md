@@ -134,3 +134,13 @@ the 24-pixel bottom gutter (or a larger device safe-area inset).
 The dialogue body scrolls independently while its actions stay in the footer.
 The desktop composition uses the same shared layout variables as the tabletop;
 phones retain the existing stacked portrait and bottom sheet.
+
+Account onboarding uses native semantic HTML forms above the existing palace
+background, with the royal lapis, turquoise and honey palette. This preserves
+password-manager/autofill behavior, secure masked password entry and native mobile
+keyboards without adding credentials to canvas text objects. Form presentation
+lives in `account/markup.ts`; the controller owns submission and focus. Inputs are
+16px and touch targets at least 48px. A two-step registration groups introduction
+and account details, with an optional undisclosed gender and a one-time recovery
+key. Account profile fields never appear in public match UI. Match presentation
+continues to use the one shared Phaser runtime in both modes.

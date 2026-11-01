@@ -1,3 +1,4 @@
+import { playerIdentity } from '../account/identity';
 import type { Game } from 'phaser';
 import { GameSession } from './ui/session';
 import { MatchStore, matchStorageKey } from './persistence/matchStore';
@@ -13,7 +14,21 @@ export function StartGame(parent: HTMLElement): Game {
         /* Private/blocked storage remains playable. */
     }
     const scope = new URL(import.meta.env.BASE_URL, document.baseURI).pathname;
-    const session = new GameSession(new MatchStore(storage, matchStorageKey(scope)));
+    const identity = playerIdentity();
+    const key = matchStorageKey(identity ? `${scope}:${identity.id}` : scope);
+    if (storage && identity) {
+        try {
+            const legacyKey = matchStorageKey(scope);
+            const legacy = storage.getItem(legacyKey);
+            if (!storage.getItem(key) && legacy) {
+                storage.setItem(key, legacy);
+                storage.removeItem(legacyKey);
+            }
+        } catch {
+            /* Existing saves remain intact when storage is unavailable. */
+        }
+    }
+    const session = new GameSession(new MatchStore(storage, key));
     const app = new AppPlatform();
     const bots = new BotTurnRunner(
         session,

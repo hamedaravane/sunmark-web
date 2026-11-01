@@ -359,3 +359,57 @@ test('the live HTTP contract matches the frontend-pinned OpenAPI baseline', asyn
     const actual: unknown = await response.json();
     expect(actual).toEqual(expected);
 });
+
+test('registered players quick-match automatically and recover their seat on another device', async () => {
+    const players = Array.from({ length: 4 }, () => browser());
+    const anotherDevice = browser();
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const phones = players.map((_, i) => `+989${String(Date.now()).slice(-8)}${i}`);
+    try {
+        for (const [i, player] of players.entries()) {
+            const registered = await player.request(`${base}/api/v1/online/account/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: `p_${suffix}_${i}`,
+                    name: `هم‌سفر ${i}`,
+                    phone: phones[i],
+                    age: 25,
+                    gender: 'undisclosed',
+                    password: 'live test long password',
+                }),
+            });
+            expect(registered.status).toBe(201);
+            await player.client.initialize();
+            expect(player.client.session?.name).toBe(`هم‌سفر ${i}`);
+        }
+        await Promise.all(players.map((p) => p.client.quickMatch()));
+        await wait(() => players.every((p) => !!p.client.snapshot?.game));
+        expect(new Set(players.map((p) => p.client.snapshot?.id)).size).toBe(1);
+        for (const player of players) {
+            const snapshot = player.client.snapshot;
+            expect(snapshot?.seats.every((s) => s.occupied && s.ready && !s.bot)).toBe(true);
+            expect(snapshot?.code).toMatch(/^[0-9]{5}$/);
+            for (const phone of phones) expect(JSON.stringify(snapshot)).not.toContain(phone);
+            expect(JSON.stringify(snapshot)).not.toContain('password');
+        }
+        const login = await anotherDevice.request(`${base}/api/v1/online/account/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: `p_${suffix}_0`,
+                password: 'live test long password',
+            }),
+        });
+        expect(login.status).toBe(201);
+        await anotherDevice.client.initialize();
+        expect(anotherDevice.client.session?.id).toBe(players[0]?.client.session?.id);
+        const matchId = players[0]?.client.snapshot?.id;
+        if (!matchId) throw new Error('No assigned match');
+        await anotherDevice.client.open(matchId);
+        expect(anotherDevice.client.snapshot?.seats[0]?.isYou).toBe(true);
+    } finally {
+        for (const p of players) p.client.destroy();
+        anotherDevice.client.destroy();
+    }
+}, 30_000);

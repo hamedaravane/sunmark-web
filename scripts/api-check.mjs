@@ -13,6 +13,7 @@ const metadata = z
     })
     .parse(JSON.parse(await readFile(new URL('contracts/backend.json', root), 'utf8')));
 const expected = [
+    'src/online/shared/src/online/account.schemas.ts',
     'contracts/openapi.json',
     'src/online/shared/src/game/protocol.ts',
     'src/online/shared/src/online/schemas.ts',
