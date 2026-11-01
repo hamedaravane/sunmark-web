@@ -40,6 +40,10 @@ Use a fresh Ubuntu 24.04 x86-64 server, a public IPv4 address, a real domain, an
    - `/etc/sunmark/backup.env`: bucket-scoped S3 access credentials. The example provider/region must be replaced with your actual storage settings.
    - `/etc/sunmark/monitor.env`: private HTTPS alert receiver and external heartbeat URL. Alerts POST JSON `{"text":"..."}`; this works with compatible incoming webhooks. Telegram's bot API needs a compatible relay/adapter. No notification destination is preconfigured.
 
+   Optional: set `SUNMARK_ADMIN_ACCOUNT_IDS` in `deploy.env` to the reviewed,
+   comma-separated registered account UUIDs allowed to use `/admin.html`. The
+   default empty list denies all admin access. See [admin operations](../docs/ADMIN.md).
+
    To defer external notifications, set `MONITOR_NOTIFICATIONS_ENABLED=0` in `/etc/sunmark/monitor.env`. Local health checks, status files and failure exit codes remain active, but no alerts or heartbeats are sent. Restore it to `1` and configure/test both destinations when enabling notifications. Explicit `--test-alert` and `--test-heartbeat` commands still send test requests regardless of this setting.
 
 5. Save `/etc/sunmark/secrets/restic-password` somewhere safe outside this VM. Losing it makes encrypted backups unrecoverable. Preserve the other server credentials securely as well. The secrets directory is mode 0700. File-backed Compose secrets are read-only bind mounts, so individual mounted credential files are readable inside their intended non-root container; the private parent prevents other host users accessing them.

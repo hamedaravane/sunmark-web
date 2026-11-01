@@ -50,6 +50,19 @@ const base='https://localhost:18443';
 for (const [path,status] of [['/',200],['/api/v1/health/ready',200],['/docs-json',404]]) {
     const response=await fetch(base+path); assert.equal(response.status,status,path);
 }
+const admin=await fetch(base+'/admin.html');
+assert.equal(admin.status,200);
+assert.match(await admin.text(),/مدیریت Sunmark/);
+assert.match(admin.headers.get('cache-control'),/no-store/);
+assert.match(admin.headers.get('content-security-policy'),/frame-ancestors 'none'/);
+const adminRedirect=await fetch(base+'/admin',{redirect:'manual'});
+assert.equal(adminRedirect.status,302);
+assert.equal(adminRedirect.headers.get('location'),'/admin.html');
+for (const route of ['users','overview']) {
+    const denied=await fetch(base+'/api/v1/admin/'+route);
+    assert.equal(denied.status,401);
+    assert.match(denied.headers.get('cache-control'),/no-store/);
+}
 const response=await fetch(base+'/api/v1/online/session',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({name:'Deployment smoke'})});
 assert.equal(response.status,201);
 assert.match(response.headers.get('set-cookie'),/HttpOnly/);

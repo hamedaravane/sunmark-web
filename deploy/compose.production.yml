@@ -19,6 +19,7 @@ x-api: &api
     CORS_ORIGINS: https://${DOMAIN:?Set the public hostname}
     DOCS_ENABLED: 'false'
     SESSION_COOKIE_SECURE: 'true'
+    ADMIN_ACCOUNT_IDS: ${SUNMARK_ADMIN_ACCOUNT_IDS:-}
   volumes:
     - ./api-entrypoint.sh:/opt/sunmark/api-entrypoint.sh:ro
   secrets: [database-url]

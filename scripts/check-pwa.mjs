@@ -67,7 +67,7 @@ const expected = [
     'index.html',
     'manifest.webmanifest',
     ...readdirSync(path.join(directory, 'assets'), { recursive: true, encoding: 'utf8' })
-        .filter((file) => /\.(js|css|webp|woff2)$/.test(file))
+        .filter((file) => /\.(js|css|webp|woff2)$/.test(file) && !file.startsWith('admin-'))
         .map((file) => `assets/${file}`),
     ...readdirSync(path.join(directory, 'icons')).map((file) => `icons/${file}`),
 ];
@@ -83,4 +83,10 @@ for (const icon of manifest.icons) {
 }
 console.log(
     `PWA build verified: manifest, icon sizes, scoped URLs, waiting updates, and ${expected.length} offline files.`,
+);
+
+assert(!precached.has('admin.html'), 'Admin panel must stay outside offline precaching');
+assert(
+    ![...precached].some((file) => /^assets\/admin-/.test(file)),
+    'Admin entry assets must not be precached',
 );

@@ -110,3 +110,7 @@ Actual-size before/after comparisons and the responsive layout decisions are doc
 For the live service and recovery procedures, see [production deployment](deploy/README.md). The desktop stack remains separate from production and uses local-only credentials and loopback ports.
 
 Online play includes private four-seat rooms, guest sessions, host-selected bots, server-authoritative commands, trading consent and reconnection. Install Docker Desktop and use this repository's local-online helper; it pulls the separately published, versioned backend image from GHCR. No backend checkout is needed for normal use. The frontend, API and PostgreSQL run together on your desktop; no paid server is needed. See [Online play](docs/ONLINE_PLAY.md).
+
+## Administration
+
+The protected, read-only [admin panel](https://sunmarkgame.top/admin.html) shows registered users and online game statistics. Access requires an explicitly authorized player account; ordinary accounts cannot read administrative data. See [admin setup and verification](docs/ADMIN.md).

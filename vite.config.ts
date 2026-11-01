@@ -57,6 +57,8 @@ export default defineConfig({
                 ],
             },
             workbox: {
+                navigateFallbackDenylist: [/^\/admin(?:\/|\.html|$)/, /^\/api\//],
+                globIgnores: ['admin.html', 'assets/admin-*'],
                 cacheId: 'ancient-persia', // Keep existing offline caches through the rename.
                 globPatterns: ['**/*.{js,css,html,webp,woff2,png,svg}'],
                 maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
@@ -71,6 +73,7 @@ export default defineConfig({
         strictPort: true,
     },
     build: {
+        rollupOptions: { input: { game: 'index.html', admin: 'admin.html' } },
         target: 'es2020',
     },
 });

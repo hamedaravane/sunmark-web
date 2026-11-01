@@ -1,5 +1,5 @@
 name: sunmark-online
-x-backend-image: &backend-image ${SUNMARK_SERVER_IMAGE:-ghcr.io/hamedaravane/sunmark-server:e1f45b1b7662a3d94dc6acd9ced3a253258d36c8}
+x-backend-image: &backend-image ${SUNMARK_SERVER_IMAGE:-ghcr.io/hamedaravane/sunmark-server:4e6be7f81bbbe4fdc3471d987b7ad985b639978f}
 services:
   postgres:
     image: postgres:18-alpine@sha256:898c60cb390d1085bc97bdd6a1ae968757421df394b071848b52b1c09c89d6a5
@@ -23,6 +23,7 @@ services:
       CORS_ORIGINS: http://localhost:8080,http://127.0.0.1:8080,http://localhost:${WEB_PORT:-8081},http://127.0.0.1:${WEB_PORT:-8081}
       DOCS_ENABLED: 'true'
       SESSION_COOKIE_SECURE: 'false'
+      ADMIN_ACCOUNT_IDS: ${SUNMARK_ADMIN_ACCOUNT_IDS:-}
     depends_on:
       postgres:
         condition: service_healthy

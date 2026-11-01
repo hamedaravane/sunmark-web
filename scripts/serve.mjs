@@ -19,6 +19,15 @@ const mime = {
 };
 const server = http.createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', 'http://localhost');
+    if (url.pathname === '/admin' || url.pathname === '/admin/') {
+        res.writeHead(302, {
+            Location: '/admin.html',
+            'Cache-Control': 'no-store',
+            'X-Robots-Tag': 'noindex, nofollow',
+        });
+        res.end();
+        return;
+    }
     if (
         url.pathname.startsWith('/api/') ||
         url.pathname.startsWith('/socket.io/') ||
@@ -74,6 +83,14 @@ const server = http.createServer(async (req, res) => {
                 ? 'public, max-age=31536000, immutable'
                 : 'no-store',
             'X-Content-Type-Options': 'nosniff',
+            ...(url.pathname === '/admin.html'
+                ? {
+                      'X-Robots-Tag': 'noindex, nofollow',
+                      'Referrer-Policy': 'no-referrer',
+                      'Content-Security-Policy':
+                          "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+                  }
+                : {}),
         });
         if (req.method === 'HEAD') res.end();
         else createReadStream(path).pipe(res);

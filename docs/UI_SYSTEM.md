@@ -148,3 +148,11 @@ continues to use the one shared Phaser runtime in both modes.
 ## Online account progression
 
 The hub paints synchronized account XP, coins, rank, badges and cosmetics through the same Phaser/semantic system, with local rewards labeled separately. Competitive explains untimed turns before searching. Referral links prefill an explicit confirmation; server receipts drive online rewards. See [progression](PROGRESSION_AND_PLAYER_HUB.md). Account credential forms retain the existing native password-manager and autofill surface.
+
+## Administration
+
+The operator's read-only user dashboard is a separate native HTML application at
+`/admin.html`, with its own Vite entry and no Phaser runtime or offline caching.
+It uses Persian RTL, Vazirmatn, lapis/turquoise/gold colors, responsive tables and
+native accessible forms/dialogs. Server authorization protects every data request;
+the ordinary game never receives administrative user lists. See [ADMIN.md](ADMIN.md).

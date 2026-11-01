@@ -295,6 +295,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAdminOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAdminUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2758,6 +2790,113 @@ export interface operations {
                         } | null;
                     };
                 };
+            };
+        };
+    };
+    getAdminOverview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        registered: number;
+                        registered24h: number;
+                        registered7d: number;
+                        guestIdentities: number;
+                        accountsWithCompletedMatches: number;
+                        games: {
+                            lobby: number;
+                            playing: number;
+                            finished: number;
+                        };
+                        /** Format: date-time */
+                        checkedAt: string;
+                    };
+                };
+            };
+            /** @description Authenticated account required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Administrator access required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getAdminUsers: {
+        parameters: {
+            query?: {
+                limit?: number;
+                page?: number;
+                /** @description Literal username, name or phone search (maximum 80 characters) */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        users: {
+                            /** Format: uuid */
+                            id: string;
+                            username: string;
+                            name: string;
+                            phone: string;
+                            age: number;
+                            gender: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            isAdmin: boolean;
+                            xp: number;
+                            coins: number;
+                            matches: number;
+                            wins: number;
+                            rankedMatches: number;
+                            rankedWins: number;
+                            rating: number;
+                        }[];
+                        total: number;
+                        page: number;
+                        limit: number;
+                    };
+                };
+            };
+            /** @description Authenticated account required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Administrator access required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
