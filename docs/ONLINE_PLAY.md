@@ -110,3 +110,7 @@ browsers and OS/battery permission refusals remain playable with ordinary device
 sleep behavior. Wake Lock requires a secure context; production already uses HTTPS.
 The online code input and all account inputs have at least 16px text to prevent
 iOS focus zoom without disabling pinch zoom.
+
+## Ranked and account rewards
+
+The hub now offers a separate four-human ranked queue and server-owned account XP, coins, cosmetic seals and referral goals. Five provisional results reveal a winner-only rating and tier. Turns remain untimed/resumable; a disconnected assigned player returns to the same match. Private/casual play does not change rating. Server balances and purchases follow the account across login/recovery; browser saves cannot claim online wealth. A friend code must be selected before the first completed online game; three ranked games with different opponent groups unlock a bounded reward for both players. See [the complete policy](PROGRESSION_AND_PLAYER_HUB.md).

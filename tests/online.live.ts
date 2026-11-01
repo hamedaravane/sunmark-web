@@ -1,3 +1,4 @@
+import { progressionProfileSchema } from '../src/online/shared/src/online/progression.schemas';
 import { readFileSync } from 'node:fs';
 import { test, expect } from 'vitest';
 import { io, type Socket } from 'socket.io-client';
@@ -411,5 +412,74 @@ test('registered players quick-match automatically and recover their seat on ano
     } finally {
         for (const p of players) p.client.destroy();
         anotherDevice.client.destroy();
+    }
+}, 30_000);
+
+test('ranked clients recover their assigned seat and share an authoritative progression profile across devices', async () => {
+    const players = Array.from({ length: 4 }, browser);
+    const secondDevice = browser();
+    const suffix = Date.now().toString(36);
+    const names = players.map((_, i) => `r_${suffix}_${i}`);
+    try {
+        for (const [index, player] of players.entries()) {
+            const response = await player.request(`${base}/api/v1/online/account/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: names[index],
+                    name: `رقابت ${index}`,
+                    phone: `+1555${String(Date.now()).slice(-8)}${index}`,
+                    age: 25,
+                    gender: 'undisclosed',
+                    password: 'ranked live test passphrase',
+                }),
+            });
+            expect(response.status).toBe(201);
+            await player.client.initialize();
+        }
+        const referrer = players[0],
+            referee = players[1];
+        if (!referrer || !referee) throw new Error('Players missing');
+        const referred = await referee.request(`${base}/api/v1/online/progression/referral`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: names[0] }),
+        });
+        expect(referred.status).toBe(201);
+        expect(progressionProfileSchema.parse(await referred.json()).referral.status).toBe(
+            'pending',
+        );
+        await Promise.all(players.map((p) => p.client.quickMatch('join', 'ranked')));
+        await wait(() => players.every((p) => !!p.client.snapshot?.game));
+        const id = referrer.client.snapshot?.id;
+        if (!id) throw new Error('Ranked match missing');
+        expect(new Set(players.map((p) => p.client.snapshot?.id)).size).toBe(1);
+        for (const player of players)
+            expect(player.client.snapshot?.seats.every((s) => s.occupied && !s.bot)).toBe(true);
+        const signedIn = await secondDevice.request(`${base}/api/v1/online/account/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: names[0], password: 'ranked live test passphrase' }),
+        });
+        expect(signedIn.status).toBe(201);
+        await secondDevice.client.initialize();
+        await secondDevice.client.quickMatch('cancel', 'ranked');
+        expect(secondDevice.client.snapshot?.id).toBe(id);
+        expect(secondDevice.client.snapshot?.seats.some((s) => s.isYou)).toBe(true);
+        const own = await referrer.request(`${base}/api/v1/online/progression`);
+        const synced = await secondDevice.request(`${base}/api/v1/online/progression`);
+        expect(own.headers.get('cache-control')).toBe('no-store');
+        expect(progressionProfileSchema.parse(await own.json())).toEqual(
+            progressionProfileSchema.parse(await synced.json()),
+        );
+        const purchase = await secondDevice.request(`${base}/api/v1/online/progression/cosmetics`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ seal: 'amethyst' }),
+        });
+        expect(purchase.status).toBe(409);
+    } finally {
+        for (const player of players) player.client.destroy();
+        secondDevice.client.destroy();
     }
 }, 30_000);

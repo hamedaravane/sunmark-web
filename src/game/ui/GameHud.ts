@@ -23,12 +23,21 @@ import { humanHeader, humanHand } from './humanHud';
 import { introductionContent } from './matchIntroduction';
 import { playerName } from './playerIdentity';
 import { PROGRESSION_KEY } from '../progression/progression';
+import {
+    changeProgression,
+    onlineProgression,
+    refreshProgression,
+    referralLink,
+    subscribeProgression,
+} from '../../account/progression';
+import { playerIdentity } from '../../account/identity';
 
 export class GameHud {
     readonly boardViewport: HTMLElement;
     private sheet: BottomSheet;
     private unsubscribe: () => void;
     private unsubscribePlatform: () => void;
+    private unsubscribeProgression: () => void;
     private rollOrigin: { state: MatchState; box: UiBox } | null = null;
     private lastNotice = '';
     private lastAnnouncedTransition = 0;
@@ -65,6 +74,7 @@ export class GameHud {
         window.addEventListener('storage', this.onProgressionStorage);
         this.unsubscribe = session.subscribe(() => this.render());
         this.unsubscribePlatform = app.subscribe(() => this.render());
+        this.unsubscribeProgression = subscribeProgression(() => this.render());
         this.sizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
                 if (entry.contentRect.height <= 0) continue;
@@ -103,7 +113,16 @@ export class GameHud {
         this.sizeObserver.observe(parent);
         this.sizeObserver.observe(this.part('.board-stage'));
         this.render();
-        if (!app.installed && !session.online) session.openSheet({ kind: 'app' });
+        const referral = new URL(location.href).searchParams.get('ref');
+        if (
+            !session.online &&
+            playerIdentity() &&
+            referral &&
+            /^[a-z][a-z0-9_]{2,23}$/i.test(referral)
+        ) {
+            session.playerNameDraft = referral.toLowerCase();
+            session.openSheet({ kind: 'referrals' });
+        } else if (!app.installed && !session.online) session.openSheet({ kind: 'app' });
     }
 
     boardReady(): void {
@@ -285,7 +304,10 @@ export class GameHud {
     }
 
     private onProgressionStorage = (event: StorageEvent): void => {
-        if ((event.key === PROGRESSION_KEY || event.key === null) && this.session.progression)
+        if (
+            (event.key?.startsWith(PROGRESSION_KEY) || event.key === null) &&
+            this.session.progression
+        )
             this.render();
     };
 
@@ -308,12 +330,62 @@ export class GameHud {
             this.parent.dispatchEvent(new CustomEvent('sunmark:online', { bubbles: true }));
         if (
             action === 'hub' &&
-            ['profile', 'achievements', 'cosmetics', 'competitive'].includes(value) &&
+            [
+                'profile',
+                'achievements',
+                'cosmetics',
+                'competitive',
+                'online-profile',
+                'online-achievements',
+                'online-cosmetics',
+                'referrals',
+            ].includes(value) &&
             this.session.progression
-        )
+        ) {
+            if (value === 'referrals')
+                this.session.playerNameDraft = new URL(location.href).searchParams.get('ref') ?? '';
             this.session.openSheet({
-                kind: value as 'profile' | 'achievements' | 'cosmetics' | 'competitive',
+                kind: value as
+                    | 'profile'
+                    | 'achievements'
+                    | 'cosmetics'
+                    | 'competitive'
+                    | 'online-profile'
+                    | 'online-achievements'
+                    | 'online-cosmetics'
+                    | 'referrals',
             });
+        }
+        if (action === 'online-refresh') void refreshProgression();
+        if (action === 'online-seal') void changeProgression('cosmetics', { seal: value });
+        if (action === 'apply-referral') {
+            const input = this.parent.querySelector<HTMLInputElement>('#player-name');
+            void changeProgression('referral', {
+                code: (input?.value ?? this.session.playerNameDraft).trim().toLowerCase(),
+            });
+        }
+        if (action === 'copy-referral') {
+            const code = onlineProgression()?.referral.code;
+            if (code)
+                void navigator.clipboard
+                    ?.writeText(referralLink(code))
+                    .then(() => {
+                        target.textContent = 'پیوند دعوت کپی شد';
+                    })
+                    .catch(() => {
+                        target.textContent = `کد دعوت: ${code}`;
+                    });
+        }
+        if (action === 'ranked') {
+            this.session.closeSheet();
+            this.parent.dispatchEvent(new CustomEvent('sunmark:ranked', { bubbles: true }));
+        }
+        if (action === 'account-login') {
+            this.session.closeSheet();
+            this.parent.dispatchEvent(
+                new CustomEvent('sunmark:account', { bubbles: true, detail: 'login' }),
+            );
+        }
         if (action === 'hub-edit-name' && this.session.progression) {
             this.session.playerNameDraft = this.session.progression.snapshot.name;
             this.session.openSheet({ kind: 'profile-name' });
@@ -511,7 +583,9 @@ export class GameHud {
         const input = this.parent.querySelector<HTMLInputElement>('#player-name');
         const value = input?.parentElement?.querySelector<HTMLElement>('.name-entry-value');
         if (!input || !value) return;
-        const text = input.value || 'اسمت رو بنویس…';
+        const text =
+            input.value ||
+            (this.session.sheet?.kind === 'referrals' ? 'کد دوستت' : 'اسمت رو بنویس…');
         if (value.textContent !== text) value.textContent = text;
         value.classList.toggle('is-empty', !input.value);
         value.scrollLeft = input.scrollLeft;
@@ -520,13 +594,17 @@ export class GameHud {
         if (
             event.key === 'Enter' &&
             !event.isComposing &&
-            ['player-name', 'profile-name'].includes(this.session.sheet?.kind ?? '') &&
+            ['player-name', 'profile-name', 'referrals'].includes(this.session.sheet?.kind ?? '') &&
             event.target instanceof HTMLInputElement &&
             !this.app.updating
         ) {
             event.preventDefault();
             this.session.playerNameDraft = event.target.value;
-            if (this.session.sheet?.kind === 'profile-name') {
+            if (this.session.sheet?.kind === 'referrals') {
+                void changeProgression('referral', {
+                    code: this.session.playerNameDraft.trim().toLowerCase(),
+                });
+            } else if (this.session.sheet?.kind === 'profile-name') {
                 this.session.progression?.rename(playerName(this.session.playerNameDraft));
                 this.session.openSheet({ kind: 'profile' });
             } else this.session.confirmPlayerName();
@@ -538,6 +616,7 @@ export class GameHud {
         if (this.receiptTimer) clearTimeout(this.receiptTimer);
         this.unsubscribe();
         this.unsubscribePlatform();
+        this.unsubscribeProgression();
         this.sizeObserver.disconnect();
         this.sheet.destroy();
         this.parent.removeEventListener('click', this.onClick);

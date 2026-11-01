@@ -1,5 +1,5 @@
 name: sunmark-online
-x-backend-image: &backend-image ${SUNMARK_SERVER_IMAGE:-ghcr.io/hamedaravane/sunmark-server:3e86959f7a9e6023239181c7e0cf464b1185b16d}
+x-backend-image: &backend-image ${SUNMARK_SERVER_IMAGE:-ghcr.io/hamedaravane/sunmark-server:e1f45b1b7662a3d94dc6acd9ced3a253258d36c8}
 services:
   postgres:
     image: postgres:18-alpine@sha256:898c60cb390d1085bc97bdd6a1ae968757421df394b071848b52b1c09c89d6a5

@@ -5,6 +5,7 @@ import { MatchStore, matchStorageKey } from './persistence/matchStore';
 import { AppPlatform } from '../pwa/app';
 import { BotTurnRunner } from './ui/botTurns';
 import { mountMatch } from './matchRuntime';
+import { ProgressionStore, PROGRESSION_KEY } from './progression/progression';
 
 export function StartGame(parent: HTMLElement): Game {
     let storage: Storage | null = null;
@@ -16,6 +17,7 @@ export function StartGame(parent: HTMLElement): Game {
     const scope = new URL(import.meta.env.BASE_URL, document.baseURI).pathname;
     const identity = playerIdentity();
     const key = matchStorageKey(identity ? `${scope}:${identity.id}` : scope);
+    const progressionKey = identity ? `${PROGRESSION_KEY}:${identity.id}` : PROGRESSION_KEY;
     if (storage && identity) {
         try {
             const legacyKey = matchStorageKey(scope);
@@ -24,11 +26,19 @@ export function StartGame(parent: HTMLElement): Game {
                 storage.setItem(key, legacy);
                 storage.removeItem(legacyKey);
             }
+            const legacyProgression = storage.getItem(PROGRESSION_KEY);
+            if (!storage.getItem(progressionKey) && legacyProgression) {
+                storage.setItem(progressionKey, legacyProgression);
+                storage.removeItem(PROGRESSION_KEY);
+            }
         } catch {
             /* Existing saves remain intact when storage is unavailable. */
         }
     }
-    const session = new GameSession(new MatchStore(storage, key));
+    const session = new GameSession(
+        new MatchStore(storage, key),
+        new ProgressionStore(storage, progressionKey),
+    );
     const app = new AppPlatform();
     const bots = new BotTurnRunner(
         session,

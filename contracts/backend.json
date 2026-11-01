@@ -1,9 +1,10 @@
 {
   "repository": "hamedaravane/sunmark-server",
-  "commit": "3e86959f7a9e6023239181c7e0cf464b1185b16d",
+  "commit": "e1f45b1b7662a3d94dc6acd9ced3a253258d36c8",
   "sha256": {
+    "src/online/shared/src/online/progression.schemas.ts": "30caa861307a4b105a34aaab3e309dce941f75bb75a46bbc8ff7c87f28c1ef8d",
     "src/online/shared/src/online/account.schemas.ts": "aa4ac4baa40c0e44ad76460ba4584902648ad28a8927a378c91f9525053792a4",
-    "contracts/openapi.json": "1bbc439398d728cd63701d6f9c79a407ebce738caffaa5da06a108c2aaf8a074",
+    "contracts/openapi.json": "6c1957ad5fb6696059efd4b2ccf9b1a343880f011d5b78f74efb72c53427fc72",
     "src/online/shared/src/game/protocol.ts": "808d7f862d84885f84c6fa53cd7cc71e1c4359469f3d0328bd0ab60646584623",
     "src/online/shared/src/online/schemas.ts": "00eb30deb71f90cdc84d642e79abd0b578b195d18e8e1793ea2be452f9820698",
     "src/online/shared/src/online/wire.ts": "7529f2b50e2202c8bdfefab8ca1073155dc893d95dfacb4fc3946a65c2fc13f6"

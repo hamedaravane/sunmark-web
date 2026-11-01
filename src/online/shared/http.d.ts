@@ -231,6 +231,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/online/progression": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPlayerProgression"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/online/progression/cosmetics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["purchasePlayerCosmetic"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/online/progression/referral": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["applyPlayerReferral"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/online/ranked": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["rankedMatchmaking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2199,6 +2263,499 @@ export interface operations {
                 content: {
                     "application/json": {
                         ok: boolean;
+                    };
+                };
+            };
+        };
+    };
+    getPlayerProgression: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional expected account; rejects a stale tab after switching sign-in. */
+                "X-Sunmark-Player"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {number} */
+                        version: 1;
+                        /** Format: uuid */
+                        playerId: string;
+                        xp: number;
+                        coins: number;
+                        level: number;
+                        levelXP: number;
+                        nextLevelXP: number;
+                        matches: number;
+                        wins: number;
+                        rankedMatches: number;
+                        rankedWins: number;
+                        rating: number | null;
+                        /** @enum {string|null} */
+                        tier: "bronze" | "silver" | "gold" | "platinum" | "diamond" | "master" | null;
+                        placementGamesRemaining: number;
+                        lastRatingChange: number | null;
+                        badges: ("first-match" | "first-win" | "explorer" | "champion" | "ambassador")[];
+                        ownedSeals: ("sun" | "turquoise" | "amethyst")[];
+                        /** @enum {string} */
+                        equippedSeal: "sun" | "turquoise" | "amethyst";
+                        catalog: {
+                            /** @enum {string} */
+                            id: "sun" | "turquoise" | "amethyst";
+                            name: string;
+                            cost: number;
+                        }[];
+                        referral: {
+                            code: string;
+                            /** @enum {string} */
+                            status: "none" | "pending" | "rewarded" | "capped";
+                            qualifiedGames: number;
+                            /** @enum {number} */
+                            requiredGames: 3;
+                            rewardedInvites: number;
+                            /** @enum {number} */
+                            limit: 10;
+                        };
+                        rewards: {
+                            source: string;
+                            /** @enum {string} */
+                            kind: "match" | "referral" | "cosmetic";
+                            xp: number;
+                            coins: number;
+                            ratingChange: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    purchasePlayerCosmetic: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional expected account; rejects a stale tab after switching sign-in. */
+                "X-Sunmark-Player"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    seal: "sun" | "turquoise" | "amethyst";
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {number} */
+                        version: 1;
+                        /** Format: uuid */
+                        playerId: string;
+                        xp: number;
+                        coins: number;
+                        level: number;
+                        levelXP: number;
+                        nextLevelXP: number;
+                        matches: number;
+                        wins: number;
+                        rankedMatches: number;
+                        rankedWins: number;
+                        rating: number | null;
+                        /** @enum {string|null} */
+                        tier: "bronze" | "silver" | "gold" | "platinum" | "diamond" | "master" | null;
+                        placementGamesRemaining: number;
+                        lastRatingChange: number | null;
+                        badges: ("first-match" | "first-win" | "explorer" | "champion" | "ambassador")[];
+                        ownedSeals: ("sun" | "turquoise" | "amethyst")[];
+                        /** @enum {string} */
+                        equippedSeal: "sun" | "turquoise" | "amethyst";
+                        catalog: {
+                            /** @enum {string} */
+                            id: "sun" | "turquoise" | "amethyst";
+                            name: string;
+                            cost: number;
+                        }[];
+                        referral: {
+                            code: string;
+                            /** @enum {string} */
+                            status: "none" | "pending" | "rewarded" | "capped";
+                            qualifiedGames: number;
+                            /** @enum {number} */
+                            requiredGames: 3;
+                            rewardedInvites: number;
+                            /** @enum {number} */
+                            limit: 10;
+                        };
+                        rewards: {
+                            source: string;
+                            /** @enum {string} */
+                            kind: "match" | "referral" | "cosmetic";
+                            xp: number;
+                            coins: number;
+                            ratingChange: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    applyPlayerReferral: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional expected account; rejects a stale tab after switching sign-in. */
+                "X-Sunmark-Player"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    code: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {number} */
+                        version: 1;
+                        /** Format: uuid */
+                        playerId: string;
+                        xp: number;
+                        coins: number;
+                        level: number;
+                        levelXP: number;
+                        nextLevelXP: number;
+                        matches: number;
+                        wins: number;
+                        rankedMatches: number;
+                        rankedWins: number;
+                        rating: number | null;
+                        /** @enum {string|null} */
+                        tier: "bronze" | "silver" | "gold" | "platinum" | "diamond" | "master" | null;
+                        placementGamesRemaining: number;
+                        lastRatingChange: number | null;
+                        badges: ("first-match" | "first-win" | "explorer" | "champion" | "ambassador")[];
+                        ownedSeals: ("sun" | "turquoise" | "amethyst")[];
+                        /** @enum {string} */
+                        equippedSeal: "sun" | "turquoise" | "amethyst";
+                        catalog: {
+                            /** @enum {string} */
+                            id: "sun" | "turquoise" | "amethyst";
+                            name: string;
+                            cost: number;
+                        }[];
+                        referral: {
+                            code: string;
+                            /** @enum {string} */
+                            status: "none" | "pending" | "rewarded" | "capped";
+                            qualifiedGames: number;
+                            /** @enum {number} */
+                            requiredGames: 3;
+                            rewardedInvites: number;
+                            /** @enum {number} */
+                            limit: 10;
+                        };
+                        rewards: {
+                            source: string;
+                            /** @enum {string} */
+                            kind: "match" | "referral" | "cosmetic";
+                            xp: number;
+                            coins: number;
+                            ratingChange: number;
+                            /** Format: date-time */
+                            createdAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    rankedMatchmaking: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional expected account; rejects a stale tab after switching sign-in. */
+                "X-Sunmark-Player"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    kind: "join" | "poll" | "cancel";
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        state: "idle" | "waiting" | "matched";
+                        count: number;
+                        snapshot: {
+                            /** @enum {string} */
+                            rulesVersion: "3ef03a7fd848e16137e06445c4927cec5f89d3c2";
+                            /** @enum {number} */
+                            protocolVersion: 1;
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            code: string;
+                            /** @enum {string} */
+                            status: "lobby" | "playing" | "finished";
+                            revision: number;
+                            host: boolean;
+                            seats: {
+                                playerId: string;
+                                name: string;
+                                bot: boolean;
+                                ready: boolean;
+                                occupied: boolean;
+                                isYou: boolean;
+                            }[];
+                            game: {
+                                /** @enum {number} */
+                                protocolVersion: 1;
+                                availableIntents: ({
+                                    /** @enum {string} */
+                                    kind: "setup-roll";
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "roll";
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "end-turn";
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "buy-development";
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "declare-victory";
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "setup";
+                                    /** @enum {string} */
+                                    type: "settlement" | "road";
+                                    targetId: string;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "build";
+                                    /** @enum {string} */
+                                    type: "settlement" | "road" | "city";
+                                    targetId: string;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "robber";
+                                    targetId: string;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "steal";
+                                    victimId: string;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "discard";
+                                    resources: {
+                                        wood: number;
+                                        brick: number;
+                                        wheat: number;
+                                        wool: number;
+                                        stone: number;
+                                    };
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "trade";
+                                    /** @enum {string} */
+                                    give: "wood" | "brick" | "wheat" | "wool" | "stone";
+                                    /** @enum {string} */
+                                    receive: "wood" | "brick" | "wheat" | "wool" | "stone";
+                                    ratio: 2 | 3 | 4;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "play-development";
+                                    cardId: string;
+                                    choice?: {
+                                        /** @enum {string} */
+                                        resource?: "wood" | "brick" | "wheat" | "wool" | "stone";
+                                        resources?: (("wood" | "brick" | "wheat" | "wool" | "stone") | ("wood" | "brick" | "wheat" | "wool" | "stone"))[];
+                                    };
+                                })[];
+                                board: {
+                                    tiles: {
+                                        id: string;
+                                        q: number;
+                                        r: number;
+                                        x: number;
+                                        y: number;
+                                        /** @enum {string} */
+                                        terrain: "forest" | "mesa" | "wheat" | "pasture" | "mountain" | "desert";
+                                        /** @enum {string|null} */
+                                        resource: "wood" | "brick" | "wheat" | "wool" | "stone" | null;
+                                        number: number | null;
+                                        robber: boolean;
+                                        vertexIds: string[];
+                                        edgeIds: string[];
+                                    }[];
+                                    vertices: {
+                                        [key: string]: {
+                                            id: string;
+                                            x: number;
+                                            y: number;
+                                            tileIds: string[];
+                                            edgeIds: string[];
+                                            neighborIds: string[];
+                                            building: {
+                                                /** @enum {string} */
+                                                type: "settlement" | "city";
+                                                ownerId: string;
+                                            } | null;
+                                        };
+                                    };
+                                    edges: {
+                                        [key: string]: {
+                                            id: string;
+                                            vertexIds: (string)[];
+                                            tileIds: string[];
+                                            road: {
+                                                ownerId: string;
+                                            } | null;
+                                        };
+                                    };
+                                    ports: {
+                                        id: string;
+                                        edgeId: string;
+                                        /** @enum {string|null} */
+                                        resource: "wood" | "brick" | "wheat" | "wool" | "stone" | null;
+                                    }[];
+                                };
+                                /** @enum {string} */
+                                phase: "setup-roll" | "setup-settlement" | "setup-road" | "roll" | "discard" | "robber" | "steal" | "road-building" | "actions" | "finished";
+                                turn: number;
+                                actorId: string;
+                                activePlayerId: string;
+                                lastRoll: (number)[] | null;
+                                winnerId: string | null;
+                                /** @enum {number} */
+                                victoryTarget: 10;
+                                setup?: ({
+                                    /** @enum {string} */
+                                    kind: "starter";
+                                    contenders: number[];
+                                    rolls: {
+                                        [key: string]: (number)[];
+                                    };
+                                    lastRoll: {
+                                        playerId: string;
+                                        dice: (number)[];
+                                    } | null;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "placement";
+                                    settlements: string[];
+                                    settlementId: string | null;
+                                    lastRoll: {
+                                        playerId: string;
+                                        dice: (number)[];
+                                    };
+                                }) | null;
+                                awards?: {
+                                    longestRoad: string | null;
+                                    largestArmy: string | null;
+                                } | null;
+                                discardObligations: {
+                                    [key: string]: number;
+                                };
+                                eligibleVictims: string[];
+                                developmentDeckCount: number;
+                                playedDevelopment: {
+                                    /** @enum {string} */
+                                    kind: "knight" | "victory-point" | "road-building" | "monopoly" | "year-of-plenty";
+                                    playedBy?: string;
+                                }[];
+                                players: {
+                                    id: string;
+                                    name: string;
+                                    color: number;
+                                    resourceCount: number;
+                                    developmentCount: number;
+                                    playedKnights: number;
+                                    publicScore: number;
+                                }[];
+                                self: {
+                                    id: string;
+                                    resources: {
+                                        wood: number;
+                                        brick: number;
+                                        wheat: number;
+                                        wool: number;
+                                        stone: number;
+                                    };
+                                    developmentCards: {
+                                        id: string;
+                                        /** @enum {string} */
+                                        kind: "knight" | "victory-point" | "road-building" | "monopoly" | "year-of-plenty";
+                                        boughtOnRound: number;
+                                    }[];
+                                    score: number;
+                                };
+                            } | null;
+                            offers: {
+                                id: number;
+                                from: string;
+                                to: string;
+                                give: {
+                                    wood: number;
+                                    brick: number;
+                                    wheat: number;
+                                    wool: number;
+                                    stone: number;
+                                };
+                                want: {
+                                    wood: number;
+                                    brick: number;
+                                    wheat: number;
+                                    wool: number;
+                                    stone: number;
+                                };
+                                parentId?: number;
+                                /** @enum {string} */
+                                status: "open" | "accepted" | "rejected" | "countered" | "withdrawn" | "completed" | "expired";
+                                /** @enum {string} */
+                                reason?: "useful" | "protecting-plan" | "better-price" | "leader" | "unavailable";
+                            }[];
+                        } | null;
                     };
                 };
             };

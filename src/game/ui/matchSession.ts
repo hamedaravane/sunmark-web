@@ -37,5 +37,11 @@ export type MatchSession = Omit<
     > & {
         table: Pick<PlayerTrading['table'], 'offers' | 'find'>;
     };
-    readonly online?: { connected: boolean; busy: boolean; pending: boolean; retry(): void };
+    readonly online?: {
+        connected: boolean;
+        busy: boolean;
+        pending: boolean;
+        matchId?: string;
+        retry(): void;
+    };
 };

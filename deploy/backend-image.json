@@ -1,4 +1,4 @@
 {
-  "commit": "3e86959f7a9e6023239181c7e0cf464b1185b16d",
-  "image": "ghcr.io/hamedaravane/sunmark-server@sha256:511d2206101c96a8f7fb6e6b6abaee8a1af6bbe853ca7f5cc05a02560e62f3c4"
+  "commit": "e1f45b1b7662a3d94dc6acd9ced3a253258d36c8",
+  "image": "ghcr.io/hamedaravane/sunmark-server@sha256:f40c2a6a6ee970ddac5aa73e2974d5b0163d625e278361386abffc61f09c69db"
 }

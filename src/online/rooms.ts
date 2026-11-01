@@ -1,6 +1,7 @@
 import type { OnlineClient } from './client';
 import type { Drafts } from './model';
 import { label, button, input } from './components';
+import { onlineProgression, rankLabel } from '../account/progression';
 export function roomMarkup(client: OnlineClient, draft: Drafts) {
     const snapshot = client.snapshot;
     const busy = client.busy || !!client.pending;
@@ -13,7 +14,7 @@ export function roomMarkup(client: OnlineClient, draft: Drafts) {
     } else if (!snapshot) {
         body = label(`درود ${client.session.name}`, 'h2');
         if (client.matchmaking?.state === 'waiting') {
-            body += `<section class="online-welcome" data-surface="lapis">${label('در جست‌وجوی هم‌سفر…', 'h2')}${label(`${client.matchmaking.count.toLocaleString('fa-IR')} از ۴ بازیکن آماده‌اند`, 'h3')}${label('با پیدا شدن چهار بازیکن، سفر خودکار شروع می‌شود. این صفحه را باز نگه دار.')}${button('لغو جست‌وجو', 'cancel-search', busy)}</section>`;
+            body += `<section class="online-welcome" data-surface="lapis">${label(client.matchmakingMode === 'ranked' ? 'در جست‌وجوی حریف هم‌رتبه…' : 'در جست‌وجوی هم‌سفر…', 'h2')}${label(`${client.matchmaking.count.toLocaleString('fa-IR')} از ۴ بازیکن آماده‌اند`, 'h3')}${label('با پیدا شدن چهار بازیکن، سفر خودکار شروع می‌شود. این صفحه را باز نگه دار.')}${button('لغو جست‌وجو', 'cancel-search', busy)}</section>`;
         } else if (draft.screen === 'join') {
             body +=
                 label('دوستان منتظر تو هستند', 'h3') +
@@ -26,7 +27,7 @@ export function roomMarkup(client: OnlineClient, draft: Drafts) {
                 ) +
                 button('بازگشت', 'screen:home');
         } else {
-            body += `<section class="online-card" data-surface="lapis">${label('بازی سریع', 'h2')}${label('هم‌سفرها را پیدا می‌کنیم؛ بازی با چهار بازیکن خودکار شروع می‌شود.')}${button('پیدا کردن بازی', 'quick', busy)}</section><section class="online-card" data-surface="inset">${label('بازی خصوصی', 'h2')}${label('یک جزیره فقط برای تو و دوستانت.')}${button('ساخت بازی خصوصی', 'create', busy)}${button('پیوستن با کد', 'screen:join', busy)}</section>`;
+            body += `<section class="online-card" data-surface="amethyst">${label('رقابت رتبه‌بندی‌شده', 'h2')}${label(rankLabel(onlineProgression()), 'h3')}${label('چهار بازیکن واقعی؛ نتیجهٔ بازی روی رتبه اثر دارد. نوبت‌ها زمان‌سنج ندارند.')}${button('پیدا کردن رقابت', 'ranked', busy)}</section><section class="online-card" data-surface="lapis">${label('بازی سریع دوستانه', 'h2')}${label('هم‌سفرها را پیدا می‌کنیم؛ بازی با چهار بازیکن خودکار شروع می‌شود. بدون تغییر رتبه.')}${button('پیدا کردن بازی', 'quick', busy)}</section><section class="online-card" data-surface="inset">${label('بازی خصوصی', 'h2')}${label('یک جزیره فقط برای تو و دوستانت.')}${button('ساخت بازی خصوصی', 'create', busy)}${button('پیوستن با کد', 'screen:join', busy)}</section>`;
             if (client.matches.length)
                 body +=
                     label('ادامه سفرها', 'h3') +

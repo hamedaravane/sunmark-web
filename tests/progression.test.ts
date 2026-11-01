@@ -140,7 +140,7 @@ test('a bot victory gives the human participation rewards and records a loss', (
     expect(sheetContent(session).body).toContain('پاداش پایان بازی');
     expect(sheetContent(session).body).not.toContain('پاداش پیروزی');
     session.returnToMenu();
-    expect(menuContent(new AppPlatform(), session)).toContain('بدون رتبه');
+    expect(menuContent(new AppPlatform(), session)).toContain('ورود برای دیدن رتبه');
 });
 
 test('unfinished matches and rejected victory declarations earn no rewards; legacy saves get a stable reward ID', () => {
@@ -235,7 +235,7 @@ test('the hub exposes all modes and profile panels, escapes names, and keeps ski
     ])
         expect(markup).toContain(`data-action="${action}"`);
     expect(markup).not.toContain('<img');
-    expect(markup).toContain('بدون رتبه');
+    expect(markup).toContain('ورود برای دیدن رتبه');
     expect(markup).toContain('role="progressbar"');
     for (const kind of ['profile', 'achievements', 'cosmetics', 'competitive'] as const) {
         session.openSheet({ kind });
@@ -243,7 +243,7 @@ test('the hub exposes all modes and profile panels, escapes names, and keeps ski
         expect(sheet.key).toBeTruthy();
         expect(sheet.body).not.toContain('<img');
     }
-    expect(sheetContent(session).body).toContain('این حالت هنوز فعال نیست');
+    expect(sheetContent(session).body).toContain('نوبت‌ها در این نسخه زمان‌سنج ندارند');
     session.closeSheet();
     progression.rename('مهسا');
     session.requestPlay();

@@ -27,6 +27,7 @@ export class OnlineClient {
     busy = false;
     error = '';
     matchmaking: z.infer<typeof matchmakingResponseSchema> | null = null;
+    matchmakingMode: 'casual' | 'ranked' = 'casual';
     private queueTimer: ReturnType<typeof setTimeout> | null = null;
     pending: z.infer<typeof pendingSchema> | null = null;
     receipt: {
@@ -84,7 +85,10 @@ export class OnlineClient {
                 ? {}
                 : {
                       method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
+                      headers: {
+                          'Content-Type': 'application/json',
+                          ...(this.session ? { 'X-Sunmark-Player': this.session.id } : {}),
+                      },
                       body: JSON.stringify(body),
                   }),
         });
@@ -140,14 +144,18 @@ export class OnlineClient {
             this.connect();
         });
     }
-    async quickMatch(kind: 'join' | 'poll' | 'cancel' = 'join') {
-        if (this.pending || this.disposed) return;
+    async quickMatch(
+        kind: 'join' | 'poll' | 'cancel' = 'join',
+        mode: 'casual' | 'ranked' = this.matchmakingMode,
+    ) {
+        if (this.pending || this.disposed || this.busy) return;
+        this.matchmakingMode = mode;
         if (this.queueTimer) clearTimeout(this.queueTimer);
         this.queueTimer = null;
         if (kind === 'join') this.matchmaking = { state: 'waiting', count: 1, snapshot: null };
         await this.run(async () => {
             this.matchmaking = matchmakingResponseSchema.parse(
-                await this.http('/matchmaking', { kind }),
+                await this.http(mode === 'ranked' ? '/ranked' : '/matchmaking', { kind }),
             );
             if (this.matchmaking.snapshot) {
                 this.accept(this.matchmaking.snapshot);
@@ -337,7 +345,9 @@ export class OnlineClient {
     destroy() {
         if (this.queueTimer) clearTimeout(this.queueTimer);
         if (this.matchmaking?.state === 'waiting')
-            void this.http('/matchmaking', { kind: 'cancel' }).catch(() => {});
+            void this.http(this.matchmakingMode === 'ranked' ? '/ranked' : '/matchmaking', {
+                kind: 'cancel',
+            }).catch(() => {});
         this.disposed = true;
         this.socket?.disconnect();
         this.listeners.clear();

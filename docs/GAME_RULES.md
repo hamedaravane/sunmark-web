@@ -76,3 +76,7 @@ These domestic rules follow [CATAN's official Rules & Almanac, Domestic Trade, p
 ## Beginner practice
 
 The menu Tutorial enters a clearly labeled, deterministic practice board with one preplaced settlement/road, prepared resources, inactive opponents, and a disclosed production roll. The player rolls, receives actual terrain production, pays for a sample road to a new legal settlement site, exchanges four wood for a missing wool, and pays for a settlement that changes their score from one to two. Every performed action uses the ordinary core validators and costs. The sample route illustrates connectivity and distance, without recommending an optimal move. Practice cannot end turns, build other pieces, or execute a different trade; alternative bank selections remain inspectable for comparison. It never saves over a match. Completion or exit returns to the menu; Play resumes the existing save or starts normal empty-board setup. This explicit teaching scenario does not change ordinary random dice or grant resources in a real match.
+
+## Online mode boundary
+
+Private rooms may use explicitly selected server bots. Ranked matchmaking uses four distinct human accounts and the same board, hidden-information and ten-point victory rules. Existing turns remain untimed and resumable; no automatic forfeit or human-to-bot takeover is introduced. Account XP, coins, ratings and cosmetic seals never change match resources, dice or victory points.

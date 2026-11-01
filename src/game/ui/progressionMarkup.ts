@@ -12,9 +12,17 @@ import { PLAYER_NAME_LIMIT } from './playerIdentity';
 import type { SheetContent } from './bottomSheet';
 import type { MatchSession } from './matchSession';
 
-export function experienceBar(profile: Profile): string {
-    const xp = experience(profile.xp);
-    return `<div class="hub-xp"><div class="row-between"><span>سطح ${number(xp.level)}</span><span>${number(xp.current)} از ${number(xp.required)} تجربه</span></div><span class="hub-progress" role="progressbar" aria-label="تجربه تا سطح بعد" aria-valuemin="0" aria-valuemax="${xp.required}" aria-valuenow="${xp.current}" data-progress="${xp.percent}"></span></div>`;
+export function experienceBar(
+    profile: Pick<Profile, 'xp'> & { level?: number; levelXP?: number; nextLevelXP?: number },
+): string {
+    const local = experience(profile.xp);
+    const xp = {
+        level: profile.level ?? local.level,
+        current: profile.levelXP ?? local.current,
+        required: profile.nextLevelXP ?? local.required,
+    };
+    const percent = xp.current / xp.required;
+    return `<div class="hub-xp"><div class="row-between"><span>سطح ${number(xp.level)}</span><span>${number(xp.current)} از ${number(xp.required)} تجربه</span></div><span class="hub-progress" role="progressbar" aria-label="تجربه تا سطح بعد" aria-valuemin="0" aria-valuemax="${xp.required}" aria-valuenow="${xp.current}" data-progress="${percent}"></span></div>`;
 }
 
 export function rewardMarkup(reward: Reward, profile: Profile): string {
@@ -91,14 +99,6 @@ export function progressionSheet(session: MatchSession): SheetContent | null {
                 '',
             )}</div><p class="footnote">هر خرید یک‌بار هزینه دارد؛ انتخاب دوبارهٔ مهرهای خریده‌شده رایگان است. رنگ مهر، رنگ مهره‌های داخل بازی را تغییر نمی‌دهد.</p>${storageNotice(store)}`,
             footer: back,
-        };
-    if (kind === 'competitive')
-        return {
-            title: 'رقابت آنلاین',
-            key: 'competitive-preview',
-            tone: 'lapis',
-            body: `<div class="hub-rank-seal" aria-hidden="true">${artSprite('rosette', 56)}</div><h3 class="hub-rank-title">هنوز رتبه‌ای نداری</h3><p class="hub-rank-title muted">مسابقات رتبه‌بندی‌شده به‌زودی</p><p>رقابت آنلاین با بازیکنان واقعی، رتبه و مدال‌های مهارت، مرحلهٔ بعدی سان‌مارک است. این حالت هنوز فعال نیست.</p><p>تجربه، سکه و نشان‌های فعلی، پیشرفت آفلاین تو هستند. برد و باخت آفلاین یا اتاق خصوصی روی رتبهٔ رقابتی اثر ندارند.</p><p class="footnote">همین حالا می‌توانی یک اتاق خصوصی بسازی و دوستانت را با کد یا پیوند اتاق دعوت کنی.</p>`,
-            footer: `${import.meta.env.VITE_ONLINE_ENABLED === 'false' ? '' : button('بازی با دوستان در اتاق خصوصی', 'hub-online', { className: 'button button--primary full-width' })}${back}`,
         };
     return null;
 }

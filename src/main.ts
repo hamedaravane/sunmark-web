@@ -1,5 +1,6 @@
 import { showAccount } from './account/account';
 import { playerIdentity, restoreIdentity } from './account/identity';
+import { refreshProgression } from './account/progression';
 import { StartGame } from './game/main';
 import { loadUiFont } from './game/ui/typography';
 import './styles/global.css';
@@ -36,36 +37,50 @@ void loadUiFont().then(async () => {
             offlineIdentity = playerIdentity()?.id;
         };
         let accountOpen = false;
-        parent.addEventListener('sunmark:account', () => {
+        parent.addEventListener('sunmark:account', (event) => {
             if (accountOpen) return;
             accountOpen = true;
             game.loop.sleep();
-            void showAccount(parent).finally(() => {
+            void showAccount(
+                parent,
+                true,
+                event instanceof CustomEvent && event.detail === 'login',
+            ).finally(() => {
                 accountOpen = false;
                 refreshOfflineIdentity();
                 game.loop.wake();
+                void refreshProgression();
             });
         });
         let online: { destroy(): void } | null = null;
-        const openOnline = async () => {
+        const openOnline = async (mode: 'casual' | 'ranked' = 'casual') => {
             if (online) return;
             const { startOnline } = await import('./online/start');
             offline.hidden = true;
             game.loop.sleep();
             const root = document.createElement('div');
             parent.append(root);
-            online = startOnline(root, () => {
-                online?.destroy();
-                online = null;
-                root.remove();
-                refreshOfflineIdentity();
-                offline.hidden = false;
-                game.loop.wake();
-            });
+            online = startOnline(
+                root,
+                () => {
+                    online?.destroy();
+                    online = null;
+                    root.remove();
+                    refreshOfflineIdentity();
+                    offline.hidden = false;
+                    game.loop.wake();
+                    void refreshProgression();
+                },
+                mode,
+            );
         };
         parent.addEventListener('sunmark:online', () => {
             void openOnline();
         });
+        parent.addEventListener('sunmark:ranked', () => {
+            void openOnline('ranked');
+        });
+        void refreshProgression();
         if (
             import.meta.env.VITE_ONLINE_ENABLED !== 'false' &&
             new URL(location.href).searchParams.has('invite')

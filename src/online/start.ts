@@ -1,5 +1,6 @@
 import { restoreIdentity } from '../account/identity';
 import { showAccount } from '../account/account';
+import { refreshProgression } from '../account/progression';
 import { Game, AUTO, Scale } from 'phaser';
 import { OnlineClient } from './client';
 import { RoomScene } from './roomScene';
@@ -10,7 +11,11 @@ import { newDrafts, onlineMarkup } from './markup';
 import { canvasPixelSize } from '../game/rendering/displayGeometry';
 import './style.css';
 
-export function startOnline(root: HTMLElement, onExit: () => void) {
+export function startOnline(
+    root: HTMLElement,
+    onExit: () => void,
+    mode: 'casual' | 'ranked' = 'casual',
+) {
     let storage: Storage | null = null;
     try {
         storage = localStorage;
@@ -24,6 +29,7 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
                 : location.origin),
     ).replace(/\/$/, '');
     const client = new OnlineClient(base, storage);
+    client.matchmakingMode = mode;
     let disposed = false;
     let accountOpen = false;
     const draft = newDrafts();
@@ -109,8 +115,10 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
                         if (disposed) return;
                         if (await restoreIdentity()) {
                             await client.initialize();
+                            await refreshProgression();
+                            if (mode === 'ranked' && !client.pending) client.back();
                             if (!client.snapshot && !client.pending)
-                                await client.quickMatch('poll');
+                                await client.quickMatch(mode === 'ranked' ? 'join' : 'poll', mode);
                         }
                         render();
                     })
@@ -119,7 +127,10 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
                     });
                 break;
             case 'quick':
-                void client.quickMatch();
+                void client.quickMatch('join', 'casual');
+                break;
+            case 'ranked':
+                void client.quickMatch('join', 'ranked');
                 break;
             case 'cancel-search':
                 void client.quickMatch('cancel');
@@ -233,7 +244,10 @@ export function startOnline(root: HTMLElement, onExit: () => void) {
             if (disposed || !response.ok) return;
             await restoreIdentity();
             await client.initialize();
-            if (!client.snapshot && !client.pending) await client.quickMatch('poll');
+            await refreshProgression();
+            if (mode === 'ranked' && !client.pending) client.back();
+            if (!client.snapshot && !client.pending)
+                await client.quickMatch(mode === 'ranked' ? 'join' : 'poll', mode);
         } catch {
             client.error = 'اتصال برقرار نشد. برای ورود دوباره تلاش کن.';
             render();

@@ -79,7 +79,11 @@ export type Sheet =
               | 'profile-name'
               | 'achievements'
               | 'cosmetics'
-              | 'competitive';
+              | 'competitive'
+              | 'online-profile'
+              | 'online-achievements'
+              | 'online-cosmetics'
+              | 'referrals';
       }
     | { kind: 'new-match' | 'player-name'; count: 3 | 4; guided: boolean };
 export interface Placement {

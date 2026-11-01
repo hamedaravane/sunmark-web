@@ -1,3 +1,4 @@
+import { refreshProgression } from '../account/progression';
 import { transitionReceipt } from '../game/ui/turnSurface';
 import { number } from '../game/ui/components';
 import { publicAction } from './presentation';
@@ -62,6 +63,7 @@ export class OnlineSession implements MatchSession {
     get online() {
         return {
             connected: this.client.connected,
+            matchId: this.client.snapshot?.id,
             busy: this.client.busy,
             pending: !!this.client.pending,
             retry: () => {
@@ -208,8 +210,10 @@ export class OnlineSession implements MatchSession {
             this.give = this.receive = null;
             this.ratio = null;
             this.discardDraft = { wood: 0, brick: 0, wheat: 0, wool: 0, stone: 0 };
-            if (view.phase === 'finished') this.sheet = { kind: 'results' };
-            else if (view.actorId === view.self.id && ['discard', 'steal'].includes(view.phase))
+            if (view.phase === 'finished') {
+                this.sheet = { kind: 'results' };
+                void refreshProgression();
+            } else if (view.actorId === view.self.id && ['discard', 'steal'].includes(view.phase))
                 this.sheet = { kind: view.phase === 'discard' ? 'discard' : 'steal' };
             this.trading.sync();
         }

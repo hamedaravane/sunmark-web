@@ -400,3 +400,8 @@
         font-size: 14px;
     }
 }
+.hub-referral-link {
+    overflow-wrap: anywhere;
+    font-size: 11px;
+    line-height: 20px;
+}

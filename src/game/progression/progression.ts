@@ -162,7 +162,10 @@ export class ProgressionStore {
     private profile = emptyProfile();
     private previousRaw: string | null = null;
     status: 'saved' | 'empty' | 'invalid' | 'unavailable' = 'empty';
-    constructor(private storage: SaveStorage | null = browserStorage()) {
+    constructor(
+        private storage: SaveStorage | null = browserStorage(),
+        private key = PROGRESSION_KEY,
+    ) {
         this.refresh();
     }
     /** Pick up sequential writes from another tab before reading or changing this profile. */
@@ -173,7 +176,7 @@ export class ProgressionStore {
                 this.status = 'unavailable';
                 return;
             }
-            const raw = storage.getItem(PROGRESSION_KEY);
+            const raw = storage.getItem(this.key);
             if (raw === this.previousRaw) return;
             this.previousRaw = raw;
             if (!raw) {
@@ -290,7 +293,7 @@ export class ProgressionStore {
         try {
             if (!this.storage) throw new Error('Storage unavailable');
             const raw = JSON.stringify(this.profile);
-            this.storage.setItem(PROGRESSION_KEY, raw);
+            this.storage.setItem(this.key, raw);
             this.previousRaw = raw;
             this.status = 'saved';
         } catch {

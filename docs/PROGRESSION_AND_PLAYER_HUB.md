@@ -1,8 +1,6 @@
 # Player hub and progression — first version
 
-Status: implemented locally in the frontend. The reward values below are initial
-product tuning, not changes to the ten-point board-game rules. Nothing in this
-change implements or publishes ranked matchmaking or a persistent online account.
+Status: implemented in the frontend and authoritative backend. Local/offline rewards and online account progression are separate. The reward values are initial product tuning, not changes to the ten-point board-game rules.
 
 ## Player experience
 
@@ -24,8 +22,7 @@ The hub brings together:
 Offline resumes the unfinished local match. Practice remains a separate exercise
 that preserves the main save. Private Rooms opens the existing online lobby and
 its code/link invitation flow; it stays visibly unavailable in an explicitly
-offline-only build. Competitive opens an explanatory panel marked coming soon
-and unranked, with a shortcut to private rooms when available.
+offline-only build. Competitive opens the live ranked profile and four-human queue. Five completed ranked games reveal a visible rating and tier. Signed-in players see server XP, coins and rank in the main card; offline goals and local rewards remain explicitly separate.
 
 The profile reports completed offline games, wins, losses, total XP, coins and
 unlocked badges. Players can edit the profile name without changing an ongoing
@@ -35,11 +32,11 @@ retroactively rewarded.
 
 ## Three distinct forms of progress
 
-| System               | What it means in this version             | How it changes                                            |
-| -------------------- | ----------------------------------------- | --------------------------------------------------------- |
-| Account XP and level | Participation and learning on this device | Complete offline games and milestones                     |
-| Coins                | A local cosmetic balance                  | Earn rewards; buy profile-seal appearances                |
-| Competitive rating   | Skill against other human players         | Not available yet; never inferred from XP or offline wins |
+| System               | What it means in this version             | How it changes                                                      |
+| -------------------- | ----------------------------------------- | ------------------------------------------------------------------- |
+| Account XP and level | Participation and learning on this device | Complete offline games and milestones                               |
+| Coins                | A local cosmetic balance                  | Earn rewards; buy profile-seal appearances                          |
+| Competitive rating   | Skill against other human players         | Server-owned ranked results; never inferred from XP or offline wins |
 
 A loss still makes progress. The first level requires 300 XP; each subsequent
 level requires 100 more than the previous one, up to 1,500 XP per level. Levels
@@ -96,7 +93,7 @@ reward policy independently of Phaser and core rules. `progressionMarkup.ts`
 projects its values into semantic hub and modal content. The existing Graphics
 components paint those measurements; the new layout lives in `player-hub.css`.
 
-The profile uses `sunmark.progression.v1` in localStorage, separate from the match,
+The local profile uses `sunmark.progression.v1` (or that key suffixed by the signed-in player ID) in localStorage, separate from the match,
 tutorial and experience-preference slots. It stores the balance, XP, milestone
 ownership, purchased seals, selected appearance and latest reward receipt in one
 JSON write. Runtime validation checks version, numeric limits, known identifiers,
@@ -122,95 +119,69 @@ Sequential changes from another tab are read before profile mutations, and
 storage events refresh the hub. localStorage does not provide a transaction across
 simultaneously active tabs; this is a local, single-player convenience ledger,
 not an authoritative economy or an anti-cheat boundary. Clearing browser data
-clears this profile. No account linking, cross-device recovery, online currency
-claim or import of local wealth is implied.
+clears this profile. The online account has its own recoverable, server-owned progression. Local wealth is never imported into it.
 
-## Next phase: persistent online progression
+## Server account, ranked and referral progression
 
-The next useful milestone is a stable player identity and a server-owned reward
-ledger, then online rewards and social goals. Current guest sessions expire after
-30 days and are tied to the browser; they are not sufficient for a recoverable
-competitive career. Design player identity independently of the guest-session
-row, with account linking/recovery and an explicit migration policy.
+The existing username/password account and recovery key now carry server-owned
+XP, coins, wins, badges, purchases, rating and referral goals across devices.
+The hub refreshes that profile after account entry, returning from online play and
+receiving a finished match. Requests validate the backend-pinned runtime schema;
+stale responses from another account cannot replace the current player's profile.
+The cosmetic collection uses the server catalog and committed balance.
 
-Add a durable match-completion record through both the human-command and bot-step
-paths in the backend. Settle eligibility and rewards exactly once per match,
-player and reward kind; capture the policy version as metadata, never as a way to
-re-grant the same match. Store the result and outbox entry atomically, then apply
-an idempotent reward transaction. Persist balance changes, milestones and their
-receipt together. Reconnection reads the committed receipt instead of trusting
-an animation or uploaded save. Failed delivery must remain retryable.
+Ordinary completed online games give 100 XP/20 coins, or 150/30 for a win, with
+first-match/first-win/five-match/five-win bonuses matching the local tuning above.
+Private and casual online matches earn participation rewards without rating.
+Online practice cannot be claimed from client saves. Results show the committed
+online receipt separately from local rewards.
 
-Keep local and server progression distinguishable. Do not upload client totals
-as authoritative coins, XP, wins or competitive eligibility. Any welcome grant
-or cosmetic carryover requires its own explicit, bounded migration decision.
-Follow the existing server-owned OpenAPI/runtime schemas and frontend contract
-pinning; use migrations and cross-repository integration tests for the actual
-online implementation.
+Ranked requires four distinct recoverable accounts, never bots or private invites.
+Its separate persistent queue favors similar ratings, widening the range as people
+wait. Unassigned searches expire after 30 seconds without a heartbeat. Assigned
+players resume the same match after reconnection; cancellation cannot abandon an
+already assigned seat. Existing turns remain untimed and resumable, which the
+competitive entry explains before searching.
 
-## Ranked design to refine before implementation
+After five provisional games, six tiers are visible: Bronze below 900, Silver
+900–1099, Gold 1100–1299, Platinum 1300–1499, Diamond 1500–1699 and Master at 1700+.
+Internal ratings start at 1,000. A winner-only pairwise Elo update gives an equal
+four-player match +24/-8/-8/-8, with a zero sum. A lower-rated winner gains more.
+Losing players are not sorted by public or hidden victory points. Skill rating is
+independent of XP, coins, purchases and referrals. The initial model needs actual
+player calibration; no timed-mode or seasonal reset is implied.
 
-Recommended direction, not shipped requirements:
+The referral panel provides the player's username as a code and a shareable link.
+Following a link prefills a confirmation screen. A new player selects one friend
+before completing their first online game. After three completed ranked matches
+with different opponent groups, both players automatically receive 100 XP/40 coins.
+Repeating one group does not advance this goal. Referrers can earn for ten friends;
+self-referrals, changing referrers and repeat payouts are rejected. A successful
+referrer also earns the Ambassador badge. Phone ownership remains unverified;
+these basic controls do not prove resistance to coordinated real-account collusion.
 
-1. Start with one solo queue of four human players. Friends continue to use private
-   rooms, where negotiated trades and repeated opponents make rating manipulation
-   easier. Avoid splitting a small population into many queues; never silently
-   fill a ranked match with bots.
-2. Keep one competitive rating distinct from XP, with a visible tier, emblem,
-   recent changes and season-best display. A short provisional period should
-   communicate uncertainty rather than pretend that five matches establish an
-   exact skill estimate. Choose the model, starting distribution, tier thresholds
-   and placement count using simulations before locking numbers.
-3. Use a tested multiplayer model with an explicitly supported winner-only outcome.
-   Sunmark records one winner, not an agreed complete finishing order. Do not
-   manufacture second/third/fourth from visible scores or reveal private VP cards
-   to compute them. Volume, referrals, purchases and activity badges cannot raise
-   the skill rating directly.
-4. Resolve ranked interruption rules before opening the queue: turn deadlines,
-   reconnect grace, setup/discard/trade timeouts, abandonment, surrender and server
-   outages. These are currently undecided online rules; this UI does not invent
-   durations or bot takeover.
-5. Add bronze-to-top-tier medals after the model is calibrated. Prefer distinct
-   shapes, readable Persian labels and restrained material differences over color
-   alone. Show current rating, previous-to-new change and an intelligible result
-   explanation in match results.
-6. Use seasons for optional competitive milestones and cosmetics after the queue
-   is healthy. Lifetime XP, earned coins and collection ownership should survive;
-   any rating recalibration requires a documented policy. Season length and reset
-   behavior remain open.
+The backend settles match state, command receipt, completion marker, reward ledger,
+rating, referral qualification and outbox in the same PostgreSQL transaction.
+Failed reward persistence rolls back the result; retries cannot duplicate credit.
+The new API is additive and existing match snapshots remain compatible. See the
+backend `docs/PROGRESSION_AND_RANKED.md` for endpoint, model and migration details.
 
-## Engagement and friends
+## Future decisions and review
 
-Encourage another enjoyable session through a clear next milestone, understandable
-results, rematches and private invitations. Avoid rewards for raw minutes online,
-trade spam, resource cycling, invitation sends or simply keeping the app open.
-They are poor measures of meaningful play and create farming incentives.
+Turn deadlines, surrender, abandonment, server-outage policies, seasons, public
+leaderboards, stronger identity verification and moderation remain separate
+product decisions. Keep raw-minute payouts, invitation-send rewards, trade spam
+and XP-driven skill rank out of the economy. Weekly goals should reward enjoyable
+completed play and learning rather than daily streak loss.
 
-A later friend/referral program should reward both players only after a genuinely
-new, recoverable account completes verified play, using one referrer per new
-account, a bounded reward budget and repeat-pair/collusion checks. Sending a link
-alone earns nothing. Start with a modest one-time cosmetic/XP reward; do not
-award rating. Invitations should be player-initiated through the current room
-flow. A social graph, presence, party queue, moderation and reminder notifications
-need separate scope; they are not implied by the existing invite links.
+Node/PostgreSQL tests cover concurrency, duplicate grants, failed-write rollback,
+private bot outcomes, cross-device recovery, cosmetic charges, referral groups and
+caps. Frontend tests cover rank rendering, owner-specific caches, stale responses,
+server purchases and ranked heartbeat/cancellation routes, alongside existing local
+save and gameplay suites. The release pins exact backend source and image versions.
 
-Once server completion events exist, add a small optional weekly set of goals
-around finishing games, learning and playing with a friend. Avoid daily streak
-loss or objectives that encourage players to sabotage winning decisions. Measure
-match completion, voluntary return rate, invite-to-completed-match conversion,
-reward error rate and earned-versus-spent coins. More minutes alone is not a
-sufficient success metric.
-
-## Verification and user review
-
-Focused Node tests cover completion and practice integration, human/bot outcomes,
-level thresholds and milestones, duplicate grants after reload, legacy-save IDs,
-cosmetic purchases, insufficient funds, corrupted/unavailable storage, sequential
-tabs, escaped names and menu/sheet routes. Existing game-rule/session tests remain
-applicable because the core rules were not changed.
-
-The repository asks that browser/device interaction remain with the user. Review
-390 × 844 and 320-pixel portrait layouts, short landscape scrolling, long Persian
-names, profile-name keyboard/IME, modal focus, reward visibility, installed-PWA
-offline/reload, and the private-room invitation round trip. No manual browser or
-device verification is claimed by the automated checks.
+The repository leaves interactive/device testing to the user. Review mobile hub
+scrolling, long names, IME and modal focus, account login/recovery, ranked search
+and reconnect, referral-code confirmation, cosmetic purchases, installed-PWA
+updates/offline behavior and private-room invitations. Automated checks are not a
+claim of browser/device verification.

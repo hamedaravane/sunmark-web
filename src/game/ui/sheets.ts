@@ -34,6 +34,8 @@ import { domesticContent, tradeTabs } from './domesticSheet';
 import { BUILD_LABELS, locationReason, missingLabel, tradeBuildFeedback } from './buildFeedback';
 export { BUILD_LABELS } from './buildFeedback';
 import { PLAYER_NAME_LIMIT } from './playerIdentity';
+import { onlineProgressionSheet, onlineRewardMarkup } from './onlineProgressionMarkup';
+import { onlineProgression } from '../../account/progression';
 import { progressionSheet, rewardMarkup, storageNotice } from './progressionMarkup';
 
 export const PHASE_LABELS = {
@@ -71,6 +73,8 @@ export function costRow(option: BuildOption): string {
 }
 
 export function sheetContent(session: MatchSession, updateReady = false): SheetContent {
+    const online = onlineProgressionSheet(session);
+    if (online) return online;
     const progression = progressionSheet(session);
     if (progression) return progression;
     if (session.sheet?.kind === 'player-name')
@@ -285,6 +289,11 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
         const winner = state.players.find(({ id }) => id === state.winnerId)!;
         const profile = session.progression?.snapshot;
         const reward = profile?.lastReward;
+        const serverProfile = onlineProgression();
+        const onlineReward =
+            session.online?.matchId && serverProfile
+                ? onlineRewardMarkup(serverProfile, session.online.matchId)
+                : '';
         const rewardContent =
             profile &&
             reward?.source === 'match' &&
@@ -294,7 +303,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
                 : '';
         return {
             title: FA.winnerTitle,
-            body: `<div class="victory-art">${artSprite('victory', 112, 'victory-emblem')}</div><p class="winner-name" style="--owner:${color(winner.color)}">${escape(winner.name)} ${FA.winnerSuffix}</p><p class="victory-score">${number(getPlayerSummary(state, winner.id).score)}<small>امتیاز · پایان این ماجراجویی</small></p>${rewardContent}<div class="results-list">${state.players
+            body: `<div class="victory-art">${artSprite('victory', 112, 'victory-emblem')}</div><p class="winner-name" style="--owner:${color(winner.color)}">${escape(winner.name)} ${FA.winnerSuffix}</p><p class="victory-score">${number(getPlayerSummary(state, winner.id).score)}<small>امتیاز · پایان این ماجراجویی</small></p>${onlineReward}${rewardContent}<div class="results-list">${state.players
                 .map((p) => {
                     const s = getPlayerSummary(state, p.id);
                     return `<article><div class="row-between"><h3>${escape(p.name)}</h3><span>${number(s.score)} امتیاز</span></div><p class="muted">${number(s.settlements)} آبادی + ${number(s.cities)} شهر</p></article>`;
