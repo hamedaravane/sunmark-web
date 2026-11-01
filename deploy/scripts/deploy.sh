@@ -23,7 +23,9 @@ printf 'WEB_IMAGE=%s\nAPI_IMAGE=%s\nRELEASE_DIR=%s\n' "$1" "$2" "$RELEASE_DIR" >
 export SUNMARK_RELEASE_FILE=$candidate
 load_release
 compose config --quiet
-compose pull postgres api web caddy
+# Every image is pinned by digest. Reuse that exact local image when present;
+# registry outages must not block a release on unchanged infrastructure images.
+compose pull --policy missing postgres api web caddy
 revision=$(basename "$RELEASE_DIR")
 if [[ "$revision" =~ ^[a-f0-9]{40}$ ]]; then
     image_revision=$(docker_local image inspect "$WEB_IMAGE" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')

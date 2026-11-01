@@ -44,7 +44,7 @@ class DeploymentFailureTests(unittest.TestCase):
                 tool.write_text(
                     """#!/bin/bash
 printf '%s %s\n' "$(basename "$0")" "$*" >> "$COMMAND_LOG"
-if [[ "$FAIL_AT" == pull && "$*" == *"pull postgres api web caddy"* ]]; then exit 43; fi
+if [[ "$FAIL_AT" == pull && "$*" == *"pull --policy missing postgres api web caddy"* ]]; then exit 43; fi
 if [[ "$*" == *"run --rm -T migrate"* ]]; then exit 42; fi
 if [[ "$FAIL_AT" == backup && "$(basename "$0") $*" == "restic backup"* ]]; then exit 44; fi
 if [[ "$FAIL_AT" == retention && "$(basename "$0") $*" == "restic forget"* ]]; then exit 45; fi
@@ -80,8 +80,17 @@ exit 0
 
     def test_pull_failure_never_stops_writers(self):
         log = self.run_fixture("pull")
+        self.assertIn("pull --policy missing postgres api web caddy", log)
         self.assertNotIn("stop web api", log)
         self.assertNotIn("pg_dump", log)
+
+    def test_exact_cached_images_are_reused_before_stopping_writers(self):
+        log = self.run_fixture("migrate")
+        self.assertLess(
+            log.index("pull --policy missing postgres api web caddy"),
+            log.index("stop web api"),
+        )
+        self.assertNotIn("pull postgres api web caddy", log)
 
     def test_storage_failure_never_stops_writers(self):
         log = self.run_fixture("storage")
