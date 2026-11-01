@@ -21,6 +21,8 @@ import { applyUpdate } from '../../pwa/updateFlow';
 import { menuContent } from './menu';
 import { humanHeader, humanHand } from './humanHud';
 import { introductionContent } from './matchIntroduction';
+import { playerName } from './playerIdentity';
+import { PROGRESSION_KEY } from '../progression/progression';
 
 export class GameHud {
     readonly boardViewport: HTMLElement;
@@ -45,7 +47,7 @@ export class GameHud {
         private app: AppPlatform,
     ) {
         parent.className = 'game-app is-menu';
-        parent.innerHTML = `<section class="main-menu" aria-label="آغاز بازی"><div class="menu-panel"></div></section>
+        parent.innerHTML = `<section class="main-menu" aria-label="خانهٔ بازیکن"><div class="menu-panel player-hub-panel"></div></section>
             <section class="match-screen" aria-label="صفحه بازی" hidden>
                 <header class="match-bar"></header>
                 <div class="match-controls">
@@ -60,6 +62,7 @@ export class GameHud {
         parent.addEventListener('input', this.onInput);
         document.addEventListener('selectionchange', this.syncNameInput);
         document.addEventListener('keydown', this.onKeyDown);
+        window.addEventListener('storage', this.onProgressionStorage);
         this.unsubscribe = session.subscribe(() => this.render());
         this.unsubscribePlatform = app.subscribe(() => this.render());
         this.sizeObserver = new ResizeObserver((entries) => {
@@ -281,6 +284,11 @@ export class GameHud {
         return content;
     }
 
+    private onProgressionStorage = (event: StorageEvent): void => {
+        if ((event.key === PROGRESSION_KEY || event.key === null) && this.session.progression)
+            this.render();
+    };
+
     private onClick = (event: MouseEvent): void => {
         const target = (event.target as Element).closest<HTMLButtonElement>('button[data-action]');
         if (!target || target.disabled) return;
@@ -296,6 +304,30 @@ export class GameHud {
         if (action === 'online-retry') this.session.online?.retry();
         if (action === 'online')
             this.parent.dispatchEvent(new CustomEvent('sunmark:online', { bubbles: true }));
+        if (
+            action === 'hub' &&
+            ['profile', 'achievements', 'cosmetics', 'competitive'].includes(value) &&
+            this.session.progression
+        )
+            this.session.openSheet({
+                kind: value as 'profile' | 'achievements' | 'cosmetics' | 'competitive',
+            });
+        if (action === 'hub-edit-name' && this.session.progression) {
+            this.session.playerNameDraft = this.session.progression.snapshot.name;
+            this.session.openSheet({ kind: 'profile-name' });
+        }
+        if (action === 'hub-save-name' && this.session.progression) {
+            const input = this.parent.querySelector<HTMLInputElement>('#player-name');
+            this.session.progression.rename(
+                playerName(input?.value ?? this.session.playerNameDraft),
+            );
+            this.session.openSheet({ kind: 'profile' });
+        }
+        if (action === 'hub-equip' && this.session.progression?.equip(value)) this.render();
+        if (action === 'hub-online' && import.meta.env.VITE_ONLINE_ENABLED !== 'false') {
+            this.session.closeSheet();
+            this.parent.dispatchEvent(new CustomEvent('sunmark:online', { bubbles: true }));
+        }
         if (action === 'play' || action === 'tutorial')
             this.session.requestPlay(action === 'tutorial');
         if (action === 'resume-match') this.session.resumeSaved();
@@ -486,13 +518,16 @@ export class GameHud {
         if (
             event.key === 'Enter' &&
             !event.isComposing &&
-            this.session.sheet?.kind === 'player-name' &&
+            ['player-name', 'profile-name'].includes(this.session.sheet?.kind ?? '') &&
             event.target instanceof HTMLInputElement &&
             !this.app.updating
         ) {
             event.preventDefault();
             this.session.playerNameDraft = event.target.value;
-            this.session.confirmPlayerName();
+            if (this.session.sheet?.kind === 'profile-name') {
+                this.session.progression?.rename(playerName(this.session.playerNameDraft));
+                this.session.openSheet({ kind: 'profile' });
+            } else this.session.confirmPlayerName();
         }
         if (event.key === 'Escape' && !this.session.sheet && this.session.placement)
             this.session.cancelPlacement();
@@ -507,5 +542,6 @@ export class GameHud {
         this.parent.removeEventListener('input', this.onInput);
         document.removeEventListener('selectionchange', this.syncNameInput);
         document.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('storage', this.onProgressionStorage);
     }
 }

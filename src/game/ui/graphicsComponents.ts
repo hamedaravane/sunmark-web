@@ -189,6 +189,102 @@ export function drawComponent(
     } else if (has('action-dock')) {
         if (!el.closest('.is-desktop'))
             g.fillStyle(MATCH_INK.base).fillRect(box.x, box.y, box.width, box.height);
+    } else if (has('hub-progress')) {
+        const progress = Math.max(0, Math.min(1, Number(el.dataset.progress) || 0));
+        g.fillStyle(0x0c1935, 0.8).fillRoundedRect(
+            box.x,
+            box.y,
+            box.width,
+            box.height,
+            box.height / 2,
+        );
+        if (progress > 0) {
+            const width = Math.max(box.height, box.width * progress);
+            g.fillStyle(0xffcf75).fillRoundedRect(
+                box.x + box.width - width,
+                box.y,
+                width,
+                box.height,
+                box.height / 2,
+            );
+            g.fillStyle(0xffe9b6, 0.5).fillRoundedRect(
+                box.x + box.width - width + 1,
+                box.y + 1,
+                Math.max(1, width - 2),
+                2,
+                1,
+            );
+        }
+    } else if (has('hub-coin')) {
+        const cx = box.x + box.width / 2,
+            cy = box.y + box.height / 2;
+        g.fillStyle(0x9d622c).fillCircle(cx, cy + 1, box.width / 2);
+        g.fillStyle(0xffdc8a).fillCircle(cx, cy, box.width / 2 - 1);
+        drawRosette(g, cx, cy, box.width * 0.28, 0xb47432);
+    } else if (has('hub-player') || has('hub-stat')) {
+        drawSurface(g, box, 'lapis', {
+            radius: has('hub-player') ? 21 : 14,
+            quiet: true,
+            flat: true,
+            accent: 0x759bb4,
+        });
+    } else if (has('hub-identity')) {
+        if (pressed === el) drawSurface(g, box, 'inset', { radius: 12, pressed: true, flat: true });
+    } else if (has('hub-wallet')) {
+        drawSurface(g, box, 'honey', {
+            radius: 16,
+            pressed: pressed === el,
+            disabled,
+            quiet: true,
+            flat: true,
+        });
+    } else if (has('hub-rating')) {
+        drawSurface(g, box, 'inset', {
+            radius: 12,
+            pressed: pressed === el,
+            disabled,
+            quiet: true,
+            flat: true,
+        });
+    } else if (has('hub-mode')) {
+        drawSurface(
+            g,
+            box,
+            has('hub-mode--friends')
+                ? 'turquoise'
+                : has('hub-mode--offline')
+                  ? 'emerald'
+                  : has('hub-mode--practice')
+                    ? 'amethyst'
+                    : 'lapis',
+            {
+                radius: 18,
+                pressed: pressed === el,
+                disabled,
+                accent: has('hub-mode--ranked') ? 0x9cacc8 : undefined,
+                quiet: true,
+            },
+        );
+    } else if (has('hub-next') || has('hub-reward')) {
+        drawSurface(g, box, has('hub-reward') ? 'emerald' : 'inset', {
+            radius: 17,
+            quiet: true,
+            flat: true,
+            accent: UI_INK.gold,
+        });
+    } else if (has('hub-achievement') || has('hub-cosmetic')) {
+        drawSurface(g, box, has('is-earned') ? 'emerald' : 'inset', {
+            radius: 17,
+            quiet: true,
+            flat: true,
+            accent: has('hub-cosmetic') ? owner : undefined,
+        });
+    } else if (has('hub-badge-icon')) {
+        drawSurface(g, box, el.dataset.earned === 'true' ? 'honey' : 'lapis', {
+            radius: 16,
+            quiet: true,
+            flat: true,
+        });
     } else if (has('menu-panel')) {
         drawSurface(g, box, 'inset', { radius: 32, accent: 0xe4b86c });
         for (const direction of [-1, 1])
@@ -401,6 +497,7 @@ export function drawComponent(
         g.lineStyle(
             3,
             !has('button--quiet') &&
+                !el.closest('.player-hub') &&
                 !has('context-button') &&
                 el.tagName !== 'SUMMARY' &&
                 !has('button--end-turn') &&

@@ -3,19 +3,22 @@ import type { MatchSession } from '../ui/matchSession';
 import { pauseMenuBack } from '../ui/pauseMenu';
 import type { SheetContent } from '../ui/bottomSheet';
 import { CHAPTERS, LESSONS, type LessonId } from './lessons.fa';
+import { rewardMarkup, storageNotice } from '../ui/progressionMarkup';
 
 export function tutorialContent(session: MatchSession): SheetContent {
     const director = session.tutorial;
     const id = director.current!;
     const lesson = LESSONS[id];
     const practice = session.practice;
+    const profile = session.progression?.snapshot;
+    const reward = profile?.lastReward;
     return {
         title: 'آناهیتا',
         narrator: { portrait: `anahita-${lesson.expression}`, key: id },
         body: `<article class="narrator-dialogue" aria-label="گفت‌وگو با آناهیتا">
             <div class="narrator-copy"><p class="eyebrow">${CHAPTERS[lesson.chapter]}</p><h3>${escape(lesson.title)}</h3><p>${escape(lesson.text)}</p></div>
             <p class="narrator-task">${escape(lesson.task)}</p>
-        </article>`,
+        </article>${practice?.stage === 'complete' && profile && reward?.source === 'practice' ? rewardMarkup(reward, profile) + (session.progression ? storageNotice(session.progression) : '') : ''}`,
         footer: `<div class="narrator-controls">${button(practice?.stage === 'complete' ? 'دیدن آبادی و امتیاز تازه' : director.remaining > 1 ? 'بعدش چی؟' : 'بریم سراغش', 'tutorial-next', { className: 'button button--primary' })}${button(practice ? 'خروج از تمرین' : 'خاموش‌کردن آناهیتا', 'tutorial-pause', { className: 'button button--quiet' })}</div><p class="footnote">${practice ? 'این تمرین ذخیره نمی‌شود؛ با خروج، بازی اصلی محفوظ می‌ماند.' : 'بستن پنجره، آناهیتا رو خاموش می‌کنه. برای روشن‌کردن: منوی بازی ← آموزش و آناهیتا.'}</p>`,
     };
 }

@@ -3,6 +3,7 @@ import { loadUiFont } from './game/ui/typography';
 import './styles/global.css';
 import './styles/royal.css';
 import './styles/desktop.css';
+import './styles/player-hub.css';
 
 const parent = document.querySelector<HTMLElement>('#game-container');
 

@@ -2,14 +2,16 @@ import type { PresentedTransition } from './transitions';
 import type { GameSession } from './session';
 import type { MatchState } from './matchState';
 import type { PlayerTrading } from './playerTrading';
+import type { ProgressionStore } from '../progression/progression';
 
 /** Both authorities drive the same HUD, sheets, renderer and input vocabulary. */
 export type MatchSession = Omit<
     GameSession,
-    'state' | 'trading' | 'transition' | 'advanceBot' | 'botReady' | 'start'
+    'state' | 'trading' | 'transition' | 'advanceBot' | 'botReady' | 'start' | 'progression'
 > & {
     readonly transition: PresentedTransition | null;
     readonly state: MatchState | null;
+    readonly progression?: ProgressionStore;
     readonly trading: Pick<
         PlayerTrading,
         | 'give'

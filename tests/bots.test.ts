@@ -55,11 +55,12 @@ test('menu keeps offline Play and Tutorial alongside Online; practice pauses bot
         const app = new AppPlatform();
         app.updateReady = true;
         const menu = menuContent(app, session);
-        expect(menu.match(/<button\b/g)).toHaveLength(3);
+        expect(menu).toContain('aria-label="خانهٔ بازیکن"');
+        expect(menu).toContain('data-action="hub:competitive"');
         expect(menu).toContain('data-action="online"');
         expect(menu).toContain('data-action="play"');
         expect(menu).toContain('data-action="tutorial"');
-        expect(menu).not.toContain('data-action="open-app"');
+        expect(menu).toContain('data-action="open-app"');
         session.requestPlay();
         if (guided) expect(session.sheet?.kind).toBe('player-name');
         else expect(session.state!.players).toHaveLength(4);

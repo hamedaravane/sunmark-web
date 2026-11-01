@@ -10,6 +10,8 @@ import { LESSONS } from '../tutorial/lessons.fa';
 import { integer, label, record, validGameState } from './validateState';
 
 export interface SavedMatch {
+    /** Stable local reward identity; legacy saves acquire one on resume. */
+    progressionId?: string;
     buildGoal?: 'road' | 'settlement' | 'city' | null;
     version: 1 | 2;
     /** Absent in legacy shared-device saves; their first seat becomes the human. */
@@ -42,6 +44,14 @@ export function decodeSave(raw: string): SavedMatch | null {
         )
             return null;
         const state = value.state;
+        if (
+            value.progressionId !== undefined &&
+            (typeof value.progressionId !== 'string' ||
+                !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+                    value.progressionId,
+                ))
+        )
+            return null;
         if (
             value.buildGoal !== undefined &&
             value.buildGoal !== null &&

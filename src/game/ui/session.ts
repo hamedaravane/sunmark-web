@@ -42,6 +42,7 @@ import type { MatchStore, SavedMatch } from '../persistence/matchStore';
 import { PlayerTrading } from './playerTrading';
 import { BOT_NAMES, playerName } from './playerIdentity';
 import { ExperiencePreferences, type ExperienceOption } from './experiencePreferences';
+import { ProgressionStore, createProgressionId } from '../progression/progression';
 
 export type Sheet =
     | {
@@ -68,7 +69,17 @@ export type Sheet =
               | 'journal';
       }
     | { kind: 'player' | 'tile' | 'port'; id: string }
-    | { kind: 'app' | 'update' | 'introduction' }
+    | {
+          kind:
+              | 'app'
+              | 'update'
+              | 'introduction'
+              | 'profile'
+              | 'profile-name'
+              | 'achievements'
+              | 'cosmetics'
+              | 'competitive';
+      }
     | { kind: 'new-match' | 'player-name'; count: 3 | 4; guided: boolean };
 export interface Placement {
     kind: BuildType | 'robber';
@@ -123,9 +134,20 @@ export class GameSession {
     developmentResources: [ResourceType, ResourceType] = ['wood', 'brick'];
     discardDraft = { wood: 0, brick: 0, wheat: 0, wool: 0, stone: 0 };
     playerNameDraft = '';
+    private progressionMatchId: string | null = null;
 
-    constructor(private store?: MatchStore) {
+    constructor(
+        private store?: MatchStore,
+        readonly progression = new ProgressionStore(),
+    ) {
         this.savedMatch = store?.read() ?? null;
+        if (this.savedMatch && this.progression.status === 'empty') {
+            const saved = this.savedMatch;
+            const name = saved.state.players.find(
+                (p) => p.id === (saved.humanPlayerId ?? saved.state.players[0].id),
+            )?.name;
+            if (name) this.progression.rename(playerName(name));
+        }
     }
     get saveStatus() {
         return this.store?.status ?? 'empty';
@@ -175,17 +197,21 @@ export class GameSession {
             saved?.state.players.find(
                 (p) => p.id === (saved.humanPlayerId ?? saved.state.players[0].id),
             )?.name;
-        this.playerNameDraft = previous && previous !== 'شما' ? previous : '';
+        const profileName = this.progression.snapshot.name;
+        this.playerNameDraft =
+            profileName !== 'بازیکن' ? profileName : previous && previous !== 'شما' ? previous : '';
         this.openSheet({ kind: 'player-name', count, guided });
     }
     confirmPlayerName(): void {
         if (this.sheet?.kind !== 'player-name') return;
+        this.progression.rename(playerName(this.playerNameDraft));
         this.start(this.sheet.count, this.sheet.guided, this.playerNameDraft, true);
     }
     resumeSaved(): void {
         if (this.state || !this.savedMatch) return;
         // The save is JSON data; keep resume compatible with the ES2020 browser target.
         const saved = JSON.parse(JSON.stringify(this.savedMatch)) as SavedMatch;
+        this.progressionMatchId = saved.progressionId ?? createProgressionId();
         this.gameState = saved.state;
         this.controlledPlayerId = saved.humanPlayerId ?? saved.state.players[0].id;
         this.history = saved.history;
@@ -230,6 +256,7 @@ export class GameSession {
         this.trading.sync();
         this.savedMatch = {
             version: 2,
+            progressionId: this.progressionMatchId ?? undefined,
             buildGoal: this.buildGoal,
             humanPlayerId: this.humanPlayer!.id,
             state: this.state,
@@ -381,6 +408,7 @@ export class GameSession {
     }
 
     start(count: 3 | 4, guided = true, name = 'بازیکن', introduce = false): void {
+        this.progressionMatchId = createProgressionId();
         this.buildGoal = null;
         this.practice = null;
         this.gameState = createGame([playerName(name), ...BOT_NAMES].slice(0, count));
@@ -851,6 +879,17 @@ export class GameSession {
             this.error = null;
             const before = this.gameState!;
             this.gameState = result.state;
+            if (
+                !this.practice &&
+                before.phase !== 'finished' &&
+                result.state.phase === 'finished' &&
+                this.progressionMatchId
+            ) {
+                this.progression.completeMatch(
+                    this.progressionMatchId,
+                    result.state.winnerId === this.humanPlayer!.id,
+                );
+            }
             if (before.players[before.activePlayerIndex].id === this.humanPlayer!.id) {
                 if (action.kind === 'roll' || action.kind === 'setup-roll')
                     this.preferences.set('introduced', true);
@@ -929,6 +968,7 @@ export class GameSession {
                     practice.stage === 'settlement'
                 ) {
                     practice.stage = 'complete';
+                    this.progression.completePractice();
                     this.tutorial.practiced.add('settlement');
                     this.tutorial.replay('practice-complete');
                 }

@@ -1,0 +1,402 @@
+/* Measured RTL controls; the shared Phaser renderer paints all surfaces and text. */
+.main-menu {
+    padding: max(16px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+        max(16px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+}
+.menu-panel.player-hub-panel {
+    max-width: 480px;
+    padding: 18px 16px;
+    text-align: start;
+}
+.player-hub {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+}
+.hub-brand,
+.hub-brand-name,
+.hub-player-top,
+.hub-identity,
+.hub-wallet,
+.hub-profile-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.hub-brand,
+.hub-player-top {
+    justify-content: space-between;
+}
+.hub-brand .icon-button {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+.hub-brand-name {
+    gap: 9px;
+}
+.hub-brand-name > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.menu-panel .hub-brand h1 {
+    font-size: 28px;
+    line-height: 36px;
+    letter-spacing: 1px;
+    margin: 0;
+}
+.hub-brand-name span {
+    font-size: 11px;
+    line-height: 20px;
+    color: #c2f3ee;
+}
+.hub-player {
+    padding: 11px 12px 12px;
+}
+.hub-identity,
+.hub-wallet,
+.hub-rating,
+.hub-mode {
+    border: 0;
+    background: transparent;
+    color: #fff4dc;
+    font: inherit;
+    cursor: pointer;
+    text-align: start;
+}
+.hub-identity {
+    flex: 1;
+    padding: 2px;
+    min-height: 52px;
+}
+.hub-identity .player-avatar,
+.hub-profile-heading .player-avatar {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+}
+.hub-identity > span:not(.player-avatar),
+.hub-wallet > span:not(.hub-coin) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.hub-identity strong {
+    font-size: 16px;
+    line-height: 24px;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+.hub-identity small,
+.hub-wallet small {
+    font-size: 11px;
+    line-height: 18px;
+}
+.hub-wallet {
+    flex-shrink: 0;
+    min-width: 68px;
+    min-height: 50px;
+    justify-content: center;
+    gap: 6px;
+    padding: 5px 9px 7px;
+    color: #463148;
+    font-size: 16px;
+    line-height: 22px;
+}
+.hub-coin {
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+}
+.hub-xp {
+    margin-block: 10px 0;
+    font-size: 11px;
+    line-height: 20px;
+    color: #dce8ff;
+}
+.hub-progress {
+    display: block;
+    width: 100%;
+    height: 7px;
+    margin-top: 6px;
+}
+.hub-rating {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3px 8px;
+    width: 100%;
+    min-height: 48px;
+    padding: 7px 10px;
+    margin-top: 10px;
+    font-size: 12px;
+    line-height: 21px;
+}
+.hub-rating strong {
+    color: #ffdf99;
+    font-size: 13px;
+}
+.hub-rating small {
+    font-size: 10px;
+    margin-inline-start: 5px;
+    color: #c3d1ef;
+}
+.hub-section-heading h2,
+.menu-panel .hub-section-heading h2 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 26px;
+}
+.hub-section-heading > span {
+    color: #d1d9f3;
+    font-size: 11px;
+    line-height: 20px;
+}
+.hub-modes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+.hub-mode {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: relative;
+    gap: 8px;
+    min-width: 0;
+    min-height: 112px;
+    padding: 12px 11px 15px;
+}
+.hub-mode > span:not(.action-emblem):not(.hub-tag) {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+}
+.hub-mode strong {
+    font-size: 14px;
+    line-height: 23px;
+    overflow-wrap: anywhere;
+}
+.hub-mode small {
+    font-size: 10px;
+    line-height: 18px;
+    color: #edf0ff;
+}
+.hub-mode .hub-tag {
+    position: absolute;
+    top: 16px;
+    left: 10px;
+}
+.hub-tag {
+    font-size: 10px;
+    line-height: 18px;
+    color: #ffdf99;
+}
+.hub-mode:disabled {
+    cursor: default;
+    color: #afbdd7;
+}
+.hub-mode:disabled small {
+    color: #afbdd7;
+}
+.hub-next,
+.hub-reward {
+    padding: 12px;
+}
+.hub-next h3,
+.hub-next p,
+.hub-reward p {
+    margin: 0;
+}
+.hub-next h3 {
+    font-size: 13px;
+    line-height: 23px;
+}
+.hub-next p,
+.hub-next .row-between > span {
+    font-size: 11px;
+    line-height: 22px;
+    color: #d1d9f3;
+}
+.hub-next .row-between {
+    flex-wrap: wrap;
+}
+.hub-next .button {
+    min-height: 48px;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+.hub-next small {
+    font-size: 11px;
+    color: #ffdf99;
+}
+.hub-navigation {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+.hub-navigation .button {
+    min-width: 0;
+    min-height: 48px;
+    font-size: 12px;
+    line-height: 21px;
+    padding: 6px;
+}
+.hub-local-note {
+    text-align: center;
+    font-size: 10px;
+    line-height: 20px;
+    color: #c2d0ed;
+    margin: 0;
+}
+.hub-reward {
+    margin-block: 8px;
+    font-size: 13px;
+    line-height: 25px;
+}
+.player-hub > .hub-reward {
+    margin: 0;
+}
+.hub-reward-values {
+    color: #fff0bb;
+    font-size: 20px;
+    line-height: 36px;
+}
+.hub-reward-values > span {
+    display: inline-block;
+    font-size: 15px;
+}
+.hub-reward small {
+    color: #d2eee4;
+    font-size: 10px;
+}
+.hub-badge-names {
+    color: #fff0bb;
+    font-size: 12px;
+}
+.hub-profile-heading {
+    padding: 8px 0;
+}
+.hub-profile-heading h3,
+.hub-profile-heading p {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.hub-profile-heading p {
+    font-size: 12px;
+    color: #d1d9f3;
+}
+.hub-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-block: 18px;
+}
+.hub-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+}
+.hub-stat strong {
+    color: #ffe2a0;
+    font-size: 23px;
+}
+.hub-stat span {
+    font-size: 12px;
+}
+.hub-achievements,
+.hub-cosmetics {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.hub-achievement {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+}
+.hub-badge-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 50px;
+}
+.hub-achievement h3,
+.hub-cosmetic h3 {
+    margin: 0;
+    font-size: 14px;
+    line-height: 24px;
+}
+.hub-achievement h3 small {
+    display: inline-block;
+    font-size: 10px;
+    color: #ffdf99;
+    margin-inline-start: 8px;
+}
+.hub-achievement p,
+.hub-achievement div > span:not(.hub-progress),
+.hub-cosmetic p {
+    margin: 0;
+    font-size: 11px;
+    line-height: 22px;
+    color: #d1d9f3;
+}
+.hub-cosmetic {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px;
+    align-items: center;
+}
+.hub-cosmetic .player-avatar {
+    width: 44px;
+    height: 44px;
+}
+.hub-cosmetic .button {
+    grid-column: 1 / -1;
+    min-height: 48px;
+    font-size: 13px;
+}
+.hub-balance,
+.hub-rank-title,
+.hub-all-earned {
+    text-align: center;
+}
+.hub-rank-seal {
+    display: grid;
+    place-items: center;
+    padding: 16px;
+}
+@media (max-width: 359px) {
+    .menu-panel.player-hub-panel {
+        padding: 14px 12px;
+    }
+    .hub-mode {
+        padding-inline: 9px;
+    }
+    .hub-mode strong {
+        font-size: 13px;
+    }
+    .hub-identity {
+        gap: 6px;
+    }
+    .hub-identity .player-avatar {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+    .hub-identity strong {
+        font-size: 14px;
+    }
+}
