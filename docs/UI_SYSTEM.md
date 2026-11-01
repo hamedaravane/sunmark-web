@@ -6,7 +6,13 @@ The public game name is **Sunmark**, pronounced **سان‌مارک** in Persian
 
 The current **royal expedition** direction supersedes both the carved-stone controls and the restrained contextual-dock treatment. The interface is a colorful mobile game: lapis, turquoise, emerald, coral and amethyst enamel; warm parchment; polished gold settings; ivory dice; sun seals and stepped wing inlays inspired by Achaemenid craftsmanship. Different materials distinguish functional roles. The board and existing illustrated art remain the foundation. There is one integrated visual system, with no theme selector. See [ROYAL_EXPEDITION_REVIEW.md](design/ROYAL_EXPEDITION_REVIEW.md) for real-screen captures and validation.
 
-All visible UI surfaces are Phaser Graphics: menu frame, buttons, player chips, progress pips, resource trays/cards, construction cards, trade selectors, modal frames/backdrops, scroll indicators, and destination lists. Labels are Phaser Text using runtime Persian strings. Ornament and victory art remains cropped Phaser Images; resource Images share a small atlas generated from code. Trading uses shared procedural scale geometry at 28/64 pixels. No Persian text is baked into assets and ownership color remains runtime data.
+All visible UI surfaces are Phaser Graphics: menu frames, buttons, player chips,
+progress marks, trays, cards and modal frames. Labels are runtime Phaser Text.
+Every functional pictogram uses the shared **Fluent Emoji Flat** SVG atlas;
+resource hands, costs, flights and harbors use the same named frames. Native
+account/admin forms use the same atlas through a generated external stylesheet.
+Decorative wings, brand artwork and actual numbered dice remain game art.
+See [icon inventory, research, license and rendering](ICONOGRAPHY.md).
 
 ## Layout targets
 
@@ -33,7 +39,7 @@ All visible UI surfaces are Phaser Graphics: menu frame, buttons, player chips, 
 - `ui/GameHud.ts` assembles **transparent semantic controls** and responsive layout nodes. These are the input/accessibility adapter: real buttons, labels, a live region, and a native modal dialog preserve keyboard navigation, screen-reader content, focus trapping, and scrolling. Their labels and state come from the local session. CSS opacity hides their visual output without removing semantics or hit areas. Name entry uses a transparent native input for Persian IME, autofill, and the phone keyboard. Its value is mirrored into an aria-hidden layout span; Phaser paints that measured runtime text, focus border, caret, and selection using browser text ranges. Name-sheet input DOM is preserved across unrelated platform updates to keep composition and selection intact. No visible input layer is added above the canvas.
 - `ui/InterfaceScene.ts` paints the same layout as Graphics, Text, and preserved Image crops. The stage is pointer-transparent; semantic buttons dispatch through `GameHud` into the existing session. The canvas is decorative in the accessibility tree, preventing duplicate announcements.
 - `ui/graphicsTheme.ts` supplies reusable enamel/parchment/gold/ivory materials. Rounded faces use bounded gradient strips, a shaded foot, setting, and upper highlight, without masks, texture downloads or randomness. `ui/royalArt.ts` supplies resource/card palettes, stepped wings, card frames, the menu crest and gear. `styles/global.css` holds semantic foundations; `styles/royal.css` owns the current composition and typography.
-- `ui/headerModel.ts` projects public standings and computes a full-width header backdrop from canvas y=0 through the measured header bottom, filling top/side safe insets with the same lapis material. Controls retain the match grid’s safe-area padding. `ui/playerIdentity.ts` supplies stable seat avatars, robot names, and bounded/normalized player names; `ui/playerAvatarArt.ts` draws original human/robot enamel seals with runtime owner-colored rims, without bitmap downloads or brand artwork.
+- `ui/headerModel.ts` projects public standings and computes a full-width header backdrop from canvas y=0 through the measured header bottom, filling top/side safe insets with the same lapis material. Controls retain the match grid’s safe-area padding. `ui/playerIdentity.ts` supplies stable seat avatars, robot names, and bounded/normalized player names; the shared icon atlas supplies human/robot glyphs in owner-colored seals with runtime owner-colored rims, without bitmap downloads or brand artwork.
 - `ui/graphicsComponents.ts` applies the materials to every control/card/panel, including pressed, disabled, selected, active-player, and keyboard-focus states. Selected choices have a contrasting bronze outline/rosette on light stone and warm gold on dark panels; focus has a separate outer ring. Victory progress derives from the core player summary and match target.
 - `ui/semanticText.ts` measures browser-wrapped text by line so Phaser retains Persian shaping, bidi digits, inline labels, and responsive wrapping. Text crops honor overflow regions and texture resolution. `textGeometry.ts` computes baseline/reading-edge positions and ellipsizes constrained labels in logical reading order. The scrollable modal content uses a Phaser 4 external Mask filter in WebGL and a Graphics geometry mask in Canvas; the header and portrait stay outside it. Do not use `setMask()` for WebGL: Phaser 4 ignores that Canvas-only API.
 - Repaint only after layout/content/focus/press/scroll changes. Stable Text/Image objects are reused, while removed semantic nodes release their objects. The observer excludes Phaser's own hidden RTL text canvases. Effects animate separately through bounded tweens.
@@ -94,15 +100,25 @@ The menu Tutorial opens a disposable four-step exercise rather than replacing th
 
 The construction dock shows the count of currently actionable piece types. The lower ocean gives a brief confirmed receipt for 2.8 seconds, then core-derived available-build, single-resource-shortage or waiting guidance; required choices remain explicit; a pinned construction goal shows its current shortage/readiness. Build cards present resource icons, holding/cost quantities and shortages first, retaining explicit tables and purpose explanations under Details. They remain inspectable during bot turns using only the human hand; mutation remains guarded. Bank and domestic composition/final review show the optional goal and expandable comparisons of each build’s shortages before and after payment/receipt and whether a legal location exists, without selecting a strategy.
 
-Settlement/city icons share their actual board contours. The city has a broad L-shaped compound with a deep open quarter; the compact settlement remains filled in that region. Silhouette carries the distinction in grayscale at mobile sizes.
+Settlement and city UI icons use distinct Fluent Emoji Flat house/column
+silhouettes with explicit Persian labels. Actual board pieces retain their compact
+settlement and L-shaped city geometry and runtime ownership colors.
 
 ## Terrain, Ahriman and trading art
 
-Terrain is now generated from muted vector motifs into a fixed 24-texture cache. Its static board layer survives ordinary actions/previews without allocating new terrain images or masks. Ahriman uses procedural shadow-spirit geometry, including translucent previews and the existing movement/reduced-motion path. The trade icon uses measured `.trade-icon` placeholders painted by `graphicsComponents.ts`, without an image download. Player-facing Persian terminology is اهریمن throughout; serialized identifiers remain compatible. See [PROCEDURAL_BOARD_ART.md](PROCEDURAL_BOARD_ART.md).
+Terrain is generated from muted vector motifs into a fixed 24-texture cache.
+Ahriman remains the procedural shadow-spirit board figure. Trade scales, resources,
+card effects and all other functional UI icons now come from the shared library
+atlas, replacing the former separate procedural icon renderers. Game terminology,
+state, saves and commands remain compatible. See [ICONOGRAPHY.md](ICONOGRAPHY.md).
 
 ## Development and mandatory choices
 
-The private card workspace has a bounded scrolling hand, original code-drawn effect emblems, selected-card details, explicit ready/new/used/hidden timing states and a separate priced purchase area. Repeated purchases select and privately reveal each actual drawn card without closing the sheet. Monopoly/Year of Plenty choices and private ten-point declarations use existing commands. Compact title progress lives in personal score details; public title transfers enter history. Opponent standing/rank/leader projections use public scores; the personal total includes its owner's hidden VP cards.
+The private card workspace has a bounded scrolling hand, collection-based effect
+icons, selected-card details, explicit ready/new/used/hidden timing states and a
+separate priced purchase area. Repeated purchases privately reveal each actual
+card without closing the sheet; the transient reveal uses the same atlas as the
+hand. Hidden information, timing rules and victory declarations are unchanged.
 
 Seven resolution opens a chosen-discard workspace even during an opponent turn. After every required discard, the active player previews/confirms an Ahriman destination, then chooses one eligible victim for weighted random theft. Mandatory phases disable normal actions; pausing/inspection cannot bypass them. Knight resolution returns to its previous pre-roll or action phase. Road Building reserves legal, unpaid road placements and displays the remaining count.
 

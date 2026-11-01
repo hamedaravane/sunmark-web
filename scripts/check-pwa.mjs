@@ -67,7 +67,7 @@ const expected = [
     'index.html',
     'manifest.webmanifest',
     ...readdirSync(path.join(directory, 'assets'), { recursive: true, encoding: 'utf8' })
-        .filter((file) => /\.(js|css|webp|woff2)$/.test(file) && !file.startsWith('admin-'))
+        .filter((file) => /\.(js|css|webp|woff2|svg)$/.test(file) && !file.startsWith('admin-'))
         .map((file) => `assets/${file}`),
     ...readdirSync(path.join(directory, 'icons')).map((file) => `icons/${file}`),
 ];

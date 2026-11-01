@@ -2,7 +2,8 @@ import { CANVAS, Scene, type GameObjects } from 'phaser';
 import { configureDisplayCamera, textDensity } from '../game/rendering/display';
 import { createSharpText } from '../game/rendering/sharpText';
 import { drawSurface, drawDie, type Material } from '../game/ui/graphicsTheme';
-import { drawPlayerAvatar } from '../game/ui/playerAvatarArt';
+import { loadIconAtlas, installIconFrames, iconImage } from '../game/rendering/iconAtlas';
+import { isIconName, iconNeedsPlate } from '../ui/icons';
 import { assetUrl, TEXTURE_FILES } from '../game/assets';
 export class RoomScene extends Scene {
     private objects: GameObjects.GameObject[] = [];
@@ -15,9 +16,11 @@ export class RoomScene extends Scene {
         super('OnlineRooms');
     }
     preload() {
+        loadIconAtlas(this);
         this.load.image('online-palace', assetUrl(TEXTURE_FILES.menuBackground));
     }
     create() {
+        installIconFrames(this);
         void document.fonts.ready.then(() => this.invalidate());
         this.observer = new ResizeObserver(() => this.invalidate());
         this.observer.observe(this.root);
@@ -121,7 +124,7 @@ export class RoomScene extends Scene {
             return layer;
         };
         for (const node of this.root.querySelectorAll<HTMLElement>(
-            '[data-paint], [data-surface], [data-avatar], [data-resource], [data-die]',
+            '[data-paint], [data-surface], [data-avatar], [data-resource], [data-die], [data-icon]',
         )) {
             const rect = node.getBoundingClientRect();
             if (!rect.width || !rect.height) continue;
@@ -150,13 +153,42 @@ export class RoomScene extends Scene {
                     quiet: !isButton,
                 });
             }
-            if (node.dataset.avatar)
-                drawPlayerAvatar(
-                    graphics,
-                    box,
-                    node.dataset.avatar === 'atlas' ? 'atlas' : 'human',
-                    parseInt(node.dataset.owner ?? 'ffcf75', 16),
+            if (node.dataset.avatar) {
+                const owner = parseInt(node.dataset.owner ?? 'ffcf75', 16);
+                drawSurface(graphics, box, 'card', {
+                    radius: box.width / 2,
+                    flat: true,
+                    accent: owner,
+                });
+                attach(
+                    this.keep(
+                        iconImage(
+                            this,
+                            node.dataset.avatar === 'human' ? 'profile' : 'robot',
+                            box.x + box.width / 2,
+                            box.y + box.height / 2,
+                            Math.min(box.width, box.height) * 0.8,
+                        ),
+                    ),
                 );
+            }
+            if (isIconName(node.dataset.icon)) {
+                if (iconNeedsPlate(node.dataset.icon))
+                    graphics
+                        .fillStyle(0xffefd4)
+                        .fillRoundedRect(box.x, box.y, box.width, box.height, 8);
+                attach(
+                    this.keep(
+                        iconImage(
+                            this,
+                            node.dataset.icon,
+                            box.x + box.width / 2,
+                            box.y + box.height / 2,
+                            Math.min(box.width, box.height),
+                        ),
+                    ),
+                );
+            }
 
             if (node.dataset.die) drawDie(graphics, box, Number(node.dataset.die));
             if (!node.hasAttribute('data-paint') || (isInput && node === document.activeElement))

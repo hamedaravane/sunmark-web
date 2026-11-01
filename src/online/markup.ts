@@ -1,3 +1,4 @@
+import { icon } from '../ui/icons';
 import type { OnlineClient } from './client';
 import type { Drafts } from './model';
 import { label, button, escape } from './components';
@@ -12,5 +13,5 @@ export function onlineMarkup(client: OnlineClient, draft: Drafts): string {
         : client.connected
           ? 'متصل به اتاق'
           : 'اتاق خصوصی با دوستان';
-    return `<header data-surface="inset">${label('بازی آنلاین', 'h1')}${button(client.snapshot ? 'اتاق‌ها' : 'منو', client.snapshot ? 'back' : 'exit')}${label(status, 'small')}</header><main class="online-panel">${client.error ? `<p data-paint role="alert">${escape(client.error)}</p>` : ''}${draft.notice ? label(draft.notice) : ''}${roomMarkup(client, draft)}</main>`;
+    return `<header data-surface="inset">${icon('online', 32)}${label('بازی آنلاین', 'h1')}${button(client.snapshot ? 'اتاق‌ها' : 'منو', client.snapshot ? 'back' : 'exit')}${label(status, 'small')}</header><main class="online-panel">${client.error ? `<p data-paint role="alert">${escape(client.error)}</p>` : ''}${draft.notice ? label(draft.notice) : ''}${roomMarkup(client, draft)}</main>`;
 }

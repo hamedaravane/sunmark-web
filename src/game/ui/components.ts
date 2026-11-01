@@ -2,6 +2,7 @@ import type { ResourceType } from '../core/types';
 import { FA } from './messages.fa';
 import { ART, DICE_FACES, type ArtFrame, type ArtName } from '../assets';
 import type { AvatarId } from './playerIdentity';
+import { icon } from '../../ui/icons';
 
 export function playerAvatar(avatar: AvatarId): string {
     return `<span class="player-avatar" data-avatar="${avatar}" aria-hidden="true"></span>`;
@@ -42,10 +43,13 @@ export function button(
         ownerColor?: number;
     } = {},
 ): string {
+    const glyph =
+        label === '×' ? 'close' : label === '+' ? 'add' : label === '−' ? 'subtract' : null;
+    if (glyph && options.className?.split(' ').includes('icon-button')) label = icon(glyph);
     return `<button type="button" data-action="${escape(action)}" class="${options.className ?? 'button'}"${options.ownerColor !== undefined ? ` style="--owner:${color(options.ownerColor)}"` : ''}${options.disabled ? ' disabled' : ''}${options.label ? ` aria-label="${escape(options.label)}"` : ''}${options.pressed !== undefined ? ` aria-pressed="${options.pressed}"` : ''}>${label}</button>`;
 }
 
-/** Reserves a square for the shared code-drawn resource emblem. */
+/** Reserves the existing responsive resource slot for the shared icon atlas. */
 export function resourceIcon(resource: ResourceType): string {
     return `<span class="resource-icon resource-icon--${resource}" aria-hidden="true"></span>`;
 }
@@ -54,7 +58,7 @@ export function resourceValue(resource: ResourceType, count: number, shortage = 
     return `<span class="resource-value${shortage ? ' is-short' : ''}" aria-label="${number(count)} ${FA.resources[resource]}${shortage ? `، کمبود ${number(shortage)}` : ''}">${resourceIcon(resource)}<span>${number(count)}</span><span class="sr-only">${FA.resources[resource]}${shortage ? `؛ کمبود ${number(shortage)}` : ''}</span></span>`;
 }
 
-/** Measured semantic placeholder; Phaser draws the original procedural trade emblem. */
+/** Measured semantic placeholder; Phaser draws the shared collection artwork. */
 export function tradeIcon(width: number): string {
     return `<span class="trade-icon art-sprite" aria-hidden="true" style="width:${width}px;height:${width}px"></span>`;
 }

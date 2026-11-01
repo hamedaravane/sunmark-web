@@ -1,3 +1,4 @@
+import { icon } from '../../ui/icons';
 import {
     BADGES,
     SEALS,
@@ -7,7 +8,7 @@ import {
     type ProgressionStore,
     type Reward,
 } from '../progression/progression';
-import { artSprite, button, escape, number, playerAvatar } from './components';
+import { button, escape, number, playerAvatar } from './components';
 import { PLAYER_NAME_LIMIT } from './playerIdentity';
 import type { SheetContent } from './bottomSheet';
 import type { MatchSession } from './matchSession';
@@ -78,7 +79,7 @@ export function progressionSheet(session: MatchSession): SheetContent | null {
                 (badge) => {
                     const earned = profile.badges.includes(badge.id);
                     const progress = Math.min(badge.goal, metric(profile, badge.metric));
-                    return `<article class="hub-achievement${earned ? ' is-earned' : ''}"><div class="hub-badge-icon" data-earned="${earned}" aria-hidden="true">${artSprite('rosette', 32)}</div><div><h3>${badge.name}<small>${earned ? 'گرفته‌ای' : `${number(progress)} از ${number(badge.goal)}`}</small></h3><p>${badge.description}</p><span>${number(badge.xp)} تجربه + ${number(badge.coins)} سکه</span><span class="hub-progress" role="progressbar" aria-label="${badge.name}" aria-valuemin="0" aria-valuemax="${badge.goal}" aria-valuenow="${progress}" data-progress="${progress / badge.goal}"></span></div></article>`;
+                    return `<article class="hub-achievement${earned ? ' is-earned' : ''}"><div class="hub-badge-icon" data-earned="${earned}" aria-hidden="true">${icon('achievement', 32)}</div><div><h3>${badge.name}<small>${earned ? 'گرفته‌ای' : `${number(progress)} از ${number(badge.goal)}`}</small></h3><p>${badge.description}</p><span>${number(badge.xp)} تجربه + ${number(badge.coins)} سکه</span><span class="hub-progress" role="progressbar" aria-label="${badge.name}" aria-valuemin="0" aria-valuemax="${badge.goal}" aria-valuenow="${progress}" data-progress="${progress / badge.goal}"></span></div></article>`;
                 },
             ).join('')}</div>${storageNotice(store)}`,
             footer: back,

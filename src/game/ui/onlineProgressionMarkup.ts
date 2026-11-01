@@ -1,3 +1,4 @@
+import { icon } from '../../ui/icons';
 import {
     onlineProgression,
     progressionStatus,
@@ -7,7 +8,7 @@ import {
 import { playerIdentity } from '../../account/identity';
 import type { ProgressionProfile } from '../../online/shared/src/online/progression.schemas';
 import { BADGES, SEALS } from '../progression/progression';
-import { artSprite, button, escape, number, playerAvatar } from './components';
+import { button, escape, number, playerAvatar } from './components';
 import { experienceBar } from './progressionMarkup';
 import type { SheetContent } from './bottomSheet';
 import type { MatchSession } from './matchSession';
@@ -68,7 +69,7 @@ export function onlineProgressionSheet(session: MatchSession): SheetContent | nu
             title: 'نشان‌های آنلاین',
             key: 'online-achievements',
             tone: 'amethyst',
-            body: `<div class="hub-achievements">${[...BADGES.filter((b) => b.id !== 'practice'), { id: 'ambassador', name: 'سفیر دوستان', description: 'اولین دعوت واجد شرایطت را کامل کن' }].map((badge) => `<article class="hub-achievement${profile.badges.some((id) => id === badge.id) ? ' is-earned' : ''}"><div class="hub-badge-icon" data-earned="${profile.badges.some((id) => id === badge.id)}" aria-hidden="true">${artSprite('rosette', 32)}</div><div><h3>${escape(badgeName(badge.id))}</h3><p>${escape(badge.description)}</p><span>${profile.badges.some((id) => id === badge.id) ? 'گرفته‌ای' : 'هنوز کامل نشده'}</span></div></article>`).join('')}</div>${notice}`,
+            body: `<div class="hub-achievements">${[...BADGES.filter((b) => b.id !== 'practice'), { id: 'ambassador', name: 'سفیر دوستان', description: 'اولین دعوت واجد شرایطت را کامل کن' }].map((badge) => `<article class="hub-achievement${profile.badges.some((id) => id === badge.id) ? ' is-earned' : ''}"><div class="hub-badge-icon" data-earned="${profile.badges.some((id) => id === badge.id)}" aria-hidden="true">${icon('achievement', 32)}</div><div><h3>${escape(badgeName(badge.id))}</h3><p>${escape(badge.description)}</p><span>${profile.badges.some((id) => id === badge.id) ? 'گرفته‌ای' : 'هنوز کامل نشده'}</span></div></article>`).join('')}</div>${notice}`,
             footer: close,
         };
     if (kind === 'online-cosmetics')

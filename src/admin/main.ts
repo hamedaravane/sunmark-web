@@ -1,4 +1,5 @@
 import './style.css';
+import '../ui/icons.css';
 import { AdminClient, AdminRequestError, type UserPage } from './client';
 import { shell, stats, userList, userDetail, number, date } from './markup';
 import { analyticsSummary, analyticsTimeline } from './analyticsMarkup';

@@ -1,3 +1,4 @@
+import { icon } from '../../ui/icons';
 import { matchAvatar, matchBot } from './headerModel';
 import { scoreAwards } from './scoreMarkup';
 import { constructionSheet } from './constructionMarkup';
@@ -14,7 +15,6 @@ import { getProductionProbability, type BuildOption } from '../core/queries';
 import { getPlayerSummary } from './matchState';
 import { RESOURCE_TYPES } from '../core/types';
 import {
-    artSprite,
     tradeIcon,
     button,
     color,
@@ -303,7 +303,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
                 : '';
         return {
             title: FA.winnerTitle,
-            body: `<div class="victory-art">${artSprite('victory', 112, 'victory-emblem')}</div><p class="winner-name" style="--owner:${color(winner.color)}">${escape(winner.name)} ${FA.winnerSuffix}</p><p class="victory-score">${number(getPlayerSummary(state, winner.id).score)}<small>امتیاز · پایان این ماجراجویی</small></p>${onlineReward}${rewardContent}<div class="results-list">${state.players
+            body: `<div class="victory-art">${icon('ranked', 112)}</div><p class="winner-name" style="--owner:${color(winner.color)}">${escape(winner.name)} ${FA.winnerSuffix}</p><p class="victory-score">${number(getPlayerSummary(state, winner.id).score)}<small>امتیاز · پایان این ماجراجویی</small></p>${onlineReward}${rewardContent}<div class="results-list">${state.players
                 .map((p) => {
                     const s = getPlayerSummary(state, p.id);
                     return `<article><div class="row-between"><h3>${escape(p.name)}</h3><span>${number(s.score)} امتیاز</span></div><p class="muted">${number(s.settlements)} آبادی + ${number(s.cities)} شهر</p></article>`;

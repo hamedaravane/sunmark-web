@@ -2,6 +2,7 @@ import type { AppPlatform } from './app';
 import type { MatchSession } from '../game/ui/matchSession';
 import type { SheetContent } from '../game/ui/bottomSheet';
 import { button, escape } from '../game/ui/components';
+import { icon } from '../ui/icons';
 import { BRAND } from '../brand';
 
 export function offlineLabel(app: AppPlatform): string {
@@ -58,12 +59,12 @@ export function appContent(app: AppPlatform, session: MatchSession): SheetConten
         body: `<h3>${app.installed ? 'بازی نصب شده' : 'نصب روی گوشی'}</h3><p>${app.installed ? 'از آیکون بازی روی صفحه اصلی، مستقیم وارد جزیره شو.' : instruction}</p>${!app.installed ? '<p class="footnote">نصب اختیاریه؛ می‌تونی همین‌جا هم بازی کنی.</p>' : ''}
             ${app.installPrompt && !app.installed ? button(`نصب ${BRAND.persianName}`, 'app-install', { className: 'button button--primary full-width' }) : ''}
             ${!app.installed ? button('فعلاً ادامه بده', 'close-sheet', { className: 'button full-width' }) : ''}
-            <h3>بازی بدون اینترنت</h3><p role="status">${offlineLabel(app)}</p><p class="footnote">تمام جزیره و شش تصویر آناهیتا آماده می‌شن. بار اول اینترنت لازمه؛ بعد از آماده‌شدن، می‌تونی بدون اینترنت بازی کنی.</p>
+            <h3>${icon('offline', 22)} بازی بدون اینترنت</h3><p role="status">${offlineLabel(app)}</p><p class="footnote">تمام جزیره و شش تصویر آناهیتا آماده می‌شن. بار اول اینترنت لازمه؛ بعد از آماده‌شدن، می‌تونی بدون اینترنت بازی کنی.</p>
             ${app.offline === 'error' ? button('دوباره آماده کن', 'app-retry', { className: 'button full-width' }) : ''}
-            <h3>ادامه سفر</h3><p>${escape(saveLabel(session))}</p><p class="footnote">ذخیره روی همین دستگاهه؛ با پاک‌کردن داده‌های سایت ممکنه حذف بشه.</p>
-            <h3>نسخه بازی</h3><p>${app.updating ? 'در حال به‌روزرسانی…' : app.updateReady ? 'نسخه تازه آماده‌ست؛ قبل از بازشدن دوبارهٔ بازی، سفرت رو ذخیره می‌کنیم.' : 'وقتی نسخه تازه‌ای آماده بشه، بهت خبر می‌دیم.'}</p>
+            <h3>${icon('save', 22)} ادامه سفر</h3><p>${escape(saveLabel(session))}</p><p class="footnote">ذخیره روی همین دستگاهه؛ با پاک‌کردن داده‌های سایت ممکنه حذف بشه.</p>
+            <h3>${icon('refresh', 22)} نسخه بازی</h3><p>${app.updating ? 'در حال به‌روزرسانی…' : app.updateReady ? 'نسخه تازه آماده‌ست؛ قبل از بازشدن دوبارهٔ بازی، سفرت رو ذخیره می‌کنیم.' : 'وقتی نسخه تازه‌ای آماده بشه، بهت خبر می‌دیم.'}</p>
             ${app.updateReady ? button('به‌روزرسانی و بازکردن نسخه تازه', 'app-update', { className: 'button button--primary full-width', disabled: app.updating }) : ''}
             ${app.error ? `<p class="availability" role="alert">${escape(app.error)}</p>` : ''}
-            ${session.state ? button('ذخیره و بازگشت به منو', 'new-game', { className: 'button full-width' }) : ''}`,
+            ${session.state ? button('ذخیره و بازگشت به منو', 'new-game', { className: 'button full-width' }) : ''}<p class="footnote" dir="ltr">Icons: Fluent Emoji Flat · Microsoft · MIT</p>`,
     };
 }

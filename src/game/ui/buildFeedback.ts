@@ -70,7 +70,7 @@ export function goalMarkup(
                   ? 'منابع آماده · ساخت در نوبت تو'
                   : session.state.phase !== 'actions'
                     ? 'منابع آماده · پس از مراحل نوبت'
-                    : 'آمادهٔ ساخت ✓';
+                    : 'آمادهٔ ساخت';
     return `<section class="build-goal" aria-label="هدف انتخابی تو${comparison ? ' پس از معامله' : ''}"><span class="piece-symbol piece-symbol--${goal}" aria-hidden="true"></span><span><strong>${comparison ? 'پس از معامله' : 'هدف تو'}: ${BUILD_LABELS[goal]}</strong><small>${escape(status)}</small></span>${!comparison ? button('×', 'pin-build:clear', { className: 'icon-button', label: 'برداشتن هدف ساخت' }) : ''}</section>`;
 }
 

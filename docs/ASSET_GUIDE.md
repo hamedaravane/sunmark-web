@@ -43,7 +43,7 @@ Match terrain textures initialize on first match entry rather than at the menu. 
 
 ## Image export workflow
 
-There are **14 active runtime WebP images**, totaling **8,201,868 bytes**. Ten former exports (six terrains, traveler, bank scale, number medallion and resource atlas) now use procedural drawing, saving 5,999,036 compressed bytes against the original 24 exports. Complete PNG masters remain unchanged at matching paths under `art/reference/`, with checksums and historical crops in the manifest's `references`. Terrain uses 24 generated 320 × 320 textures, resources one generated 640 × 128 atlas, and number medallions direct Graphics paths. See [PROCEDURAL_BOARD_ART.md](PROCEDURAL_BOARD_ART.md) for composition and memory budgets.
+In addition to the shared SVG icon atlas described below, there are **14 preserved runtime WebP images**, totaling **8,201,868 bytes**. Ten former exports (six terrains, traveler, bank scale, number medallion and resource atlas) now use procedural drawing, saving 5,999,036 compressed bytes against the original 24 exports. Complete PNG masters remain unchanged at matching paths under `art/reference/`, with checksums and historical crops in the manifest's `references`. Terrain uses 24 generated 320 × 320 textures, functional icons one shared 1024 × 1024 library atlas, and number medallions direct Graphics paths. See [PROCEDURAL_BOARD_ART.md](PROCEDURAL_BOARD_ART.md) for composition and memory budgets.
 
 The palace background and legacy dice sheet use lossless WebP to satisfy the quality checks, and the other active images use quality 95. The retired pasture export previously used quality 100. Lossless mode is distinguished from the quality-100 lossy profile.
 
@@ -67,7 +67,7 @@ The quality profile starts at WebP quality 95, method 6, and tries 98, 100, then
 
 ## Procedural interface materials
 
-The current stone UI is drawn with Phaser Graphics, with cut corners, broad chisel facets, recessed keylines, deterministic mineral flecks/patina, and shallow border seams. These are presentation geometry, not new PNG textures. Grain stays at the perimeter so text remains legible, and its local generator never uses `Math.random()` or the core random source. No runtime/source art is replaced or duplicated for this treatment. The match uses a lighter fixed lapis/limestone treatment with shared surfaces and thin rims; heavier carved surfaces remain in focused sheets and menus; ornaments and victory art retain their original Image frames, while resource frames are generated from code. Semantic icon dimensions use a shared CSS `--icon-size`, preserving the frame aspect ratio at each placement size without transform or negative-margin offsets.
+The current stone UI is drawn with Phaser Graphics, with cut corners, broad chisel facets, recessed keylines, deterministic mineral flecks/patina, and shallow border seams. These are presentation geometry, not new PNG textures. Grain stays at the perimeter so text remains legible, and its local generator never uses `Math.random()` or the core random source. No runtime/source art is replaced or duplicated for this treatment. The match uses a lighter fixed lapis/limestone treatment with shared surfaces and thin rims; heavier carved surfaces remain in focused sheets and menus; ornaments and victory art retain their original Image frames, while resource frames come from the shared library atlas. Semantic icon dimensions use a shared CSS `--icon-size`, preserving the frame aspect ratio at each placement size without transform or negative-margin offsets.
 
 ## Current files
 
@@ -84,12 +84,19 @@ The current stone UI is drawn with Phaser Graphics, with cut corners, broad chis
 - Ahriman is drawn by `rendering/ahriman.ts`; previews and movement use the same vector emblem. The former traveler PNG is preserved at `art/reference/pieces/robber/robber.png`, with checksum metadata in the manifest's `references` array. There is no marker image request.
 - Number medallions are code-drawn limestone and bronze using `NUMBER_TOKEN_ART` in `rendering/boardEmblems.ts`. Runtime Persian numbers retain their 15.4-pixel size. The original `board/tokens/number.png` remains under `art/reference/`; its WebP is retired. Desert has no token.
 - `ui/ornaments/ornaments.webp`: supplied corner, divider, and rosette sheet. Explicit source frames supply menu corners/crest/divider and small sheet-heading ornaments; there are no baked labels or separate player-color images.
-- `ui/emblems/victory.webp`: supplied griffin/rosette medallion, shown at 112 pixels wide in the results sheet with runtime winner/score text below it.
-- The trade scales are drawn by `rendering/tradeArt.ts` at dock/workspace sizes. `art/reference/ui/illustrations/bank.png` preserves the original painting; it is a retired reference, not an active export.
+- `ui/emblems/victory.webp`: supplied griffin/rosette medallion, preserved for brand exports; the results sheet now uses the collection trophy with runtime winner/score text.
+- The trade scales use the shared library icon at dock/workspace sizes; former `rendering/tradeArt.ts` is retained as historical source. `art/reference/ui/illustrations/bank.png` preserves the original painting; it is a retired reference, not an active export.
 - `effects/dust.webp`: short construction puff behind the building marker within its container.
 - `effects/spark.webp`: restrained road-placement sparkle over the confirmed edge.
 - `effects/glint.webp`: short glint over the victory medallion in the dialog's top layer.
-- Resource icons use `rendering/resourceArt.ts` and a generated shared atlas from `boardEmblems.ts`. Five square 128 × 128 frames in one 640 × 128 texture serve the hand, costs, selectors, flights and harbors. No resource bitmap is downloaded. Square semantic placeholders retain their existing maximum sizes. The original `art/reference/resources/resources.png` and crop metadata are preserved; its WebP is retired.
+- Functional icons use one locally bundled `ui/icons/fluent.svg` atlas, backed by
+  reviewed SVG masters in `art/reference/icons/fluent-emoji-flat.json`. Its 59
+  semantic frames replace the separate procedural resource, action, trade and
+  avatar glyphs. Hands, costs, flights, selectors, ports, card effects, controls,
+  account forms and admin use this same collection. See [ICONOGRAPHY.md](ICONOGRAPHY.md)
+  for the complete inventory, MIT license, regeneration and texture budget. The
+  source paintings and historical procedural source are preserved; no per-player
+  color copies are introduced.
 
 The MVP maps forest to wood, mesa to brick, wheat to wheat, pasture to wool, and mountain to stone. Those rules are unchanged. The six 1254 × 1254 painted PNG masters are preserved as references; procedural point-up hexes now provide the terrain. Broad motifs sit above the token area. Stable axial-coordinate variants use no gameplay randomness. Number text remains a runtime overlay, and the desert has no number token. Roads, player-colored buildings and Ahriman render above the static terrain layer.
 The ocean and its coast are presentation only. `BackdropScene` switches between the menu Image and the match procedural ocean inside the full-shell Phaser canvas. The water caches an opaque shader pass in a capped 320 × 640 render target, updating at 30 Hz while active; stationary views reuse the cached surface. The fallback generates its small color field in code and uses Graphics wavelets. An inset board camera and full-shell interface scene share this canvas. Coast geometry is recreated when board state or viewport measurements change, and stays below the terrain. A ResizeObserver explicitly resizes the canvas with `Scale.NONE`; the island automatically fits the available width and height with a 40-pixel ocean margin for the coast and port markers. There is no interactive zoom or panning. Transparent semantic controls retain CSS-pixel touch dimensions; Graphics surfaces and runtime labels match their measured geometry.
@@ -120,7 +127,7 @@ Runtime WebP exports now reduce download size for all image groups, with origina
 
 ## Ports
 
-`src/game/rendering/ports.ts` draws nine small stone trading islets with Phaser Graphics, runtime ratio text, and resource emblems from the shared code-generated atlas. No port PNGs or per-player asset copies are needed. Marker bodies are 32 pixels across, with a 38-pixel water halo and two links to the associated coastal edge endpoints. An arbitrary runtime ownership color accents the inset border. See [PORTS.md](PORTS.md) for geometry, access rules, and interaction.
+`src/game/rendering/ports.ts` draws nine small stone trading islets with Phaser Graphics, runtime ratio text, and resource icons from the shared library atlas. No port PNGs or per-player asset copies are needed. Marker bodies are 32 pixels across, with a 38-pixel water halo and two links to the associated coastal edge endpoints. An arbitrary runtime ownership color accents the inset border. See [PORTS.md](PORTS.md) for geometry, access rules, and interaction.
 
 ## Platform icons
 
@@ -128,8 +135,17 @@ Sunmark retains the existing gold sun-rosette/griffin victory emblem as its app 
 
 ## Player avatars
 
-`ui/playerAvatarArt.ts` draws four original stone seals (human, Atlas, ASIMO, Sophia) as Phaser Graphics. `ui/playerIdentity.ts` derives their stable identity from seat/human ownership; colors remain runtime data. No avatar bitmaps, manufacturer logos, network images, or per-color copies are shipped. The name entry and header labels remain runtime text.
+Player identities use shared library human/robot icons within runtime
+ownership-colored seal rims. `ui/playerIdentity.ts` still owns names and seat
+identity. Former original avatar drawing code is retained as historical source;
+it is not a runtime consumer. No manufacturer logos or per-color images are added.
 
 ## Royal expedition interface
 
-The colorful UI introduces no new runtime image or font downloads. `ui/graphicsTheme.ts` draws enamel gradients, gold, parchment and ivory; `ui/royalArt.ts` adds original stepped wings, sun/card settings, resource plinths and menu gear geometry. Card-kind colors remain presentation data. The palace, original rosette/victory art, narrator figures and generated resource atlas remain in use. Persian labels are runtime text, and owner colors remain separate from material colors. Review screenshots under `docs/design/royal-expedition/` are development artifacts, outside the runtime asset tree.
+The royal UI retains enamel, gold, parchment, stepped ornament, palace and
+narrator art. Functional icons now add a single 51,717-byte Fluent Emoji Flat SVG
+atlas; no icon font, external service or per-color image is used. Both renderers
+consume that atlas, and it is included in offline preparation. The original
+rosette remains brand artwork; results use the collection trophy. Persian labels
+remain runtime text. Historical review captures are development artifacts, not
+current icon references. See [ICONOGRAPHY.md](ICONOGRAPHY.md).

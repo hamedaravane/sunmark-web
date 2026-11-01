@@ -32,15 +32,15 @@ export const developmentBack = (size = 36) =>
 export function cardAvailability(session: MatchSession, card: DevelopmentCard): string {
     if (card.kind === 'victory-point') return 'امتیاز مخفی';
     if (!session.isHumanTurn)
-        return card.boughtOnRound >= session.state!.turn ? '◷ نوبت بعدِ تو' : 'در نوبت تو';
+        return card.boughtOnRound >= session.state!.turn ? 'نوبت بعدِ تو' : 'در نوبت تو';
     const error = developmentPlayError(session.state!, card.id);
     return error === 'card-too-new'
-        ? '◷ نوبت بعد'
+        ? 'نوبت بعد'
         : error === 'card-already-played'
           ? 'این نوبت کارت بازی کرده‌ای'
           : error
             ? FA.errors[error]
-            : '✓ آماده';
+            : 'آماده';
 }
 export function developmentSheet(session: MatchSession): SheetContent {
     const state = session.state!,

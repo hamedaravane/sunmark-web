@@ -1,3 +1,4 @@
+import { icon } from '../../ui/icons';
 import { artSprite, button, escape } from './components';
 import type { Material } from './graphicsTheme';
 import { ART, type ArtName } from '../assets';
@@ -90,8 +91,13 @@ export class BottomSheet {
         this.dialog.classList.toggle('narrator-sheet', !!portrait);
         this.dialog.dataset.portrait = portrait ?? '';
         this.dialog.dataset.narration = content.narrator?.key ?? '';
-        const header = `<header class="sheet-header${portrait ? ' narrator-heading' : ''}"><h2 id="sheet-title">${artSprite('rosette', 20)}${escape(content.title)}${portrait ? '<span class="narrator-role">همراه سفر</span>' : ''}</h2>${button('×', 'close-sheet', { className: 'icon-button', label: 'بستن پنجره' })}</header>`;
-        const body = `<div class="sheet-body">${content.body}</div>`;
+        const header = `<header class="sheet-header${portrait ? ' narrator-heading' : ''}"><h2 id="sheet-title">${icon(portrait ? 'practice' : 'sun', 22)}${escape(content.title)}${portrait ? '<span class="narrator-role">همراه سفر</span>' : ''}</h2>${button('×', 'close-sheet', { className: 'icon-button', label: 'بستن پنجره' })}</header>`;
+        const expandedBody = content.body.replace(
+            /<summary(?:\s[^>]*)?>/g,
+            (opening) =>
+                `${opening}<span class="disclosure-closed">${icon('expand', 16)}</span><span class="disclosure-open">${icon('collapse', 16)}</span>`,
+        );
+        const body = `<div class="sheet-body">${expandedBody}</div>`;
         if (portrait) {
             const [, , width, height] = ART[portrait].frame;
             this.dialog.innerHTML = `<div class="narrator-stage" aria-hidden="true" style="--portrait-ratio:${width / height}">${artSprite(portrait, 320, 'narrator-hero')}</div><section class="narrator-panel">${header}${body}<footer class="narrator-footer">${content.footer ?? ''}</footer></section>`;

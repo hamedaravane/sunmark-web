@@ -453,9 +453,6 @@ h3 {
     height: 24px;
     flex-shrink: 0;
 }
-.piece-symbol--road {
-    height: 10px;
-}
 .art-sprite {
     display: inline-block;
     flex-shrink: 0;
@@ -1766,4 +1763,19 @@ h3 {
 }
 .graphics-ui .online-match-status {
     opacity: 0;
+}
+
+/* Disclosure artwork shares the icon atlas; native details owns open/closed state. */
+.disclosure-closed,
+.disclosure-open {
+    display: inline-flex;
+    vertical-align: middle;
+    margin-inline-end: 6px;
+}
+.disclosure-open,
+details[open] > summary > .disclosure-closed {
+    display: none;
+}
+details[open] > summary > .disclosure-open {
+    display: inline-flex;
 }

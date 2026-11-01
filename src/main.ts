@@ -8,6 +8,7 @@ import './styles/global.css';
 import './styles/royal.css';
 import './styles/desktop.css';
 import './styles/player-hub.css';
+import './ui/icons.css';
 
 const parent = document.querySelector<HTMLElement>('#game-container');
 

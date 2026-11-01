@@ -19,7 +19,7 @@ import { UI_FONT_FAMILY } from '../ui/typography';
 import type { Motion } from '../ui/motion';
 import type { PresentedTransition as MatchTransition } from '../ui/transitions';
 import { ART, assetUrl } from '../assets';
-import { ensureResourceTextures, NUMBER_TOKEN_ART } from '../rendering/boardEmblems';
+import { NUMBER_TOKEN_ART } from '../rendering/boardEmblems';
 import { drawVectorArt } from '../rendering/vectorArt';
 import { createBuildingPiece, createRoadPiece } from '../rendering/pieces';
 import {
@@ -31,6 +31,8 @@ import {
 import { getPortOwnerId, getPortTradeRatio } from '../core/ports';
 import { configureDisplayCamera, logicalCameraSize } from '../rendering/display';
 import { createSharpText } from '../rendering/sharpText';
+
+import { loadIconAtlas, installIconFrames } from '../rendering/iconAtlas';
 
 const NUMBER_TOKEN_SCALE = 1.1;
 
@@ -63,8 +65,12 @@ export class GameScene extends Scene {
         super({ key: 'GameScene', active: true });
     }
 
+    preload(): void {
+        loadIconAtlas(this);
+    }
+
     create(): void {
-        ensureResourceTextures(this);
+        installIconFrames(this);
         this.terrainObjects = this.add.container();
         this.boardObjects = this.add.container();
         this.effects = new BoardEffects(this, this.motion);

@@ -1,3 +1,4 @@
+import { icon } from '../ui/icons';
 import type { AdminUser, Overview, UserPage } from './client';
 
 export const escapeHtml = (value: string | number) =>
@@ -17,7 +18,7 @@ const gender = (value: string) =>
     ({ male: 'مرد', female: 'زن', other: 'سایر', undisclosed: 'بیان نشده' })[value] ?? 'بیان نشده';
 
 export const shell = () => `
-<header class="topbar"><a class="brand" href="/" aria-label="بازگشت به بازی"><span class="sun" aria-hidden="true">✺</span><span><b dir="ltr">Sunmark</b><small>اتاق مدیریت</small></span></a><div class="header-actions"><span class="readonly">فقط مشاهده</span><button id="logout" hidden>خروج از حساب</button></div></header>
+<header class="topbar"><a class="brand" href="/" aria-label="بازگشت به بازی"><span class="sun" aria-hidden="true">${icon('sun', 38)}</span><span><b dir="ltr">Sunmark</b><small>اتاق مدیریت</small></span></a><div class="header-actions"><span class="readonly">فقط مشاهده</span><button id="logout" hidden>${icon('logout', 20)} خروج از حساب</button></div></header>
 <main>
     <section id="login" class="login-card" hidden aria-labelledby="login-title">
         <p class="eyebrow">به اتاق مدیریت خوش آمدید</p><h1 id="login-title">یک نگاه به دنیای سان‌مارک</h1>
@@ -26,7 +27,7 @@ export const shell = () => `
     </section>
     <p id="message" class="message" role="status" aria-live="polite"></p>
     <section id="dashboard" hidden aria-labelledby="dashboard-title">
-        <div class="page-heading"><div><p class="eyebrow">نمای کلی</p><h1 id="dashboard-title">بازیکنان سان‌مارک</h1><p class="muted">آدم‌هایی که به بازی شما پیوسته‌اند.</p></div><div class="refresh-group"><button id="refresh">به‌روزرسانی اطلاعات</button><small id="updated" class="muted"></small></div></div>
+        <div class="page-heading"><div><p class="eyebrow">نمای کلی</p><h1 id="dashboard-title">بازیکنان سان‌مارک</h1><p class="muted">آدم‌هایی که به بازی شما پیوسته‌اند.</p></div><div class="refresh-group"><button id="refresh">${icon('refresh', 20)} به‌روزرسانی اطلاعات</button><small id="updated" class="muted"></small></div></div>
         <div id="stats" class="stats"></div>
         <section id="analytics" class="users-panel analytics-panel" aria-label="بینش رفتار بازیکنان"></section>
         <section class="users-panel" aria-labelledby="users-title"><div class="panel-heading"><div><h2 id="users-title">حساب‌های ثبت‌شده</h2><p class="muted">اطلاعات پروفایل توسط خود بازیکن وارد شده است.</p></div><form id="search-form" role="search"><label class="sr-only" for="search">جست‌وجوی نام، نام کاربری یا شماره</label><input id="search" name="q" type="search" maxlength="80" placeholder="نام، نام کاربری یا شماره تلفن…" /><button type="submit">جست‌وجو</button></form></div><div id="user-list"></div><div class="pagination"><p id="page-info" class="muted"></p><div><button id="previous">صفحه قبل</button><button id="next">صفحه بعد</button></div></div></section>
@@ -55,7 +56,7 @@ export function stats(data: Overview) {
 
 export function userList(data: UserPage) {
     if (!data.users.length)
-        return `<div class="empty-state"><span aria-hidden="true">✺</span><h3>${data.total ? 'در این صفحه بازیکنی نیست' : 'بازیکنی پیدا نشد'}</h3><p>عبارت جست‌وجو را تغییر دهید یا دوباره اطلاعات را دریافت کنید.</p></div>`;
+        return `<div class="empty-state">${icon('profile', 44)}<h3>${data.total ? 'در این صفحه بازیکنی نیست' : 'بازیکنی پیدا نشد'}</h3><p>عبارت جست‌وجو را تغییر دهید یا دوباره اطلاعات را دریافت کنید.</p></div>`;
     return `<div class="table-scroll" tabindex="0" role="region" aria-label="فهرست بازیکنان"><table><thead><tr><th scope="col">بازیکن</th><th scope="col">شماره تلفن</th><th scope="col">عضویت · زمان تهران</th><th scope="col">بازی / برد</th><th scope="col">جزئیات</th></tr></thead><tbody>${data.users.map((user) => `<tr><td><div class="identity"><span class="avatar" aria-hidden="true">${escapeHtml(Array.from(user.name)[0] ?? '؟')}</span><div><b>${escapeHtml(user.name)}</b><small dir="ltr">@${escapeHtml(user.username)}</small>${user.isAdmin ? '<span class="admin-badge">مدیر</span>' : ''}</div></div></td><td><span dir="ltr">${escapeHtml(user.phone)}</span></td><td>${date(user.createdAt)}</td><td>${number(user.matches)} / ${number(user.wins)}</td><td><button data-user="${escapeHtml(user.id)}" aria-label="جزئیات ${escapeHtml(user.name)}">مشاهده</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 

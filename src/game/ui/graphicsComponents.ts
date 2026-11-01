@@ -1,19 +1,13 @@
 import {
     CARD_MATERIAL,
     drawCardFrame,
-    drawGear,
     drawMenuCrown,
     drawResourceCell,
     drawWing,
 } from './royalArt';
-import { drawTradeIcon } from '../rendering/tradeArt';
-import { drawActionEmblem, drawDevelopmentBack } from '../rendering/actionArt';
-import { SETTLEMENT, CITY } from '../rendering/pieceShapes';
 import type { GameObjects } from 'phaser';
 import { canvasDisplay } from '../rendering/display';
 import { headerBackdrop } from './headerModel';
-import { drawPlayerAvatar } from './playerAvatarArt';
-import type { AvatarId } from './playerIdentity';
 import { dockControl, matchFace, MATCH_INK } from './matchChrome';
 import {
     drawDie,
@@ -39,11 +33,7 @@ export function drawComponent(
     const owner = Number.isFinite(ownerValue) ? ownerValue : UI_INK.gold;
     const disabled = el instanceof HTMLButtonElement && el.disabled;
     const selected = el.getAttribute('aria-pressed') === 'true';
-    if (has('action-emblem')) {
-        drawActionEmblem(g, box, el.dataset.emblem ?? 'victory-point');
-    } else if (has('development-back')) {
-        drawDevelopmentBack(g, box, true);
-    } else if (has('roll-object')) {
+    if (has('roll-object')) {
         const cx = box.x + box.width / 2;
         g.fillStyle(0x0a2041, 0.3).fillEllipse(cx, box.y + box.height - 23, box.width - 8, 16);
         // A pair of wing inlays anchors the dice without a modal or solid panel.
@@ -100,8 +90,6 @@ export function drawComponent(
             quiet: true,
             radius: 9,
         });
-    } else if (has('trade-icon')) {
-        drawTradeIcon(g, box, !!el.closest('button:disabled'));
     } else if (has('match-controls') && el.closest('.is-desktop')) {
         drawSurface(g, box, 'inset', { quiet: true, flat: true, radius: 24, accent: 0x527b8b });
     } else if (has('match-controls') && el.closest('.is-wide')) {
@@ -132,7 +120,7 @@ export function drawComponent(
             box.y + box.height - 1,
         );
     } else if (has('player-avatar')) {
-        drawPlayerAvatar(g, box, el.dataset.avatar as AvatarId, owner);
+        drawSurface(g, box, 'card', { radius: box.width / 2, flat: true, accent: owner });
     } else if (has('header-active')) {
         drawSurface(g, box, 'inset', {
             radius: 16,
@@ -162,8 +150,6 @@ export function drawComponent(
                 2,
                 1,
             );
-    } else if (has('menu-gear')) {
-        drawGear(g, box);
     } else if (has('name-entry')) {
         drawSurface(g, box, 'inset', { radius: 8, flat: true });
         if (el.matches(':focus-within')) {
@@ -215,12 +201,6 @@ export function drawComponent(
                 1,
             );
         }
-    } else if (has('hub-coin')) {
-        const cx = box.x + box.width / 2,
-            cy = box.y + box.height / 2;
-        g.fillStyle(0x9d622c).fillCircle(cx, cy + 1, box.width / 2);
-        g.fillStyle(0xffdc8a).fillCircle(cx, cy, box.width / 2 - 1);
-        drawRosette(g, cx, cy, box.width * 0.28, 0xb47432);
     } else if (has('hub-player') || has('hub-stat')) {
         drawSurface(g, box, 'lapis', {
             radius: has('hub-player') ? 21 : 14,
@@ -299,14 +279,6 @@ export function drawComponent(
         drawMenuCrown(g, box);
     } else if (el.matches('.menu-adventure > span')) {
         drawSurface(g, box, 'lapis', { radius: 20, quiet: true, flat: true });
-    } else if (has('menu-play-mark')) {
-        g.fillStyle(0xfff0cf)
-            .beginPath()
-            .moveTo(box.x + 4, box.y + 2)
-            .lineTo(box.x + box.width - 2, box.y + box.height / 2)
-            .lineTo(box.x + 4, box.y + box.height - 2)
-            .closePath()
-            .fillPath();
     } else if (has('intro-participant')) {
         drawSurface(g, box, 'inset', { accent: owner, radius: 12, flat: true });
         g.fillStyle(owner).fillRect(box.x + box.width - 3, box.y + 10, 3, box.height - 20);
@@ -329,7 +301,7 @@ export function drawComponent(
                 1,
             );
         }
-        if (has('is-active')) drawRosette(g, box.x + box.width / 2, box.y + 1, 3.5, owner);
+        if (has('is-active')) g.fillStyle(owner).fillCircle(box.x + box.width / 2, box.y + 1, 3);
     } else if (has('hand-resource')) {
         drawResourceCell(g, box, el.dataset.resource ?? '');
     } else if (has('header-menu')) {
@@ -351,23 +323,6 @@ export function drawComponent(
         // Total sits between the dice and opponents without another nested frame.
     } else if (el.dataset.dice) {
         drawDie(g, box, Number(el.dataset.dice));
-    } else if (has('score-symbol')) {
-        drawRosette(g, box.x + box.width / 2, box.y + box.height / 2, box.width / 2, 0x8b5229);
-    } else if (has('total-symbol')) {
-        g.fillStyle(0x51564c, 0.6).fillRoundedRect(
-            box.x + 3,
-            box.y,
-            box.width - 3,
-            box.height - 3,
-            2,
-        );
-        g.lineStyle(1, 0x51564c).strokeRoundedRect(
-            box.x,
-            box.y + 3,
-            box.width - 3,
-            box.height - 3,
-            2,
-        );
     } else if (has('deal-summary') || has('deal-offer') || has('deal-hand-item')) {
         drawSurface(g, box, 'inset', {
             radius: 8,
@@ -461,28 +416,11 @@ export function drawComponent(
             flat: has('context-button'),
         });
         if (selected)
-            drawRosette(g, box.x + 9, box.y + 9, 4, material !== 'inset' ? 0x65543d : UI_INK.gold);
-        if (el.tagName === 'SUMMARY') {
-            const cx = box.x + 12,
-                cy = box.y + box.height / 2;
-            const open = (el.parentElement as HTMLDetailsElement).open;
-            g.lineStyle(2, UI_INK.gold).beginPath();
-            if (open)
-                g.moveTo(cx - 3, cy - 2)
-                    .lineTo(cx, cy + 2)
-                    .lineTo(cx + 3, cy - 2);
-            else
-                g.moveTo(cx - 3, cy - 3)
-                    .lineTo(cx + 3, cy)
-                    .lineTo(cx - 3, cy + 3);
-            g.strokePath();
-        }
-    } else if (has('piece-symbol')) {
-        drawPieceSymbol(
-            g,
-            box,
-            has('piece-symbol--city') ? 'city' : has('piece-symbol--road') ? 'road' : 'settlement',
-        );
+            g.fillStyle(material !== 'inset' ? 0x65543d : UI_INK.gold).fillCircle(
+                box.x + 9,
+                box.y + 9,
+                3,
+            );
     } else if (el.matches('.detail-list > div, .history-list > li')) {
         g.lineStyle(1, 0x656b61, 0.6).lineBetween(
             box.x,
@@ -539,59 +477,5 @@ function drawNameSelection(g: GameObjects.Graphics, el: HTMLElement, box: UiBox)
     } else {
         const x = rect.height ? Math.min(box.x + box.width - 14, left) : box.x + box.width - 14;
         g.lineStyle(1.5, UI_INK.gold).lineBetween(x, top, x, top + height);
-    }
-}
-
-function drawPieceSymbol(g: GameObjects.Graphics, box: UiBox, kind: string): void {
-    const { x, y, width: w, height: h } = box;
-    const cx = x + w / 2,
-        cy = y + h / 2;
-    g.fillStyle(0xb18c56, 0.25).fillEllipse(cx, cy + h * 0.32, w * 0.9, h * 0.25);
-    if (kind === 'road') {
-        drawSurface(g, { x: x + 2, y: cy - 6, width: w - 4, height: 12 }, 'honey', { radius: 4 });
-        g.fillStyle(0x438bff).fillRoundedRect(x + 7, cy - 3, w - 14, 4, 1);
-        return;
-    }
-    const polygon = kind === 'city' ? CITY : SETTLEMENT;
-    const scale = (Math.min(w, h) * 0.88) / (kind === 'city' ? 25 : 21);
-    const path = (offset: number) => {
-        g.beginPath();
-        polygon.forEach(([px, py], index) => {
-            const dx = cx + px * scale,
-                dy = cy + py * scale + offset;
-            if (index === 0) g.moveTo(dx, dy);
-            else g.lineTo(dx, dy);
-        });
-        return g.closePath();
-    };
-    g.fillStyle(0x9e784d);
-    path(3).fillPath();
-    g.fillStyle(0xffedc8).lineStyle(1, 0xa87543);
-    path(0).fillPath().strokePath();
-    if (kind === 'city') {
-        g.fillStyle(0x438bff)
-            .beginPath()
-            .moveTo(cx - 9 * scale, cy - 9 * scale)
-            .lineTo(cx - 5 * scale, cy - 9 * scale)
-            .lineTo(cx - 5 * scale, cy + 5 * scale)
-            .lineTo(cx + 9 * scale, cy + 5 * scale)
-            .lineTo(cx + 9 * scale, cy + 9 * scale)
-            .lineTo(cx - 9 * scale, cy + 9 * scale)
-            .closePath()
-            .fillPath();
-    } else {
-        g.fillStyle(0x438bff).fillRoundedRect(
-            cx - 6.5 * scale,
-            cy - 6 * scale,
-            13 * scale,
-            12 * scale,
-            2,
-        );
-        g.lineStyle(1, 0x9cc4ff).lineBetween(
-            cx - 5 * scale,
-            cy - 5 * scale,
-            cx + 5 * scale,
-            cy - 5 * scale,
-        );
     }
 }

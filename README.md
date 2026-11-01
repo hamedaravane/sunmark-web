@@ -91,9 +91,13 @@ See [AGENTS.md](AGENTS.md) for the repository’s working conventions.
 
 Player-to-player trading follows CATAN domestic-trade restrictions with clear offer/counter/review/receipt states and local bot negotiation. See [DOMESTIC_TRADING.md](docs/DOMESTIC_TRADING.md).
 
+Functional pictograms use the free MIT-licensed Microsoft Fluent Emoji Flat
+collection, bundled locally in one shared SVG atlas. See [the icon inventory,
+selection research, accessibility and license](docs/ICONOGRAPHY.md).
+
 ## Procedural board art
 
-The board uses code-generated, softly detailed terrain with a small reusable texture cache. Ahriman (اهریمن) is a procedural shadow-spirit marker that blocks production; trade scales are also drawn in code. Original paintings remain preserved under `art/reference/`, outside runtime downloads. See [the visual direction, size study and rendering budgets](docs/PROCEDURAL_BOARD_ART.md).
+The board uses code-generated, softly detailed terrain with a small reusable texture cache. Ahriman (اهریمن) is a procedural shadow-spirit marker that blocks production; trade scales and other functional icons use the shared collection atlas. Original paintings remain preserved under `art/reference/`, outside runtime downloads. See [the visual direction, size study and rendering budgets](docs/PROCEDURAL_BOARD_ART.md).
 
 ## Development cards and official scoring
 

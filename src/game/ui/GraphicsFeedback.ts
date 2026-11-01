@@ -1,8 +1,10 @@
+import { ICON_TEXTURE } from '../../ui/icons';
 import type { Scene, GameObjects } from 'phaser';
 import { MOTION, type Motion } from './motion';
 import { UI_FONT_FAMILY } from './typography';
-import { drawSurface, drawRosette, drawDie, UI_INK, type UiBox } from './graphicsTheme';
-import { drawActionEmblem, drawDevelopmentBack } from '../rendering/actionArt';
+import { drawSurface, drawDie, UI_INK, type UiBox } from './graphicsTheme';
+import { emblemIcon } from '../../ui/icons';
+import { iconImage } from '../rendering/iconAtlas';
 import { createSharpText } from '../rendering/sharpText';
 
 export class GraphicsFeedback {
@@ -101,8 +103,9 @@ export class GraphicsFeedback {
         const box = this.box(element);
         const card = this.scene.add.container(box.x + box.width / 2, box.y + box.height / 2);
         const g = this.scene.add.graphics();
-        drawDevelopmentBack(g, { x: -29, y: -38, width: 58, height: 76 });
-        card.add(g);
+        drawSurface(g, { x: -29, y: -38, width: 58, height: 76 }, 'amethyst', { flat: true });
+        const emblem = iconImage(this.scene, 'cards', 0, 0, 44);
+        card.add([g, emblem]);
         this.effects.add(card);
         this.scene.tweens.add({
             targets: card,
@@ -115,7 +118,7 @@ export class GraphicsFeedback {
                     quiet: true,
                     accent: UI_INK.gold,
                 });
-                drawActionEmblem(g, { x: -20, y: -20, width: 40, height: 40 }, kind);
+                emblem.setTexture(ICON_TEXTURE, emblemIcon(kind));
                 this.scene.tweens.add({
                     targets: card,
                     scaleX: 1,
@@ -221,7 +224,7 @@ export class GraphicsFeedback {
             accent: owner,
             radius: 12,
         });
-        const icon = this.scene.add.image(0, -1, 'art-resources', resource);
+        const icon = this.scene.add.image(0, -1, ICON_TEXTURE, resource);
         icon.setScale(28 / Math.max(icon.width, icon.height));
         const text = createSharpText(this.scene, 12, 10, amount, {
             fontFamily: UI_FONT_FAMILY,
@@ -246,17 +249,20 @@ export class GraphicsFeedback {
         });
     }
     victory(): void {
-        const emblem = this.parent.querySelector<HTMLElement>('[data-art="victory"]');
+        const emblem = this.parent.querySelector<HTMLElement>('.victory-art [data-icon="ranked"]');
         if (!emblem || this.motion.reduced || !this.motion.visible || !this.effects) return;
         const box = this.box(emblem);
-        const sparkle = this.scene.add.graphics();
+        const sparkle = this.scene.add.container();
         for (let i = 0; i < 8; i++) {
             const angle = (i * Math.PI) / 4;
-            drawRosette(
-                sparkle,
-                box.x + box.width / 2 + Math.cos(angle) * 65,
-                box.y + box.height / 2 + Math.sin(angle) * 58,
-                i % 2 ? 3 : 5,
+            sparkle.add(
+                iconImage(
+                    this.scene,
+                    'score',
+                    box.x + box.width / 2 + Math.cos(angle) * 65,
+                    box.y + box.height / 2 + Math.sin(angle) * 58,
+                    i % 2 ? 6 : 10,
+                ),
             );
         }
         this.effects.add(sparkle);

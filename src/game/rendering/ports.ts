@@ -1,3 +1,4 @@
+import { ICON_TEXTURE } from '../../ui/icons';
 import type { GameObjects, Scene } from 'phaser';
 import type { Board, Port, TradeRatio } from '../core/types';
 import { boardToScreen, type BoardLayout } from '../ui/layout';
@@ -75,17 +76,9 @@ export function createPortMarker(
     const stone = scene.add.graphics();
     drawVectorArt(stone, harborArt(ownerColor), 0, 0, PORT_RADIUS);
     root.add([water, docks, shadow, stone]);
-    if (port.resource !== null && scene.textures.exists('art-resources')) {
-        const icon = scene.add.image(0, -6, 'art-resources', port.resource);
-        icon.setScale(14 / Math.max(icon.width, icon.height));
-        root.add(icon);
-    } else {
-        // Two broad exchange arrows, avoiding a font-dependent pictogram.
-        const arrows = scene.add.graphics().lineStyle(1.5, 0xf0d392);
-        arrows.lineBetween(-7, -9, 7, -9).lineBetween(7, -9, 3, -12).lineBetween(7, -9, 3, -6);
-        arrows.lineBetween(7, -3, -7, -3).lineBetween(-7, -3, -3, -6).lineBetween(-7, -3, -3, 0);
-        root.add(arrows);
-    }
+    root.add(
+        scene.add.image(0, -6, ICON_TEXTURE, port.resource ?? 'exchange').setDisplaySize(16, 16),
+    );
     root.add(
         createSharpText(scene, 0, 7, `${ratio.toLocaleString('fa-IR')}:۱`, {
             fontFamily: UI_FONT_FAMILY,

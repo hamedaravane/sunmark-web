@@ -1,5 +1,6 @@
+import { icon } from '../../ui/icons';
 import type { SheetContent } from './bottomSheet';
-import { artSprite, button, color, escape, number, playerAvatar } from './components';
+import { button, color, escape, number, playerAvatar } from './components';
 import { avatarForSeat } from './playerIdentity';
 import type { MatchSession } from './matchSession';
 
@@ -18,7 +19,7 @@ export function introductionContent(session: MatchSession, ready: boolean): Shee
         key: 'match-introduction',
         focusAction: 'enter-match',
         body: `<div class="match-introduction">
-            ${artSprite('rosette', 46, 'intro-emblem')}
+            ${icon(session.online ? 'friends' : 'offline', 46)}
             <p class="eyebrow">یک جزیره؛ ${number(state.players.length)} رقیب</p>
             <h3>داستان این بازی با شما آغاز می‌شود</h3>
             <p class="footnote">رنگ مُهر هر بازیکن، رنگ راه‌ها و آبادی‌های اوست.</p>

@@ -1,3 +1,4 @@
+import { icon } from '../../ui/icons';
 import { remoteState } from './matchState';
 import { BUILD_TYPES } from '../core/building';
 import { getBuildOption } from './matchState';
@@ -195,5 +196,5 @@ export function actionDock(session: MatchSession): string {
         tools = `<div class="dock-tools" role="group" aria-label="ابزارهای نوبت">${button(`${actionEmblem('hammer', 30)}<span>ساخت${ready ? ` ${number(ready)}` : ''}</span>`, 'open:build', { className: 'button dock-button dock-build', pressed: session.sheet?.kind === 'build' })}${button(`${tradeIcon(30)}<span>معامله</span>`, session.practice ? 'open:trade' : 'open:domestic', { className: 'button dock-button dock-trade', pressed: ['trade', 'domestic'].includes(session.sheet?.kind ?? ''), disabled: !surface.actions || (!!session.practice && session.practice.stage !== 'trade') })}${button(`${developmentBack(26)}<span>توسعه</span>`, 'open:development', { className: 'button dock-button dock-cards', pressed: session.sheet?.kind === 'development', label: `توسعه؛ ${number(state.development?.hands[human.id].length ?? 0)} کارت در دست تو`, disabled: !!session.practice })}</div>`;
     } else
         tools = `<p class="dock-idle">${state.phase === 'finished' ? 'جزیرهٔ نهایی' : state.phase === 'discard' ? 'دورریختن پس از ۷' : state.phase === 'steal' ? 'انتخاب حریف' : 'آغاز جزیره'}</p>`;
-    return `${tools}${primary ? button(`<span>${escape(primary.label)}</span><span class="dock-action-mark" aria-hidden="true">${placement || surface.canDeclare ? '✓' : '↶'}</span>`, primary.action, { className: `button dock-primary${state.phase === 'actions' && !placement && !surface.canDeclare ? ' is-end-turn' : ''}`, label: primary.description, disabled: primary.disabled }) : surface.hero ? '' : '<p class="dock-waiting">منتظر نوبت تو…</p>'}`;
+    return `${tools}${primary ? button(`<span>${escape(primary.label)}</span><span class="dock-action-mark" aria-hidden="true">${icon(placement || surface.canDeclare ? 'confirm' : 'end-turn', 22)}</span>`, primary.action, { className: `button dock-primary${state.phase === 'actions' && !placement && !surface.canDeclare ? ' is-end-turn' : ''}`, label: primary.description, disabled: primary.disabled }) : surface.hero ? '' : '<p class="dock-waiting">منتظر نوبت تو…</p>'}`;
 }

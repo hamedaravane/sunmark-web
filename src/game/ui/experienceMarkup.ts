@@ -1,3 +1,4 @@
+import { icon } from '../../ui/icons';
 import { button } from './components';
 import type { MatchSession } from './matchSession';
 import type { SheetContent } from './bottomSheet';
@@ -12,7 +13,7 @@ export function experienceSheet(session: MatchSession): SheetContent {
         disabled = false,
     ) =>
         button(
-            `<span class="pause-option-copy"><span>${label}</span><small>${description}</small></span><span>${disabled ? 'در دسترس نیست' : settings[key] ? 'روشن ✓' : 'خاموش'}</span>`,
+            `<span class="pause-option-copy"><span>${label}</span><small>${description}</small></span><span>${disabled ? 'در دسترس نیست' : settings[key] ? `روشن ${icon('confirm', 18)}` : 'خاموش'}</span>`,
             `experience:${key}`,
             {
                 className: 'button pause-option',

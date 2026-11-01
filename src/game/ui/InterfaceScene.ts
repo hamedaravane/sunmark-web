@@ -1,6 +1,6 @@
 import { CANVAS, Scene, type GameObjects } from 'phaser';
 import { ART, assetUrl } from '../assets';
-import { RESOURCE_TYPES } from '../core/types';
+import { elementIcon, iconNeedsPlate, ICON_TEXTURE } from '../../ui/icons';
 import type { MatchSession } from './matchSession';
 import { MOTION, type Motion } from './motion';
 import { UI_FONT_FAMILY } from './typography';
@@ -80,11 +80,11 @@ export class InterfaceScene extends Scene {
         super('InterfaceScene');
     }
     preload(): void {
-        for (const name of ['victory', 'corner', 'divider', 'rosette', 'glint'] as const)
+        for (const name of ['corner', 'divider', 'rosette', 'glint'] as const)
             this.load.image(`ui-${name}`, assetUrl(ART[name].file));
     }
     create(): void {
-        for (const name of ['victory', 'corner', 'divider', 'rosette', 'glint'] as const) {
+        for (const name of ['corner', 'divider', 'rosette', 'glint'] as const) {
             const [x, y, w, h] = ART[name].frame;
             this.textures.get(`ui-${name}`).add('crop', 0, x, y, w, h);
         }
@@ -522,6 +522,23 @@ export class InterfaceScene extends Scene {
     private paintElement(el: HTMLElement, box: UiBox, layer: PaintLayer): void {
         drawComponent(layer.graphics, el, box, this.pressed);
         const has = (name: string) => el.classList.contains(name);
+        const name = elementIcon(el);
+        if (name) {
+            if (iconNeedsPlate(name) && !has('player-avatar'))
+                layer.graphics
+                    .fillStyle(0xffefd4)
+                    .fillRoundedRect(box.x, box.y, box.width, box.height, 8);
+            this.paintImage(
+                layer,
+                el,
+                ICON_TEXTURE,
+                name,
+                box,
+                has('player-avatar') ? 0.8 : 1,
+                true,
+            );
+            return;
+        }
         if (el.dataset.art) {
             const texture = `ui-${el.dataset.art}`;
             if (el.dataset.art.startsWith('anahita-') && !this.textures.exists(texture))
@@ -534,10 +551,6 @@ export class InterfaceScene extends Scene {
                 );
             else this.paintImage(layer, el, texture, 'crop', box);
         }
-        if (has('resource-icon')) {
-            const resource = RESOURCE_TYPES.find((r) => has(`resource-icon--${r}`));
-            if (resource) this.paintImage(layer, el, 'art-resources', resource, box);
-        }
     }
     private paintImage(
         layer: PaintLayer,
@@ -545,6 +558,8 @@ export class InterfaceScene extends Scene {
         texture: string,
         frame: string,
         box: UiBox,
+        scale = 1,
+        square = false,
     ): void {
         if (!this.textures.exists(texture) || !this.textures.get(texture).has(frame)) return;
         const id = this.key(node, 'image');
@@ -559,11 +574,14 @@ export class InterfaceScene extends Scene {
         const matrix = new DOMMatrixReadOnly(
             style.transform === 'none' ? undefined : style.transform,
         );
+        const width = parseFloat(style.width) * Math.hypot(matrix.a, matrix.b) * scale;
+        const height = parseFloat(style.height) * Math.hypot(matrix.c, matrix.d) * scale;
         image
+            .setTexture(texture, frame)
             .setPosition(box.x + box.width / 2, box.y + box.height / 2)
             .setDisplaySize(
-                parseFloat(style.width) * Math.hypot(matrix.a, matrix.b),
-                parseFloat(style.height) * Math.hypot(matrix.c, matrix.d),
+                square ? Math.min(width, height) : width,
+                square ? Math.min(width, height) : height,
             )
             .setRotation(Math.atan2(matrix.b, matrix.a));
         image.setAlpha(node.closest('button:disabled') ? 0.45 : 1);

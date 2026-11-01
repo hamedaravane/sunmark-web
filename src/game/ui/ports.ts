@@ -1,3 +1,4 @@
+import { icon } from '../../ui/icons';
 import type { MatchState } from './matchState';
 import { getOwnedPorts, getPortOwnerId, getPortTradeRatio } from '../core/ports';
 import type { Board, Port, TradeRatio } from '../core/types';
@@ -13,9 +14,7 @@ export function tradeRateLabel(ratio: TradeRatio): string {
 }
 
 export function portIcon(port: Port): string {
-    return port.resource === null
-        ? '<span class="port-exchange" aria-hidden="true">⇄</span>'
-        : resourceIcon(port.resource);
+    return port.resource === null ? icon('exchange', 26) : resourceIcon(port.resource);
 }
 
 export function ownedPortsMarkup(board: Board, playerId: string): string {
