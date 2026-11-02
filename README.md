@@ -105,7 +105,7 @@ Matches use the 25-card development deck, complete seven discard/move/theft reso
 
 ## Mobile game experience
 
-The real match uses standalone tappable dice in the ocean that carry the committed result into the header, one compact contextual dock with hammer/trade/deck tools and the current primary action, a shared resource hand, compact resource-cost construction cards, and a pinnable build goal compared against actual trade payments. Owned development cards show their effect and timing, with a private reveal after purchase. Score/title feedback follows confirmed game state. Pause → **صدا، حرکت و گفت‌وگو** offers optional synthesized sound, supported-device haptics, faster feedback and reduced motion; all start quiet and preserve the saved match. See [implementation and verification](docs/MOBILE_GAME_EXPERIENCE.md).
+The real match uses tappable dice in the decision deck that carry the committed result into the header, one compact contextual dock with hammer/trade/deck tools and the current primary action, a shared resource hand, compact resource-cost construction cards, and a pinnable build goal compared against actual trade payments. Owned development cards show their effect and timing, with a private reveal after purchase. Score/title feedback follows confirmed game state. Pause → **صدا، حرکت و گفت‌وگو** offers optional synthesized sound, supported-device haptics, faster feedback and reduced motion; all start quiet and preserve the saved match. See [implementation and verification](docs/MOBILE_GAME_EXPERIENCE.md).
 
 Actual-size before/after comparisons and the responsive layout decisions are documented in [the contextual dock redesign](docs/CONTEXTUAL_DOCK.md).
 

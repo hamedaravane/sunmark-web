@@ -2,16 +2,26 @@
 
 ## Composition
 
-Desktop play uses a bounded tabletop composition rather than enlarging the phone HUD. The ocean remains the setting; the land, public standings, and private decisions have separate regions.
+The founder’s November 2 sketch guides the composition: public standings above a
+central island, a separate right action rail, resources along the island’s bottom
+edge, and a character at the lower-left boundary. The composition is LTR for
+physical placement; each text/control region remains Persian RTL.
 
-- An 80-pixel player header spans the composition. The human identity, own score, latest public dice, and menu stay together on the right. Opponents get separate readable cards across the remaining width, with public scores and active-turn emphasis.
-- The island is centered in the remaining board region. Hex radius is capped at 66 CSS pixels, limiting land to approximately 572 × 528 pixels, plus the existing 40-pixel coastal clearance on each side. The camera and pointer projection use the same capped geometry. Neither zoom nor panning is required.
-- Pieces and number medallions receive a restrained 1.2× desktop detail scale (approximately 25/30-pixel settlement/city silhouettes and 18.5-pixel number labels in local play), so enlarging the terrain does not leave its important information looking miniature. Port geometry stays unchanged to preserve the coastal-clearance budget.
-- A 340-pixel command panel groups turn/round context, dice when needed, the human resource hand, contextual guidance, three tools, and one full-width primary decision. Resource cards use vertical icon/count/name stacks. Review and history are quiet secondary controls below the turn actions.
-- The composition has 24-pixel gutters and gaps, bounded at 1520 × 1040 pixels and centered within larger windows. Empty ocean provides breathing room instead of ever-larger terrain or UI.
-- Dialogs float in the center with bounded reading width, scrolling bodies, and fixed footers. Narration retains the original portrait artwork and its separate stage.
-
-The control panel uses a quiet inset surface; resource colors and action materials carry the accents. The gold primary decision is wider than the three tool seals, making confirmation or ending a turn visually distinct from opening a workspace. No new artwork, fonts, theme selector, or alternate rule behavior is introduced.
+- The 80px standings header spans the composition. Human identity, private own
+  score, public dice and menu remain grouped; other players expose public scores.
+- A 280px decision rail holds phase/turn context, dice, tools and one primary action.
+  It scrolls independently on shorter windows. The inventory is no longer buried
+  among the actions: five resource cards occupy their own 88px tray below the map.
+- A 180–240px character column sits to the left, with the complete existing rival
+  portrait resting on a visible base. The resource tray and pedestal paint after
+  the portrait so a cropped lower edge never floats in empty space.
+- The central board receives its own measured rectangle and retains 40px coastal
+  clearance. Radius stays capped at 66px; the smallest supported desktop gives
+  roughly 46px hexes, ordinary laptops about 55px, and larger screens reach the cap.
+  The existing 1.2× desktop piece/token detail scale remains unchanged.
+- Desktop starts at 1100×700, with a bounded 1520×1040 composition, 24px outer
+  gutters and 16px gaps. Portrait tablets retain the stacked island/deck/tray flow;
+  short landscape devices keep the scrolling right rail.
 
 ## Responsive boundaries
 
@@ -24,7 +34,7 @@ The control panel uses a quiet inset surface; resource colors and action materia
 | Landscape at least 1100 × 700                       | Desktop header, command panel, bounded island                | 66-pixel hex radius         |
 | Ultrawide / 4K                                      | Same bounded desktop composition                             | Same 66-pixel hex radius    |
 
-At 1100 × 700, the board region is 688 × 548 and fits approximately 507 × 468 pixels of land. At 1366 × 768, the board region is 954 × 616 and the land reaches its 572 × 528 limit. Larger screens preserve that land scale. Public and private information remain separate at every breakpoint.
+At 1100 × 700, the board region is 560 × 452 and fits approximately 403 × 372 pixels of land. At 1366 × 768, the board region is 795 × 520 and fits about 476 × 440 pixels of land. Larger screens reach and preserve the 572 × 528 land cap. Public and private information remain separate at every breakpoint.
 
 ## Interaction details
 
@@ -38,7 +48,7 @@ The online surface shares the desktop composition bounds, board-size cap, and in
 
 Node tests cover breakpoint boundaries, laptop-to-4K composition budgets, coastal clearance, coordinate round trips, fixed large-screen island scale, turn context, escaped names, human-only inventory, and preserving errors before a roll. Existing header, dock, display-density, and online unit tests remain part of focused verification.
 
-These checks do not render a browser or validate appearance. Following AGENTS.md, interactive/device review and production builds remain with the user. Review the following in an actual game:
+These checks do not render a browser or validate appearance. Following AGENTS.md, interactive/device review remains with the user; the agent runs the reported Node checks and production build. Review the following in an actual game:
 
 - At 1366 × 768 and 1920 × 1080: header labels, all five resource counts, selected tools, confirmation and End Turn hierarchy, and the complete island/ports.
 - While resizing across 1100 × 700: semantic hit regions, keyboard focus, selected placement, and returning from a modal.

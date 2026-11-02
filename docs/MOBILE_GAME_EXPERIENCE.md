@@ -48,3 +48,14 @@ Opponent inventories and card faces never enter the private-hand markup or publi
 TypeScript, scoped ESLint/Prettier and the Node Vitest suite verify the implementation. Regression coverage includes one-roll/rapid-tap guarding, core production, seven gating and reload, pre-roll Knight recovery, declaration priority, repeated private purchases, card timing/privacy, pinned-goal save compatibility, payment-created shortages, real preview/confirmation/score changes, preference storage failures, measured dice geometry, cancellation and reduced/quick feedback. Existing rule/session suites cover theft, free roads, bot turns, title transfers and pending-trade recovery.
 
 The later [contextual dock redesign](CONTEXTUAL_DOCK.md) includes the requested headless browser comparison and interaction checks. Physical device testing, production builds and CI remain with the user under `AGENTS.md`. Node checks cannot establish rendered visual quality, native-dialog behavior, touch comfort, audio latency, safe-area fit or phone frame pacing. Before release, review repeated full turns on 320–430 px phones and installed iOS/Android, a long development hand, large text/grayscale, reduced motion, an unsupported haptics device, and pause/reload during each required choice. Measure a representative lower-powered phone and ask returning players about comfort after full matches; no performance or usability result is claimed here.
+
+## Founder-sketch composition (2026-11-03)
+
+The current portrait layout puts resources at the bottom, a character/action deck
+above them and an unobstructed island above the contextual ribbon. Dice now use
+the decision deck rather than a separate ocean band. Full existing character
+portraits meet the foreground tray at their cropped lower edge. Small screens use
+an 84px deck, ordinary phones 152px and portrait tablets 204px. This supersedes the
+earlier ocean-dice composition described in historical review notes above. The
+layout is stable across turns; gameplay, mandatory choices and bot pacing are
+unchanged. Desktop follows [the founder’s sketch](DESKTOP_EXPERIENCE.md).

@@ -5,9 +5,10 @@ export const DESKTOP_LAYOUT = {
     maxWidth: 1520,
     maxHeight: 1040,
     gutter: 24,
-    gap: 24,
+    gap: 16,
     headerHeight: 80,
-    controlsWidth: 340,
+    controlsWidth: 280,
+    handHeight: 88,
     maxHexRadius: 66,
 } as const;
 
@@ -25,7 +26,30 @@ export function responsiveLayout(width: number, height: number) {
     const contentHeight = desktop
         ? Math.min(DESKTOP_LAYOUT.maxHeight, height - DESKTOP_LAYOUT.gutter * 2)
         : height;
-    return { wide, desktop, controlsWidth, contentWidth, contentHeight };
+    const characterWidth = desktop
+        ? Math.min(240, Math.max(180, Math.round(contentWidth * 0.16)))
+        : 0;
+    const boardWidth = desktop
+        ? contentWidth - controlsWidth - characterWidth - DESKTOP_LAYOUT.gap * 2
+        : wide
+          ? width - controlsWidth
+          : width;
+    const boardHeight = desktop
+        ? contentHeight -
+          DESKTOP_LAYOUT.headerHeight -
+          DESKTOP_LAYOUT.handHeight -
+          DESKTOP_LAYOUT.gap * 2
+        : height;
+    return {
+        wide,
+        desktop,
+        controlsWidth,
+        contentWidth,
+        contentHeight,
+        characterWidth,
+        boardWidth,
+        boardHeight,
+    };
 }
 
 /** Keep CSS tracks and tested composition dimensions sourced from the same limits. */
@@ -35,6 +59,8 @@ export function responsiveProperties(layout: ReturnType<typeof responsiveLayout>
         '--play-width': `${layout.contentWidth}px`,
         '--play-height': `${layout.contentHeight}px`,
         '--play-gap': `${DESKTOP_LAYOUT.gap}px`,
+        '--character-width': `${layout.characterWidth}px`,
+        '--play-hand': `${DESKTOP_LAYOUT.handHeight}px`,
         '--play-header': `${DESKTOP_LAYOUT.headerHeight}px`,
     };
 }

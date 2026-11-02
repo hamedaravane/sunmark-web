@@ -31,6 +31,7 @@ interface PaintLayer {
 export class InterfaceScene extends Scene {
     private hud: PaintLayer;
     private panel: PaintLayer;
+    private inventory: PaintLayer;
     private controlsGroup: GameObjects.Container;
     private controlsMaskShape: GameObjects.Graphics;
     private controlsMask: Phaser.Display.Masks.GeometryMask | undefined;
@@ -110,6 +111,7 @@ export class InterfaceScene extends Scene {
             );
             this.controlsFilter.active = false;
         }
+        this.inventory = this.layer();
         this.theatre = this.layer();
         this.modal = this.layer();
         this.content = this.layer();
@@ -307,6 +309,7 @@ export class InterfaceScene extends Scene {
         this.origin = { x: origin.left, y: origin.top };
         for (const layer of [
             this.hud,
+            this.inventory,
             this.panel,
             this.roll,
             this.hints,
@@ -319,7 +322,23 @@ export class InterfaceScene extends Scene {
         const menu = this.parent.querySelector<HTMLElement>('.main-menu')!;
         const match = this.parent.querySelector<HTMLElement>('.match-screen')!;
         this.paintTree(this.session.state ? match : menu, this.hud);
-        const controls = match.querySelector<HTMLElement>('.match-controls')!;
+        const compactRail =
+            match.classList.contains('is-wide') && !match.classList.contains('is-desktop');
+        const controls = match.querySelector<HTMLElement>(
+            compactRail ? '.match-controls' : '.command-panel',
+        )!;
+        this.inventory.container.setVisible(!!this.session.state && !compactRail);
+        if (this.session.state && !compactRail) {
+            this.paintTree(match.querySelector<HTMLElement>('.bot-activity')!, this.hud);
+            this.paintTree(match.querySelector<HTMLElement>('.resource-hand')!, this.inventory);
+            const anchor = match.querySelector<HTMLElement>('.bot-activity .portrait-anchor');
+            if (anchor) this.paintTree(anchor, this.inventory);
+            if (!match.classList.contains('is-wide')) {
+                const nameplate = match.querySelector<HTMLElement>('.bot-activity-heading');
+                if (nameplate) this.paintTree(nameplate, this.inventory);
+            }
+            this.paintTree(match.querySelector<HTMLElement>('.bottom-space')!, this.inventory);
+        }
         this.panel.container.setVisible(!!this.session.state);
         const clipsControls =
             !!this.session.state &&
@@ -357,10 +376,7 @@ export class InterfaceScene extends Scene {
         if (this.session.state)
             this.paintTree(match.querySelector<HTMLElement>('.action-dock')!, this.dock);
         if (this.session.state && match.classList.contains('is-wide'))
-            this.scrollIndicator(
-                match.querySelector<HTMLElement>('.match-controls')!,
-                this.hud.graphics,
-            );
+            this.scrollIndicator(controls, this.hud.graphics);
         const actionPhase = this.session.state?.phase === 'actions';
         if (actionPhase && !this.hadActionPhase)
             this.dockOpenedAt = this.motion.reduced ? -Infinity : time;
@@ -425,6 +441,7 @@ export class InterfaceScene extends Scene {
         this.hadSheet = !!dialog;
         for (const layer of [
             this.hud,
+            this.inventory,
             this.panel,
             this.roll,
             this.hints,
@@ -483,6 +500,9 @@ export class InterfaceScene extends Scene {
                 element.hidden ||
                 element.classList.contains('sr-only') ||
                 element.classList.contains('board-canvas') ||
+                (element.classList.contains('bot-activity-heading') &&
+                    layer === this.hud &&
+                    !element.closest('.is-wide')) ||
                 (element.classList.contains('action-dock') && layer !== this.dock) ||
                 (element.classList.contains('board-roll') && layer !== this.roll) ||
                 (element.classList.contains('context-line') && layer !== this.hints) ||
@@ -491,6 +511,12 @@ export class InterfaceScene extends Scene {
                 return;
             const style = getComputedStyle(element);
             if (style.display === 'none') return;
+            if (style.display === 'contents') {
+                if (element.classList.contains('match-controls') && layer === this.hud) return;
+                for (const child of element.children)
+                    if (child instanceof HTMLElement) visit(child);
+                return;
+            }
             const box = this.box(element);
             if (box.width <= 0 || box.height <= 0) return;
             if (clip && (box.y + box.height < clip.y || box.y > clip.y + clip.height)) return;

@@ -43,12 +43,8 @@ test.each([
         const availableHeight = height - bottomInset;
         const layout = responsiveLayout(availableWidth, availableHeight);
         expect(layout.wide).toBe(true);
-        const boardWidth = layout.desktop
-            ? layout.contentWidth - layout.controlsWidth - DESKTOP_LAYOUT.gap
-            : availableWidth - layout.controlsWidth;
-        const boardHeight = layout.desktop
-            ? layout.contentHeight - DESKTOP_LAYOUT.headerHeight - DESKTOP_LAYOUT.gap
-            : availableHeight;
+        const boardWidth = layout.boardWidth;
+        const boardHeight = layout.boardHeight;
         const geometry = matchGeometry(boardWidth, boardHeight, layout.wide, layout.desktop);
         // The rail owns dice even on short landscape phones, so no land height is lost.
         expect(geometry.seaBand).toBe(0);
@@ -79,8 +75,8 @@ test('portrait tablets use their additional width for a larger board', () => {
     const phone = matchGeometry(390, 516);
     const tablet = matchGeometry(768, 702);
     expect(tablet.board.hexRadius).toBeGreaterThan(phone.board.hexRadius * 1.5);
-    expect(tablet.seaBand).toBe(104);
-    expect(tablet.diceOnLedge).toBe(false);
+    expect(tablet.seaBand).toBe(0);
+    expect(tablet.diceOnLedge).toBe(true);
 });
 
 test.each([
@@ -100,16 +96,16 @@ test.each([
         if (!desktop) return;
         expect(layout.contentWidth + DESKTOP_LAYOUT.gutter * 2).toBeLessThanOrEqual(width);
         expect(layout.contentHeight + DESKTOP_LAYOUT.gutter * 2).toBeLessThanOrEqual(height);
-        const boardWidth = layout.contentWidth - layout.controlsWidth - DESKTOP_LAYOUT.gap;
-        const boardHeight = layout.contentHeight - DESKTOP_LAYOUT.headerHeight - DESKTOP_LAYOUT.gap;
+        const boardWidth = layout.boardWidth;
+        const boardHeight = layout.boardHeight;
         const { board } = matchGeometry(boardWidth, boardHeight, true, true);
         // A laptop gets a readable island; a 4K screen never gets a giant one.
-        expect(board.hexRadius).toBeGreaterThanOrEqual(58);
+        expect(board.hexRadius).toBeGreaterThanOrEqual(46);
         expect(board.hexRadius).toBeLessThanOrEqual(66);
         expect(5 * Math.sqrt(3) * board.hexRadius + 80).toBeLessThanOrEqual(boardWidth);
         expect(8 * board.hexRadius + 80).toBeLessThanOrEqual(boardHeight);
         expect(responsiveProperties(layout)['--play-width']).toBe(`${layout.contentWidth}px`);
-        expect(layout.controlsWidth).toBe(340);
+        expect(layout.controlsWidth).toBe(280);
     },
 );
 
@@ -121,13 +117,34 @@ test('maximized and ultrawide desktops keep the same island scale and focus widt
     ].map(([w, h]) => responsiveLayout(w, h));
     const radii = layouts.map(
         (layout) =>
-            matchGeometry(
-                layout.contentWidth - layout.controlsWidth - DESKTOP_LAYOUT.gap,
-                layout.contentHeight - DESKTOP_LAYOUT.headerHeight - DESKTOP_LAYOUT.gap,
-                true,
-                true,
-            ).board.hexRadius,
+            matchGeometry(layout.boardWidth, layout.boardHeight, true, true).board.hexRadius,
     );
     expect(new Set(radii)).toEqual(new Set([66]));
     expect(new Set(layouts.map((layout) => layout.contentWidth))).toEqual(new Set([1520]));
 });
+
+test.each([
+    [1100, 700],
+    [1366, 768],
+    [1920, 1080],
+    [3840, 2160],
+])(
+    'sketch regions at %i × %i reserve the left portrait, central inventory and right decisions outside the island viewport',
+    (width, height) => {
+        const layout = responsiveLayout(width, height);
+        const gap = DESKTOP_LAYOUT.gap;
+        const mapLeft = layout.characterWidth + gap;
+        const actionLeft = mapLeft + layout.boardWidth + gap;
+        const mapTop = DESKTOP_LAYOUT.headerHeight + gap;
+        const trayTop = mapTop + layout.boardHeight + gap;
+        expect(actionLeft + layout.controlsWidth).toBe(layout.contentWidth);
+        expect(trayTop + DESKTOP_LAYOUT.handHeight).toBe(layout.contentHeight);
+        expect(mapLeft).toBeGreaterThan(layout.characterWidth);
+        expect(actionLeft).toBeGreaterThan(mapLeft + layout.boardWidth);
+        expect(layout.boardWidth).toBeGreaterThan(layout.controlsWidth);
+        expect(layout.boardHeight).toBeGreaterThan(400);
+        const props = responsiveProperties(layout);
+        expect(props['--character-width']).toBe(`${layout.characterWidth}px`);
+        expect(props['--play-hand']).toBe(`${DESKTOP_LAYOUT.handHeight}px`);
+    },
+);

@@ -38,3 +38,19 @@ Settlements, cities, and roads now use original top-down orthographic Phaser Gra
 Ahriman is represented by an original procedural winged shadow emblem, with a restrained pale rim and amber eyes; it is a fictional game design rather than a reconstructed historical depiction. Trade scales use the shared Fluent Emoji Flat icon in the dock and bank workspace. The previous terrain paintings, traveler and trade illustration remain preserved PNG masters outside runtime packaging. See [PROCEDURAL_BOARD_ART.md](PROCEDURAL_BOARD_ART.md) for the documented replacement issues, static size study, cache budget, and review limits.
 
 The user-supplied Mithra, Ashi and Spenta Armaiti illustrations are a specific character-art exception, like Anahita. Preserve their costumes, backgrounds, alpha and complete figures. The red-ponytail Ashi avatar matches the full illustration; her alternate brown-haired avatar remains a reference. These character portraits identify local offline rivals, while human/online functional identities retain the shared icon vocabulary. See [Offline characters](OFFLINE_CHARACTERS.md).
+
+## Character anchoring (founder's sketch, 2026-11-02)
+
+The supplied character illustrations end at a cropped lower edge. A portrait must
+meet a visible boundary: the viewport bottom, the top of the resource/dialogue
+tray, or the pedestal in a character card. Never center a bottom-cropped figure
+inside a padded card with empty space beneath it. Preserve its source frame and
+aspect ratio; do not invent a lower body, fade away the crop or replace the art.
+Circular avatar masks remain self-contained frames.
+
+Use the founder’s sketch as the match composition: on desktop, public standings
+above a central island, a separate right decision rail, resource cards beneath the
+island and a large rival at the lower-left boundary. On portrait screens, the rival
+sits behind the bottom resource tray, with actions beside it and the island above.
+Safe areas and shorter screens reduce portrait size before sacrificing the island.
+Passive activity art must never cover terrain, ports, or their input targets.

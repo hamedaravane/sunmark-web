@@ -3,7 +3,6 @@ import { characterForSeat } from './characters';
 import { artSprite, escape, number, button } from './components';
 import { getPlayerSummary, resolutionActor } from './matchState';
 import { turnReport } from './turnReport';
-import { botControls } from './characterMarkup';
 
 /** Public, confirmed local receipts only. The board owns its own unchanged viewport. */
 export function botActivity(session: MatchSession): string {
@@ -41,5 +40,5 @@ export function botActivity(session: MatchSession): string {
         steal: 'انتخاب حریف اهریمن',
         'road-building': 'ساخت راه رایگان',
     };
-    return `<div class="bot-activity-card" aria-label="فعالیت ${escape(actor.name)}">${artSprite(`${character.id}-portrait`, 72, 'bot-activity-portrait')}<div class="bot-activity-copy"><div class="bot-activity-heading"><strong>${escape(actor.name)}</strong><small>${number(getPlayerSummary(state, actor.id).score)} امتیاز عمومی</small></div>${button(escape(report?.headline ?? phase[state.phase] ?? 'نوبت رقیب'), 'open:turn-review', { className: 'button bot-activity-report', label: 'بازبینی آخرین حرکت و جزئیات عمومی', disabled: !report })}${botControls(session)}</div></div>`;
+    return `<div class="bot-activity-card" aria-label="فعالیت ${escape(actor.name)}">${artSprite(`${character.id}-portrait`, 72, 'bot-activity-portrait')}<div class="bot-activity-copy"><div class="bot-activity-heading"><strong>${escape(actor.name)}</strong><small>${number(getPlayerSummary(state, actor.id).score)} امتیاز عمومی</small></div>${button(escape(report?.headline ?? phase[state.phase] ?? 'نوبت رقیب'), 'open:turn-review', { className: 'button bot-activity-report', label: 'بازبینی آخرین حرکت و جزئیات عمومی', disabled: !report })}</div><span class="portrait-anchor" aria-hidden="true"></span></div>`;
 }

@@ -63,8 +63,8 @@ export class GameHud {
             <section class="match-screen" aria-label="صفحه بازی" hidden>
                 <header class="match-bar"></header>
                 <div class="match-controls">
-                    <header class="command-heading"></header><div class="board-roll"></div><div class="context-line"></div>
-                    <section class="bot-activity" aria-label="فعالیت رقیب"></section><section class="resource-hand" aria-label="منابع شما"></section><section class="action-dock" aria-label="کنترل‌های نوبت"></section>${desktopShortcuts()}<div class="bottom-space"></div>
+                    <section class="bot-activity" aria-label="فعالیت رقیب"></section><div class="command-panel"><header class="command-heading"></header><div class="board-roll"></div><div class="context-line"></div>
+                    <section class="action-dock" aria-label="کنترل‌های نوبت"></section>${desktopShortcuts()}</div><section class="resource-hand" aria-label="منابع شما"></section><div class="bottom-space"></div>
                 </div>
                 <div class="board-viewport"><div class="board-stage"><div class="board-canvas" aria-hidden="true"></div><p class="board-loading">در حال آماده‌سازی جزیره…</p></div></div>
             </section><div class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>`;
@@ -205,7 +205,7 @@ export class GameHud {
                 retry.disabled = online.busy;
                 status.append(retry);
             }
-            this.part('.match-controls').append(status);
+            this.part('.command-panel').append(status);
         }
         const activity = botActivity(this.session);
         this.part('.match-screen').classList.toggle('has-bot-activity', !!activity);

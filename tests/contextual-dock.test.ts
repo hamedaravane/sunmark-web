@@ -1,3 +1,4 @@
+import { botActivityLayout } from '../src/game/ui/botActivityLayout';
 import { expect, test } from 'vitest';
 import { ready, giveCard } from './helpers/development';
 import { GameSession } from '../src/game/ui/session';
@@ -102,9 +103,11 @@ test.each([
     [390, 844, 47, 34],
     [480, 900, 0, 20],
 ])(
-    'portrait %i preserves coastal clearance and a separate ocean action band',
+    'portrait %i keeps the island clear while dice and portraits use the lower deck',
     (width, height, top, bottom) => {
-        const chrome = width < 360 ? 112 + 48 + 60 + 84 + 6 : 124 + 48 + 66 + 84 + 6;
+        const deck = botActivityLayout(width, height, false, false).height;
+        const chrome =
+            width < 360 || height < 720 ? 112 + 48 + 60 + deck + 6 : 124 + 48 + 66 + deck + 6;
         const available = height - top - bottom - chrome;
         const { board, seaBand, dieSize, diceOnLedge } = matchGeometry(width, available);
         // Number medallions must remain distinct at the smallest supported portrait.

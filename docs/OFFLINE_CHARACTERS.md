@@ -54,15 +54,15 @@ scheduled deadline rather than restarting it. Pauses, mandatory human choices,
 modals, hidden pages and stale state still stop bot authority. Existing automatic
 story conversations retain their separate preference and manual continuation.
 
-A compact activity card replaces the normal bottom action dock during offline
-rival turns. It shows the complete supplied character portrait, public score and
-a confirmed action headline; tapping the receipt opens the existing detailed
-review. Portraits use a reserved dock slot (92/128px on short/ordinary phones,
-156px on portrait tablets) or the separate landscape control rail (180px;
-320px on desktop). They never overlay the board viewport. The human resource
-hand remains visible and pause/single-step controls remain available. Human
-mandatory choices and modals suppress the card. No hidden hands or future bot
-plans are exposed, no art is replaced, and appearance does not delay commands.
+The founder’s sketch replaces the padded activity card with an edge-anchored
+portrait. On desktop it occupies a dedicated left stage; the report sits above it
+and actions remain in the right rail. On phones/tablets the portrait is behind
+the bottom resource tray, while the existing context ribbon gives its confirmed
+action. Actions stay beside the portrait. Decks reserve 84px on short phones,
+152px on ordinary phones and 204px on portrait tablets, independent of turn.
+Landscape rail portraits and gallery portraits meet a visible pedestal. Art never
+overlays the island or ports, exposes private hands, or delays a command. Modals
+and mandatory human choices retain priority; all original artwork is preserved.
 
 Hypothesis: shorter bounded waits plus visible public actions improve comprehension
 without a slow procession of turns. Review offline progress/completion and return

@@ -1,0 +1,161 @@
+/* The sketch's three anchors: standings above, resources below, decisions to the side. */
+.command-panel {
+    display: contents;
+}
+.match-screen:not(.is-wide) {
+    --dock-height: var(--bot-activity-height, 152px);
+    --match-rows: var(--header-height) minmax(0, 1fr) var(--context-height) var(--dock-height)
+        var(--hand-height) 6px;
+    grid-template-areas: 'header' 'board' 'context' 'dock' 'hand' 'bottom';
+}
+.match-screen:not(.is-wide) .match-controls,
+.match-screen.is-desktop .match-controls {
+    display: contents;
+}
+.match-screen:not(.is-wide) .board-roll {
+    grid-area: dock;
+    position: static;
+    inset: auto;
+    width: auto;
+    align-self: start;
+    justify-self: center;
+    margin: 0;
+    padding-top: 4px;
+}
+.match-screen:not(.is-wide) .roll-object {
+    min-height: 92px;
+    min-width: 136px;
+    padding: 0 8px;
+    gap: 2px;
+}
+.match-screen:not(.is-wide).is-awaiting-roll .dock-roll-options {
+    padding-inline-start: 0;
+    justify-content: center;
+}
+.match-screen:not(.is-wide) .action-dock {
+    align-self: end;
+    min-height: 76px;
+    width: 100%;
+    padding-bottom: 8px;
+}
+.match-screen:not(.is-wide).is-awaiting-roll .action-dock {
+    min-height: 48px;
+    padding-top: 0;
+}
+.match-screen:not(.is-wide).is-awaiting-roll .dock-roll-options {
+    min-height: 44px;
+}
+.match-screen:not(.is-wide).is-awaiting-roll .dock-idle {
+    max-width: none;
+    margin: 0;
+}
+.match-screen:not(.is-wide).has-bot-activity .action-dock {
+    justify-self: start;
+    width: calc(100% - var(--bot-portrait-width, 100px) - 32px);
+    grid-template-columns: minmax(0, 1fr);
+    align-self: center;
+    gap: 8px;
+}
+.match-screen:not(.is-wide).has-bot-activity .dock-primary {
+    min-height: 48px;
+    flex-direction: row;
+    padding: 4px 8px;
+}
+.match-screen:not(.is-wide).has-bot-activity .bot-controls {
+    margin: 0;
+}
+.match-screen:not(.is-wide).has-bot-activity .bot-controls .button {
+    min-height: 48px;
+    padding: 4px;
+    font-size: 11px;
+}
+.match-screen.is-desktop .resource-hand {
+    grid-area: hand;
+    direction: rtl;
+    min-width: 0;
+}
+.match-screen.is-desktop .board-viewport {
+    direction: rtl;
+}
+.match-screen.is-wide:not(.is-desktop) .command-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    flex-shrink: 0;
+}
+.match-screen.is-wide:not(.is-desktop) .bot-activity {
+    order: 0;
+}
+.match-screen.is-wide:not(.is-desktop) .command-panel {
+    order: 1;
+}
+.match-screen.is-wide:not(.is-desktop) .resource-hand {
+    order: 2;
+}
+@media (max-height: 719px) and (orientation: portrait), (max-width: 359px) {
+    .match-screen:not(.is-wide) .roll-object {
+        min-height: 64px;
+        gap: 0;
+    }
+    .match-screen:not(.is-wide) .hero-dice .dice-face {
+        width: 40px;
+        height: 42px;
+    }
+    .match-screen:not(.is-wide) .roll-caption {
+        font-size: 11px;
+        line-height: 18px;
+    }
+    .match-screen:not(.is-wide) .action-dock {
+        padding-bottom: 4px;
+    }
+    .match-screen:not(.is-wide).is-awaiting-roll .action-dock {
+        min-height: 44px;
+    }
+}
+
+.match-screen.is-desktop .hand-caption {
+    display: none;
+}
+.match-screen.is-desktop .resource-hand {
+    padding: 6px 12px;
+}
+.match-screen.is-desktop .hand-resource {
+    padding: 4px 2px;
+    gap: 0;
+}
+.match-screen.is-desktop .hand-resource .resource-icon {
+    --icon-size: 24px;
+}
+.match-screen.is-desktop .resource-count {
+    font-size: 20px;
+    line-height: 24px;
+}
+.match-screen.is-desktop .resource-label {
+    font-size: 11px;
+    line-height: 16px;
+}
+.match-screen:not(.is-wide) .online-match-status {
+    grid-area: context;
+    z-index: 3;
+}
+
+@media (max-height: 719px) and (orientation: portrait), (max-width: 359px) {
+    .match-screen:not(.is-wide).is-awaiting-roll .board-roll {
+        justify-self: start;
+        align-self: center;
+        width: 136px;
+    }
+    .match-screen:not(.is-wide).is-awaiting-roll .action-dock {
+        justify-self: end;
+        align-self: center;
+        width: calc(100% - 136px);
+    }
+    .match-screen:not(.is-wide).has-bot-activity .action-dock {
+        grid-template-columns: minmax(0, 1fr) 64px;
+        gap: 6px;
+    }
+    .match-screen:not(.is-wide).has-bot-activity .dock-primary {
+        font-size: 11px;
+    }
+}

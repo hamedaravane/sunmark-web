@@ -90,7 +90,7 @@ export function drawComponent(
             quiet: true,
             radius: 9,
         });
-    } else if (has('match-controls') && el.closest('.is-desktop')) {
+    } else if (has('command-panel') && el.closest('.is-desktop')) {
         drawSurface(g, box, 'inset', { quiet: true, flat: true, radius: 24, accent: 0x527b8b });
     } else if (has('match-controls') && el.closest('.is-wide')) {
         const display = canvasDisplay(g.scene);
@@ -157,13 +157,12 @@ export function drawComponent(
             drawNameSelection(g, el, box);
         }
     } else if (has('resource-hand')) {
-        if (!el.closest('.is-desktop'))
-            drawSurface(g, { ...box, height: box.height + 14 }, 'inset', {
-                radius: 24,
-                quiet: true,
-                accent: 0x7e9dc6,
-                flat: true,
-            });
+        drawSurface(g, { ...box, height: box.height + 14 }, 'inset', {
+            radius: 24,
+            quiet: true,
+            accent: 0x7e9dc6,
+            flat: true,
+        });
     } else if (has('bottom-space')) {
         const display = canvasDisplay(g.scene);
         g.fillStyle(MATCH_INK.base).fillRect(
@@ -201,8 +200,11 @@ export function drawComponent(
                 1,
             );
         }
-    } else if (has('bot-activity-card')) {
-        drawSurface(g, box, 'lapis', { radius: 18, quiet: true, flat: true, accent: 0x759bb4 });
+    } else if (has('bot-activity-heading') && !el.closest('.is-wide')) {
+        drawSurface(g, box, 'honey', { radius: 8, flat: true, quiet: true });
+    } else if (has('portrait-anchor')) {
+        matchFace(g, box, MATCH_INK.base, undefined, 0);
+        g.lineStyle(2, UI_INK.gold, 0.7).lineBetween(box.x, box.y, box.x + box.width, box.y);
     } else if (has('bot-activity-report')) {
         if (pressed === el) drawSurface(g, box, 'inset', { radius: 8, pressed: true, flat: true });
     } else if (has('hub-player') || has('hub-stat')) {

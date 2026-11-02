@@ -12,13 +12,15 @@
     width: var(--play-width);
     height: var(--play-height);
     margin: calc((var(--app-height) - var(--play-height)) / 2) auto;
-    grid-template-columns: var(--controls-width) minmax(0, 1fr);
-    grid-template-rows: var(--play-header) minmax(0, 1fr);
-    grid-template-areas: 'header header' 'controls board';
+    grid-template-columns: var(--character-width) minmax(0, 1fr) var(--controls-width);
+    grid-template-rows: var(--play-header) minmax(0, 1fr) var(--play-hand);
+    grid-template-areas: 'header header header' 'character board controls' 'character hand controls';
+    direction: ltr;
     gap: var(--play-gap);
 }
 .is-desktop .match-bar {
-    grid-template-columns: var(--controls-width) minmax(0, 1fr);
+    grid-template-columns: 340px minmax(0, 1fr);
+    direction: rtl;
     grid-template-rows: minmax(0, 1fr);
     gap: var(--play-gap);
     padding: 8px 12px;
@@ -60,23 +62,24 @@
     display: inline;
     font-size: 11px;
 }
-.is-desktop .match-controls {
+.is-desktop .command-panel {
     grid-area: controls;
+    direction: rtl;
     align-self: center;
     display: flex;
     flex-direction: column;
     max-height: 100%;
-    padding: 20px;
+    padding: 16px;
     gap: 14px;
     overflow: auto;
     overscroll-behavior: contain;
     scrollbar-width: none;
     pointer-events: auto;
 }
-.is-desktop .match-controls::-webkit-scrollbar {
+.is-desktop .command-panel::-webkit-scrollbar {
     display: none;
 }
-.is-desktop .match-controls > * {
+.is-desktop .command-panel > * {
     flex-shrink: 0;
 }
 .is-desktop .command-heading {
@@ -110,7 +113,7 @@
 .is-desktop .resource-hand {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    padding: 0;
+    padding: 8px 12px;
     gap: 8px;
 }
 .is-desktop .hand-caption {
@@ -161,7 +164,7 @@
 .is-desktop .placement-guidance {
     flex-direction: column;
     align-items: flex-start;
-    padding: 0;
+    padding: 8px 12px;
     gap: 8px;
 }
 .is-desktop .placement-guidance .turn-receipt {

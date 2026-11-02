@@ -45,3 +45,14 @@ feedback. Current observations comprise only a handful of players; comparisons
 are descriptive and cannot establish causation. Guardrails: no invented history,
 no inferred gender, preserve opt-outs and match authority, no hidden-state payloads,
 no obstructed map, and user-led phone/tablet/desktop review before visual approval.
+
+## 2026-11-03: founder-sketch match composition
+
+Problem: cropped rivals floated in padded cards, and desktop resources competed
+with actions inside one rail. Hypothesis: a central map, distinct right decisions,
+bottom inventory and edge-anchored characters make turns easier to follow and the
+art feel integrated. Review offline progress/completion, return by build and direct
+phone/tablet/desktop feedback. No engagement improvement is established by this
+visual change. Guardrails: unchanged rules/pacing/authority, public-only opponent
+facts, no map/port occlusion, stable board geometry across turns, clear mandatory
+actions and preserved source art. No new analytics are collected.

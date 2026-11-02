@@ -9,6 +9,7 @@ import './styles/royal.css';
 import './styles/desktop.css';
 import './styles/player-hub.css';
 import './styles/bot-activity.css';
+import './styles/match-composition.css';
 import './ui/icons.css';
 
 const parent = document.querySelector<HTMLElement>('#game-container');
