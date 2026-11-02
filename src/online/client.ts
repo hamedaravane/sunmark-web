@@ -9,6 +9,8 @@ import {
     type MatchSnapshot,
 } from './shared/src/online/wire';
 import { onlineCommandSchema } from './shared/src/online/schemas';
+export type OnlineStep =
+    'opened' | 'searching' | 'room_created' | 'room_joined' | 'ready' | 'started';
 export type Intent = z.infer<typeof onlineCommandSchema>['intent'];
 class HttpError extends Error {
     constructor(
@@ -48,6 +50,10 @@ export class OnlineClient {
             uri: string,
             options: { withCredentials: boolean; autoConnect: boolean },
         ) => Socket = io,
+        private readonly flow: (
+            step: OnlineStep,
+            outcome: 'success' | 'failure',
+        ) => void = () => {},
     ) {}
     subscribe(listener: () => void) {
         this.listeners.add(listener);
@@ -142,7 +148,7 @@ export class OnlineClient {
             const snapshot = await this.http('/matches', name ? { name } : {});
             this.accept(snapshot);
             this.connect();
-        });
+        }, 'room_created');
     }
     async quickMatch(
         kind: 'join' | 'poll' | 'cancel' = 'join',
@@ -162,6 +168,7 @@ export class OnlineClient {
                 this.connect();
             }
         });
+        if (kind === 'join') this.flow('searching', this.error ? 'failure' : 'success');
         // Poll only while searching, including after a transient network failure.
         if (
             !this.disposed &&
@@ -176,19 +183,26 @@ export class OnlineClient {
         return this.run(async () => {
             this.accept(await this.http('/join', { code }));
             this.connect();
-        });
+        }, 'room_joined');
     }
     async open(id: string) {
         return this.run(async () => {
             this.matchId = id;
             this.accept(await this.http(`/matches/${encodeURIComponent(id)}`));
             this.connect();
-        });
+        }, 'room_joined');
     }
     async lobby(action: unknown) {
         if (!this.matchId) return;
-        return this.run(async () =>
-            this.accept(await this.http(`/matches/${this.matchId}/lobby`, action)),
+        return this.run(
+            async () => this.accept(await this.http(`/matches/${this.matchId}/lobby`, action)),
+            typeof action === 'object' && action !== null && 'kind' in action
+                ? action.kind === 'start'
+                    ? 'started'
+                    : action.kind === 'ready' && 'ready' in action && action.ready === true
+                      ? 'ready'
+                      : undefined
+                : undefined,
         );
     }
     async command(intent: Intent) {
@@ -235,14 +249,16 @@ export class OnlineClient {
             }
         });
     }
-    private async run(action: () => Promise<unknown>) {
+    private async run(action: () => Promise<unknown>, step?: OnlineStep) {
         if (this.busy || this.disposed) return;
         this.busy = true;
         this.error = '';
         this.emit();
         try {
             await action();
+            if (step) this.flow(step, 'success');
         } catch (error) {
+            if (step) this.flow(step, 'failure');
             if (error instanceof HttpError && error.status === 401) {
                 this.session = null;
                 this.snapshot = null;

@@ -167,6 +167,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/online/account/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["completePlayerProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/online/account/register": {
         parameters: {
             query?: never;
@@ -289,6 +305,54 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["rankedMatchmaking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/insights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAdminInsights"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateAdminUserProfile"];
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/profile-audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAdminProfileAudit"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2224,6 +2288,43 @@ export interface operations {
             };
         };
     };
+    completePlayerProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    gender: "male" | "female";
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        profile: {
+                            username: string;
+                            phone: string;
+                            name: string;
+                            age: number;
+                            /** @enum {string} */
+                            gender: "female" | "male" | "other" | "undisclosed";
+                            /** Format: uuid */
+                            id: string;
+                        };
+                    };
+                };
+            };
+        };
+    };
     registerPlayerAccount: {
         parameters: {
             query?: never;
@@ -2240,7 +2341,7 @@ export interface operations {
                     name: string;
                     age: number;
                     /** @enum {string} */
-                    gender: "female" | "male" | "other" | "undisclosed";
+                    gender: "female" | "male";
                 };
             };
         };
@@ -2857,6 +2958,225 @@ export interface operations {
             };
         };
     };
+    getAdminInsights: {
+        parameters: {
+            query?: {
+                days?: 7 | 30;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        days: number;
+                        /** Format: date-time */
+                        checkedAt: string;
+                        /** Format: date-time */
+                        from: string;
+                        excludedAdmins: number;
+                        accounts: {
+                            total: number;
+                            new: number;
+                            incompleteProfiles: number;
+                            eligibleForMeasurement: number;
+                            optedOut: number;
+                        };
+                        activity: {
+                            players: number;
+                            sessions: number;
+                            activeSeconds: number;
+                            medianActiveSeconds: number;
+                            repeatPlayers: number;
+                            rejectedActions: number;
+                            affectedPlayers: number;
+                        };
+                        daily: {
+                            date: string;
+                            registrations: number;
+                            players: number;
+                            sessions: number;
+                            activeSeconds: number;
+                            rejections: number;
+                        }[];
+                        journeys: {
+                            /** @enum {string} */
+                            mode: "offline" | "online" | "practice";
+                            entrants: number;
+                            runs: number;
+                            progressed: number;
+                            builders: number;
+                            traders: number;
+                            finishers: number;
+                        }[];
+                        online: {
+                            visitors: number;
+                            entrants: number;
+                            firstActors: number;
+                            stages: {
+                                step: string;
+                                players: number;
+                                failures: number;
+                            }[];
+                        };
+                        cohorts: {
+                            date: string;
+                            players: number;
+                            d1: number | null;
+                            d7: number | null;
+                        }[];
+                        genders: {
+                            male: number;
+                            female: number;
+                        };
+                        ages: {
+                            band: string;
+                            players: number;
+                        }[];
+                        builds: {
+                            build: string;
+                            players: number;
+                            events: number;
+                        }[];
+                    };
+                };
+            };
+            /** @description Authenticated account required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Administrator access required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateAdminUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    profile: {
+                        name: string;
+                        age: number;
+                        /** @enum {string} */
+                        gender: "male" | "female";
+                    };
+                    expected: {
+                        name: string;
+                        age: number;
+                        gender: string;
+                    };
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        profile: {
+                            name: string;
+                            age: number;
+                            /** @enum {string} */
+                            gender: "male" | "female";
+                        };
+                    };
+                };
+            };
+            /** @description Authenticated account required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Administrator access required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getAdminProfileAudit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        changes: {
+                            id: number;
+                            /** Format: date-time */
+                            at: string;
+                            /** Format: uuid */
+                            actorId: string | null;
+                            before: {
+                                name: string;
+                                age: number;
+                                gender: string;
+                            };
+                            after: {
+                                name: string;
+                                age: number;
+                                /** @enum {string} */
+                                gender: "male" | "female";
+                            };
+                        }[];
+                    };
+                };
+            };
+            /** @description Authenticated account required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Administrator access required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getAdminAnalytics: {
         parameters: {
             query?: never;
@@ -2896,7 +3216,7 @@ export interface operations {
                         }[];
                         eventsByName: {
                             /** @enum {string} */
-                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed";
+                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed" | "online_flow";
                             events: number;
                             players: number;
                         }[];
@@ -2954,7 +3274,7 @@ export interface operations {
                         lastSeen: string | null;
                         events: {
                             /** @enum {string} */
-                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed";
+                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed" | "online_flow";
                             build: string;
                             /** Format: date-time */
                             receivedAt: string;
@@ -2972,6 +3292,10 @@ export interface operations {
                                 connected?: boolean;
                                 /** Format: uuid */
                                 runId?: string;
+                                /** @enum {string} */
+                                onlineStep?: "opened" | "searching" | "room_created" | "room_joined" | "ready" | "started";
+                                /** @enum {string} */
+                                outcome?: "success" | "failure";
                             };
                         }[];
                     };
@@ -3044,6 +3368,8 @@ export interface operations {
             query?: {
                 limit?: number;
                 page?: number;
+                profile?: "all" | "incomplete";
+                gender?: "male" | "female";
                 /** @description Literal username, name or phone search (maximum 80 characters) */
                 q?: string;
             };
@@ -3172,7 +3498,7 @@ export interface operations {
                         /** Format: uuid */
                         sessionId: string;
                         /** @enum {string} */
-                        name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed";
+                        name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed" | "online_flow";
                         build: string;
                         data: {
                             /** @enum {string} */
@@ -3188,6 +3514,10 @@ export interface operations {
                             connected?: boolean;
                             /** Format: uuid */
                             runId?: string;
+                            /** @enum {string} */
+                            onlineStep?: "opened" | "searching" | "room_created" | "room_joined" | "ready" | "started";
+                            /** @enum {string} */
+                            outcome?: "success" | "failure";
                         };
                     }[];
                 };

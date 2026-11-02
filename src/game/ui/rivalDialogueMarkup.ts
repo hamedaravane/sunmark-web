@@ -20,7 +20,7 @@ export function rivalDialogueContent(session: MatchSession): SheetContent {
         },
         focusAction: 'rival-next',
         body: `<article class="narrator-dialogue" aria-label="گفت‌وگو با ${escape(name)}"><div class="narrator-copy"><p class="eyebrow">${escape(view.title)} · ${number(view.position)} از ${number(view.total)}</p><p>${escape(view.beat.text)}</p></div>${view.canReply ? `<p class="footnote">پاسخ تو (اختیاری)</p><div class="rival-replies">${button('چالش را می‌پذیرم', 'rival-reply:bold', { className: 'button' })}${button('از روشت بگو', 'rival-reply:curious', { className: 'button' })}</div>` : ''}</article>`,
-        footer: `${button(view.last ? 'برگردیم به جزیره' : 'ادامهٔ گفت‌وگو', 'rival-next', { className: 'button button--primary full-width' })}${button('خاموش‌کردن گفت‌وگوی رقبا', 'rival-mute', { className: 'button button--quiet full-width' })}<p class="footnote">بستن پنجره فقط این گفت‌وگو را رد می‌کند. گفت‌وگوهای گذشته و تنظیم رقبا در منوی بازی ← بررسی بازی ← هم‌نشینان جزیره‌اند.</p>`,
+        footer: `${button(view.last ? 'برگردیم به جزیره' : 'ادامهٔ گفت‌وگو', 'rival-next', { className: 'button button--primary full-width' })}`,
     };
 }
 

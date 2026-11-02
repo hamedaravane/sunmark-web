@@ -376,7 +376,7 @@ test('registered players quick-match automatically and recover their seat on ano
                     name: `هم‌سفر ${i}`,
                     phone: phones[i],
                     age: 25,
-                    gender: 'undisclosed',
+                    gender: 'female',
                     password: 'live test long password',
                 }),
             });
@@ -430,7 +430,7 @@ test('ranked clients recover their assigned seat and share an authoritative prog
                     name: `رقابت ${index}`,
                     phone: `+1555${String(Date.now()).slice(-8)}${index}`,
                     age: 25,
-                    gender: 'undisclosed',
+                    gender: 'female',
                     password: 'ranked live test passphrase',
                 }),
             });

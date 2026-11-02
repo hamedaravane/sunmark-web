@@ -14,7 +14,7 @@ For each meaningful product proposal, record:
    completed matches per observed player, return rate or successful reconnection.
 3. Supporting measures: active time, sessions, errors, tutorial usage and player feedback.
 4. Guardrails: match integrity, hidden information, performance, comprehension,
-   optional-analytics coverage and players' ability to pause/leave/resume.
+   measurement coverage and preserved opt-outs and players' ability to pause/leave/resume.
 5. The released build, observation period, sample size and decision to retain,
    revise or remove the change. Explain uncertainty; seven accounts cannot support
    strong general conclusions. Do not change fixed rules without their normal review.
@@ -32,3 +32,16 @@ trends, event/phase/build counts, D1/D7 cohorts and a recent per-account timelin
 Existing authoritative online match totals remain separate from client-reported
 entries/completions and practice. We have no historical behavior backfill, session
 replay, conversion experiment, advertising attribution or sentiment inference.
+
+## 2026-11-02: operator insight and responsive home
+
+Problem: raw counters mixed practice/full matches, immature return windows and
+administrator activity; the founder could not identify a useful next investigation.
+The desktop home was constrained to a mobile column. Hypothesis: explicit journeys,
+qualified return cohorts and targeted profile maintenance make decisions clearer;
+a two-column desktop hub makes mode selection easier. Measure observed entry to
+ordinary turns/completion and repeat play by build, alongside owner usability
+feedback. Current observations comprise only a handful of players; comparisons
+are descriptive and cannot establish causation. Guardrails: no invented history,
+no inferred gender, preserve opt-outs and match authority, no hidden-state payloads,
+no obstructed map, and user-led phone/tablet/desktop review before visual approval.

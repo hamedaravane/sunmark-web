@@ -3,6 +3,7 @@ const identitySchema = z.object({
     id: z.uuid(),
     name: z.string().min(1).max(24),
     username: z.string().min(3).max(24),
+    profileComplete: z.boolean().optional(),
 });
 export type PlayerIdentity = z.infer<typeof identitySchema>;
 const key = 'sunmark-player';
@@ -41,9 +42,17 @@ export async function restoreIdentity() {
         });
         if (!response.ok) return false;
         const value: unknown = await response.json();
-        const parsed = z.object({ profile: identitySchema }).safeParse(value);
+        const parsed = z
+            .object({ profile: identitySchema.extend({ gender: z.string() }) })
+            .safeParse(value);
         if (!parsed.success) return false;
-        saveIdentity(parsed.data.profile);
+        const profile = parsed.data.profile;
+        saveIdentity({
+            id: profile.id,
+            name: profile.name,
+            username: profile.username,
+            profileComplete: profile.gender === 'male' || profile.gender === 'female',
+        });
         return true;
     } catch {
         return false;

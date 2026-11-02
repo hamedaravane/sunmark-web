@@ -201,6 +201,10 @@ export function drawComponent(
                 1,
             );
         }
+    } else if (has('bot-activity-card')) {
+        drawSurface(g, box, 'lapis', { radius: 18, quiet: true, flat: true, accent: 0x759bb4 });
+    } else if (has('bot-activity-report')) {
+        if (pressed === el) drawSurface(g, box, 'inset', { radius: 8, pressed: true, flat: true });
     } else if (has('hub-player') || has('hub-stat')) {
         drawSurface(g, box, 'lapis', {
             radius: has('hub-player') ? 21 : 14,

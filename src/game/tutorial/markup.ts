@@ -19,7 +19,7 @@ export function tutorialContent(session: MatchSession): SheetContent {
             <div class="narrator-copy"><p class="eyebrow">${CHAPTERS[lesson.chapter]}</p><h3>${escape(lesson.title)}</h3><p>${escape(lesson.text)}</p></div>
             <p class="narrator-task">${escape(lesson.task)}</p>
         </article>${practice?.stage === 'complete' && profile && reward?.source === 'practice' ? rewardMarkup(reward, profile) + (session.progression ? storageNotice(session.progression) : '') : ''}`,
-        footer: `<div class="narrator-controls">${button(practice?.stage === 'complete' ? 'دیدن آبادی و امتیاز تازه' : director.remaining > 1 ? 'بعدش چی؟' : 'بریم سراغش', 'tutorial-next', { className: 'button button--primary' })}${button(practice ? 'خروج از تمرین' : 'خاموش‌کردن آناهیتا', 'tutorial-pause', { className: 'button button--quiet' })}</div><p class="footnote">${practice ? 'این تمرین ذخیره نمی‌شود؛ با خروج، بازی اصلی محفوظ می‌ماند.' : 'بستن پنجره، آناهیتا رو خاموش می‌کنه. برای روشن‌کردن: منوی بازی ← آموزش و آناهیتا.'}</p>`,
+        footer: `<div class="narrator-controls">${button(practice?.stage === 'complete' ? 'دیدن آبادی و امتیاز تازه' : director.remaining > 1 ? 'بعدش چی؟' : 'بریم سراغش', 'tutorial-next', { className: 'button button--primary' })}${practice ? button('خروج از تمرین', 'tutorial-pause', { className: 'button button--quiet' }) : ''}</div><p class="footnote">${practice ? 'این تمرین ذخیره نمی‌شود؛ با خروج، بازی اصلی محفوظ می‌ماند.' : ''}</p>`,
     };
 }
 

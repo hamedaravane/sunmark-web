@@ -106,7 +106,6 @@ export interface MatchEvent {
 
 /** One human controller and local bots; drafts never mutate authoritative state. */
 export class GameSession {
-    readonly preferences = new ExperiencePreferences();
     buildGoal: BuildType | null = null;
     readonly tutorial = new TutorialDirector();
     readonly rivals = new RivalDirector();
@@ -154,8 +153,17 @@ export class GameSession {
     constructor(
         private store?: MatchStore,
         readonly progression = new ProgressionStore(),
+        readonly preferences = new ExperiencePreferences(),
     ) {
         this.savedMatch = store?.read() ?? null;
+        if (this.savedMatch && !preferences.snapshot.anahitaChosen) {
+            preferences.set('anahita', this.savedMatch.tutorial.enabled);
+            preferences.set('anahitaChosen', true);
+        }
+        if (this.savedMatch?.rivals && !preferences.snapshot.rivalsChosen) {
+            preferences.set('rivals', this.savedMatch.rivals.enabled);
+            preferences.set('rivalsChosen', true);
+        }
         if (this.savedMatch && this.progression.status === 'empty') {
             const saved = this.savedMatch;
             const name = saved.state.players.find(
@@ -266,6 +274,9 @@ export class GameSession {
         );
         this.trading.restore(saved.trading);
         this.rivals.restore(saved.rivals);
+        this.rivals.setEnabled(this.preferences.snapshot.rivals);
+        if (!this.preferences.snapshot.anahita) this.tutorial.pause();
+        else if (this.preferences.snapshot.anahitaChosen) this.tutorial.enabled = true;
         this.rivalReturnSheet = null;
         this.buildGoal = saved.buildGoal ?? null;
         this.transition = null;
@@ -470,6 +481,8 @@ export class GameSession {
     }
     setRivalDialogue(enabled: boolean): void {
         if (!this.state || this.practice) return;
+        this.preferences.set('rivals', enabled);
+        this.preferences.set('rivalsChosen', true);
         this.rivals.setEnabled(enabled);
         if (!enabled && this.sheet?.kind === 'rival-dialogue') {
             this.sheet = this.rivalReturnSheet;
@@ -508,6 +521,8 @@ export class GameSession {
             if (!enabled) this.returnToMenu();
             return;
         }
+        this.preferences.set('anahita', enabled);
+        this.preferences.set('anahitaChosen', true);
         if (!enabled) {
             this.tutorial.pause();
             if (this.sheet?.kind === 'tutorial') {
@@ -555,8 +570,11 @@ export class GameSession {
         this.transition = null;
         this.error = null;
         this.tutorialReturnSheet = null;
-        this.tutorial.start(guided);
-        this.rivals.reset(introduce, introduce);
+        this.tutorial.start(guided && this.preferences.snapshot.anahita);
+        this.rivals.reset(
+            introduce && this.preferences.snapshot.rivals,
+            introduce && this.preferences.snapshot.rivals,
+        );
         this.rivalReturnSheet = null;
         this.record(FA.startNote);
         this.emit();
@@ -654,6 +672,14 @@ export class GameSession {
             !(this.sheet?.kind === 'introduction' && ['sound', 'haptics'].includes(key))
         )
             return;
+        if (key === 'anahita') {
+            this.setTutorialEnabled(!this.preferences.snapshot.anahita);
+            return;
+        }
+        if (key === 'rivals') {
+            this.setRivalDialogue(!this.preferences.snapshot.rivals);
+            return;
+        }
         this.preferences.set(key, !this.preferences.snapshot[key]);
         this.emit();
     }

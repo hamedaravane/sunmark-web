@@ -115,11 +115,11 @@ test('default pacing preserves the roll receipt; pause, single step, sheets and 
     let visible = true;
     const runner = new BotTurnRunner(session, () => visible);
     const before = session.state;
-    vi.advanceTimersByTime(1799);
+    vi.advanceTimersByTime(499);
     expect(session.state).toBe(before);
     vi.advanceTimersByTime(1);
     expect(session.transition?.action.kind).toBe('roll');
-    expect(botTurnDelay(session)).toBeGreaterThanOrEqual(3200);
+    expect(botTurnDelay(session)).toBeLessThanOrEqual(1200);
     for (const player of session.state!.players)
         for (const r of RESOURCE_TYPES) player.resources[r] = 0;
     session.setBotPaused(true);

@@ -8,6 +8,7 @@ import './styles/global.css';
 import './styles/royal.css';
 import './styles/desktop.css';
 import './styles/player-hub.css';
+import './styles/bot-activity.css';
 import './ui/icons.css';
 
 const parent = document.querySelector<HTMLElement>('#game-container');
@@ -21,12 +22,11 @@ void loadUiFont().then(async () => {
         const { startPiecesDemo } = await import('./game/demo/piecesDemo');
         startPiecesDemo(parent);
     } else {
-        if (
-            !playerIdentity() &&
-            import.meta.env.VITE_ONLINE_ENABLED !== 'false' &&
-            !(await restoreIdentity())
-        )
-            await showAccount(parent);
+        if (import.meta.env.VITE_ONLINE_ENABLED !== 'false') {
+            const restored = await restoreIdentity();
+            if (!playerIdentity() && !restored) await showAccount(parent);
+            else if (playerIdentity()?.profileComplete === false) await showAccount(parent);
+        }
         await configureAnalytics(parent);
         const offline = document.createElement('div');
         parent.append(offline);

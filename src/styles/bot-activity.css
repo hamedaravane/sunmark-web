@@ -1,0 +1,126 @@
+/* A reserved controls slot: portraits never cover the board, ports or hit areas. */
+.bot-activity:empty {
+    display: none;
+}
+.graphics-ui .bot-activity {
+    opacity: 0;
+}
+.bot-activity {
+    grid-area: dock;
+    min-width: 0;
+    pointer-events: auto;
+}
+.has-bot-activity:not(.is-wide) {
+    --dock-height: var(--bot-activity-height, 128px);
+}
+.has-bot-activity .action-dock {
+    display: none;
+}
+.bot-activity-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 6px 14px;
+    height: 100%;
+}
+.bot-activity-portrait {
+    width: var(--bot-portrait-width, 72px) !important;
+    height: calc(var(--bot-portrait-width, 72px) * 1.5) !important;
+    flex: 0 0 var(--bot-portrait-width, 72px);
+}
+.bot-activity-copy {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.bot-activity-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+}
+.bot-activity-heading strong {
+    font-size: 13px;
+    line-height: 22px;
+}
+.bot-activity-heading small {
+    font-size: 10px;
+    line-height: 18px;
+    color: #ffdf99;
+}
+.bot-activity-report {
+    text-align: start;
+    padding: 0;
+    min-height: 28px;
+    font-size: 11px;
+    line-height: 19px;
+}
+.bot-activity .bot-controls {
+    display: flex;
+    gap: 6px;
+    margin: 0;
+}
+.bot-activity .bot-controls .button {
+    flex: 1;
+    padding: 4px;
+    min-height: 44px;
+    font-size: 11px;
+    line-height: 18px;
+}
+.is-wide .bot-activity-card {
+    min-height: var(--bot-activity-height, 180px);
+    padding: 8px;
+}
+
+.is-desktop .bot-activity-card {
+    flex-direction: column;
+    min-height: var(--bot-activity-height, 320px);
+    gap: 8px;
+}
+.is-desktop .bot-activity-portrait {
+    flex-basis: auto;
+}
+.is-desktop .bot-activity-copy {
+    width: 100%;
+}
+.is-desktop .bot-activity-heading strong {
+    font-size: 16px;
+    line-height: 26px;
+}
+.is-desktop .bot-activity-report {
+    font-size: 13px;
+    line-height: 23px;
+}
+@media (min-width: 600px) and (orientation: portrait) {
+    .bot-activity-heading strong {
+        font-size: 16px;
+    }
+    .bot-activity-report {
+        font-size: 14px;
+        line-height: 24px;
+    }
+}
+@media (max-height: 719px) and (orientation: portrait) {
+    .bot-activity-card {
+        padding-block: 4px;
+        gap: 8px;
+    }
+    .bot-activity-heading small {
+        display: none;
+    }
+    .bot-activity-copy {
+        gap: 2px;
+    }
+    .bot-activity-heading strong {
+        font-size: 11px;
+        line-height: 18px;
+    }
+    .bot-activity-report {
+        min-height: 16px;
+        font-size: 10px;
+        line-height: 16px;
+    }
+}

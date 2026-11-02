@@ -1,4 +1,5 @@
-import { restoreIdentity } from '../account/identity';
+import { analytics } from '../analytics/browser';
+import { playerIdentity, restoreIdentity } from '../account/identity';
 import { showAccount } from '../account/account';
 import { refreshProgression } from '../account/progression';
 import { Game, AUTO, Scale } from 'phaser';
@@ -28,7 +29,10 @@ export function startOnline(
                 ? `${location.protocol}//${location.hostname}:3000`
                 : location.origin),
     ).replace(/\/$/, '');
-    const client = new OnlineClient(base, storage);
+    const client = new OnlineClient(base, storage, undefined, undefined, (onlineStep, outcome) =>
+        analytics.track('online_flow', { mode: 'online', onlineStep, outcome }),
+    );
+    analytics.track('online_flow', { mode: 'online', onlineStep: 'opened', outcome: 'success' });
     client.matchmakingMode = mode;
     let disposed = false;
     let accountOpen = false;
@@ -114,6 +118,9 @@ export function startOnline(
                     .then(async () => {
                         if (disposed) return;
                         if (await restoreIdentity()) {
+                            if (playerIdentity()?.profileComplete === false)
+                                await showAccount(root, false);
+                            if (disposed || playerIdentity()?.profileComplete !== true) return;
                             await client.initialize();
                             await refreshProgression();
                             if (mode === 'ranked' && !client.pending) client.back();
@@ -243,6 +250,8 @@ export function startOnline(
             });
             if (disposed || !response.ok) return;
             await restoreIdentity();
+            if (playerIdentity()?.profileComplete === false) await showAccount(root, false);
+            if (disposed || playerIdentity()?.profileComplete !== true) return;
             await client.initialize();
             await refreshProgression();
             if (mode === 'ranked' && !client.pending) client.back();

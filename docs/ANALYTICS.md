@@ -1,11 +1,11 @@
 # First-party player analytics
 
-Analytics is optional, attached to an authenticated registered account, and visible
-only through the existing authorized admin routes. An explicit native dialog
-explains collection before enabling it. Players can decline, continue without a
-decision, or change it through Account → Optional analytics and privacy. Declining
-does not affect play, progression, matchmaking or rewards. Guest/unregistered
-players and events before consent are not measured.
+Basic gameplay measurement is prospective and attached to authenticated registered
+accounts. It is on by default for new/previously undecided accounts, with a clear
+registration notice and Account → Basic analytics and privacy control. There is
+no automatic permission dialog. Existing explicit opt-outs remain off; disabling
+measurement never affects play, progression, matchmaking or rewards. Guests and
+activity before measurement began are not backfilled.
 
 ## Collection and boundaries
 
@@ -19,9 +19,9 @@ stay pending locally and are retried before collection resumes.
 
 Allowed events: app open; bounded active-time heartbeat; a fixed screen category;
 match entry/exit/completion; phase change; tutorial shown/closed/acknowledged;
-confirmed human action kind; generic action rejection; online connection change.
+confirmed human action kind; generic action rejection; online connection change; fixed online entry/search/room/ready/start milestones with success/failure.
 Context is a strict whitelist of mode, phase, action kind, screen category,
-numeric lesson index, temporary run ID, active milliseconds and connection boolean.
+numeric lesson index, temporary run ID, active milliseconds, connection boolean, fixed online step and outcome enums.
 The release SHA and a temporary analytics session UUID identify a version/session.
 
 Never collect passwords, recovery keys, cookies, tokens, typed text, raw errors,
@@ -50,8 +50,8 @@ retained events rather than stored forever. Encrypted operational backups follow
 their existing retention schedule; withdrawal is not a rewrite of past backups.
 
 Analytics failures stop measurement safely. Initial permission lookup has a
-four-second timeout; no permission or unavailable storage means no collection.
-Players can always continue without granting permission. The optional browser
+four-second timeout; an unavailable preference lookup means no collection.
+An explicit opt-out remains authoritative. The browser
 transport uses bounded timeouts and never exposes request data in error logs.
 
 ## Reading the admin dashboard
@@ -64,7 +64,7 @@ transport uses bounded timeouts and never exposes request data in error logs.
   profile, practice and match interaction may contribute. It is not precise play time.
 - Daily activity uses server receipt dates in UTC, not inferred client clocks.
 - D1/D7: return events on the first/seventh UTC calendar day after the account's
-  first opted-in observation. Eligible first-observation cohorts are within the
+  first observed activity. Eligible first-observation cohorts are within the
   last 30 days and have a fully elapsed return day. Show numerator/denominator;
   no eligible cohort means “not yet calculable,” never 0% or invented history.
 - Event-table player counts are independent reach measures, not an ordered funnel.
@@ -72,12 +72,12 @@ transport uses bounded timeouts and never exposes request data in error logs.
 - Match entries/completions are per client/device/run; they can include practice,
   resumes and multiple viewers of one online match. Do not equate them to unique
   server matches. The original online match totals/progression remain separate.
-- Coverage is the opted-in account count beside total registered accounts. Retention
+- Coverage is distinct observed accounts beside registered accounts, excluding administrators in the insights dashboard. Retention
   and time describe this observed sample, not every account or offline visitor.
 - Per-user timelines show only the latest 50 permitted raw events and never include
   private hands, arbitrary payloads or credentials. Lesson numbers are release-specific.
 
-The first useful review is after real opt-ins and repeated play. Document sample
+The first useful review is after repeated observed play. Document sample
 sizes, exclusions and uncertainty before changing product direction.
 
 ## Verification and operations
@@ -92,3 +92,21 @@ strict payloads, retries, concurrent opt-out, expiry and real UTC retention quer
 Frontend Node tests cover queue bounds, retries, identity reset, redacted/deduplicated
 observation and empty retention states. Normal release CI builds and exercises the
 actual version pair. Device/interactive testing remains the owner's responsibility.
+
+## Decision dashboard (2026-11-02)
+
+`GET /admin/insights?days=7|30` uses UTC calendar days including the incomplete
+current day; zero-filled growth/activity trends, median active time per observed
+account, distinct-account progress by offline/online/practice run, independent
+online milestone counts, mature return cohorts, rejection reach, age bands and
+recorded male/female profile totals. Configured administrator UUIDs are excluded
+from every insight, including cohorts and demographics. Directory results still
+include administrators with labels. An incomplete profile is a completion task,
+not a third gender option; no value is inferred from a name.
+
+Journeys only include runs with a match entry inside the selected window; resumed
+runs and missing uploads limit interpretation. Online stage counts are independent
+reach, not an ordered funnel or proof of failure cause. Practice finishes never
+count as ordinary match finishes. New milestones begin with the new client;
+previous events are not reconstructed. Charts show actual denominators and pending
+return days. No causal engagement improvement is claimed from this small sample.

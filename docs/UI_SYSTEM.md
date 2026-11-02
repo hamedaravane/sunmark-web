@@ -157,7 +157,7 @@ password-manager/autofill behavior, secure masked password entry and native mobi
 keyboards without adding credentials to canvas text objects. Form presentation
 lives in `account/markup.ts`; the controller owns submission and focus. Inputs are
 16px and touch targets at least 48px. A two-step registration groups introduction
-and account details, with an optional undisclosed gender and a one-time recovery
+and account details, with a required unselected male/female radio group and a one-time recovery
 key. Account profile fields never appear in public match UI. Match presentation
 continues to use the one shared Phaser runtime in both modes.
 
@@ -167,19 +167,39 @@ The hub paints synchronized account XP, coins, rank, badges and cosmetics throug
 
 ## Administration
 
-The operator's read-only user dashboard is a separate native HTML application at
+The operator's insight and profile-editing dashboard is a separate native HTML application at
 `/admin.html`, with its own Vite entry and no Phaser runtime or offline caching.
 It uses Persian RTL, Vazirmatn, lapis/turquoise/gold colors, responsive tables and
 native accessible forms/dialogs. Server authorization protects every data request;
 the ordinary game never receives administrative user lists. See [ADMIN.md](ADMIN.md).
 
-Optional analytics uses a native consent dialog and account privacy control, sharing
-the existing account form typography and materials. It records no text entered in
-those forms. The admin's analytics tables and timelines use the same native admin
-layout; empty cohorts and small samples are labeled explicitly. See [ANALYTICS.md](ANALYTICS.md).
+Basic gameplay measurement has an inline registration notice and account setting,
+without an automatic consent dialog. Existing explicit opt-outs persist. No text
+entered in account forms is collected as events. Native SVG charts, accessible
+daily tables, return heatmaps and per-user timelines share the admin layout;
+pending cohorts and limited sample sizes are explicit. See [ANALYTICS.md](ANALYTICS.md).
+
+At 900 CSS pixels and above, the player hub uses a bounded 1120px composition:
+account/progress/navigation in an RTL side column and larger 2×2 mode cards,
+character gallery and next challenge in the main column. Smaller widths keep the
+mode picker directly after the compact player card. Short windows scroll; controls
+remain native semantic nodes painted by Phaser.
 
 ## Offline character presentation
 
 The supplied Mithra, Ashi and Spenta Armaiti portraits replace generic local bot identity artwork. Their hub gallery, introduction, player details, contextual reactions and action reviews share the existing Graphics/Text and measured art pipeline. Character avatars override the generic robot icon only for local rivals. The offline dock includes pause, one-step and automatic-play controls; detailed public resource receipts survive in history. See [Offline characters](OFFLINE_CHARACTERS.md) for pacing, privacy, asset provenance and validation.
 
 Rivals now also open automatic multi-speaker conversations during offline play, using the large narrator stage and optional player replies. A separate saved story director gives mandatory choices, drafts and Anahita priority, bounds frequency and provides independent mute/replay in the character gallery. Avatar images are drawn from cached circular alpha cutouts inside their rims in both Canvas and WebGL. See [automatic conversations and clipping](OFFLINE_CHARACTERS.md#automatic-conversations-during-play).
+
+Conversation preferences are device-wide, independent of match saves. Pause →
+Sound, motion and conversation provides explicit Anahita/rival toggles. Existing
+saved choices migrate once; new matches respect them. Practice remains deliberate
+and can teach even when automatic Anahita guidance is muted. Repeated per-dialog
+mute questions have been removed.
+
+The offline bot activity card lives in the reserved bottom dock on portrait screens
+or the independent landscape control rail. Complete existing portraits scale from
+56px wide on short phones to 144px on desktop, with public score and confirmed
+receipts alongside. The resource hand remains visible and the board receives its
+actual remaining viewport; no character is painted over map cells or ports. Shared
+pure dimensions and Node geometry tests cover phone, tablet and desktop bounds.

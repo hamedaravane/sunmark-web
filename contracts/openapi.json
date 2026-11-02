@@ -9168,6 +9168,101 @@
         ]
       }
     },
+    "/api/v1/online/account/profile": {
+      "post": {
+        "operationId": "completePlayerProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "gender"
+                ],
+                "properties": {
+                  "gender": {
+                    "type": "string",
+                    "enum": [
+                      "male",
+                      "female"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "profile"
+                  ],
+                  "properties": {
+                    "profile": {
+                      "type": "object",
+                      "required": [
+                        "username",
+                        "phone",
+                        "name",
+                        "age",
+                        "gender",
+                        "id"
+                      ],
+                      "properties": {
+                        "username": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]{2,23}$"
+                        },
+                        "phone": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 24
+                        },
+                        "age": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 120
+                        },
+                        "gender": {
+                          "type": "string",
+                          "enum": [
+                            "female",
+                            "male",
+                            "other",
+                            "undisclosed"
+                          ]
+                        },
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "account"
+        ]
+      }
+    },
     "/api/v1/online/account/register": {
       "post": {
         "operationId": "registerPlayerAccount",
@@ -9213,9 +9308,7 @@
                     "type": "string",
                     "enum": [
                       "female",
-                      "male",
-                      "other",
-                      "undisclosed"
+                      "male"
                     ]
                   }
                 },
@@ -11885,6 +11978,701 @@
         ]
       }
     },
+    "/api/v1/admin/insights": {
+      "get": {
+        "operationId": "getAdminInsights",
+        "parameters": [
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                7,
+                30
+              ],
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "days",
+                    "checkedAt",
+                    "from",
+                    "excludedAdmins",
+                    "accounts",
+                    "activity",
+                    "daily",
+                    "journeys",
+                    "online",
+                    "cohorts",
+                    "genders",
+                    "ages",
+                    "builds"
+                  ],
+                  "properties": {
+                    "days": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "checkedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "from": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                    },
+                    "excludedAdmins": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "accounts": {
+                      "type": "object",
+                      "required": [
+                        "total",
+                        "new",
+                        "incompleteProfiles",
+                        "eligibleForMeasurement",
+                        "optedOut"
+                      ],
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "new": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "incompleteProfiles": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "eligibleForMeasurement": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "optedOut": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "activity": {
+                      "type": "object",
+                      "required": [
+                        "players",
+                        "sessions",
+                        "activeSeconds",
+                        "medianActiveSeconds",
+                        "repeatPlayers",
+                        "rejectedActions",
+                        "affectedPlayers"
+                      ],
+                      "properties": {
+                        "players": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "sessions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "activeSeconds": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "medianActiveSeconds": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "repeatPlayers": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "rejectedActions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "affectedPlayers": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "daily": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "date",
+                          "registrations",
+                          "players",
+                          "sessions",
+                          "activeSeconds",
+                          "rejections"
+                        ],
+                        "properties": {
+                          "date": {
+                            "type": "string"
+                          },
+                          "registrations": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "players": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "sessions": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "activeSeconds": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "rejections": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "journeys": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "mode",
+                          "entrants",
+                          "runs",
+                          "progressed",
+                          "builders",
+                          "traders",
+                          "finishers"
+                        ],
+                        "properties": {
+                          "mode": {
+                            "type": "string",
+                            "enum": [
+                              "offline",
+                              "online",
+                              "practice"
+                            ]
+                          },
+                          "entrants": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "runs": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "progressed": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "builders": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "traders": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "finishers": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "online": {
+                      "type": "object",
+                      "required": [
+                        "visitors",
+                        "entrants",
+                        "firstActors",
+                        "stages"
+                      ],
+                      "properties": {
+                        "visitors": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "entrants": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "firstActors": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "stages": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "step",
+                              "players",
+                              "failures"
+                            ],
+                            "properties": {
+                              "step": {
+                                "type": "string"
+                              },
+                              "players": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "failures": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "cohorts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "date",
+                          "players",
+                          "d1",
+                          "d7"
+                        ],
+                        "properties": {
+                          "date": {
+                            "type": "string"
+                          },
+                          "players": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "d1": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991,
+                            "nullable": true
+                          },
+                          "d7": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991,
+                            "nullable": true
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "genders": {
+                      "type": "object",
+                      "required": [
+                        "male",
+                        "female"
+                      ],
+                      "properties": {
+                        "male": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "female": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "ages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "band",
+                          "players"
+                        ],
+                        "properties": {
+                          "band": {
+                            "type": "string"
+                          },
+                          "players": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "builds": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "build",
+                          "players",
+                          "events"
+                        ],
+                        "properties": {
+                          "build": {
+                            "type": "string"
+                          },
+                          "players": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "events": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authenticated account required"
+          },
+          "403": {
+            "description": "Administrator access required"
+          }
+        },
+        "summary": "",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/profile": {
+      "patch": {
+        "operationId": "updateAdminUserProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "profile",
+                  "expected"
+                ],
+                "properties": {
+                  "profile": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "age",
+                      "gender"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "age": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 120
+                      },
+                      "gender": {
+                        "type": "string",
+                        "enum": [
+                          "male",
+                          "female"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "expected": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "age",
+                      "gender"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "age": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "gender": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "profile"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "profile": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "age",
+                        "gender"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 24
+                        },
+                        "age": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 120
+                        },
+                        "gender": {
+                          "type": "string",
+                          "enum": [
+                            "male",
+                            "female"
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authenticated account required"
+          },
+          "403": {
+            "description": "Administrator access required"
+          }
+        },
+        "summary": "",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}/profile-audit": {
+      "get": {
+        "operationId": "getAdminProfileAudit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "changes"
+                  ],
+                  "properties": {
+                    "changes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "at",
+                          "actorId",
+                          "before",
+                          "after"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          },
+                          "actorId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                            "nullable": true
+                          },
+                          "before": {
+                            "type": "object",
+                            "required": [
+                              "name",
+                              "age",
+                              "gender"
+                            ],
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "age": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "gender": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "after": {
+                            "type": "object",
+                            "required": [
+                              "name",
+                              "age",
+                              "gender"
+                            ],
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 24
+                              },
+                              "age": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 120
+                              },
+                              "gender": {
+                                "type": "string",
+                                "enum": [
+                                  "male",
+                                  "female"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authenticated account required"
+          },
+          "403": {
+            "description": "Administrator access required"
+          }
+        },
+        "summary": "",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/api/v1/admin/analytics": {
       "get": {
         "operationId": "getAdminAnalytics",
@@ -12044,7 +12832,8 @@
                               "tutorial_acknowledged",
                               "action_confirmed",
                               "action_rejected",
-                              "connection_changed"
+                              "connection_changed",
+                              "online_flow"
                             ]
                           },
                           "events": {
@@ -12200,7 +12989,8 @@
                               "tutorial_acknowledged",
                               "action_confirmed",
                               "action_rejected",
-                              "connection_changed"
+                              "connection_changed",
+                              "online_flow"
                             ]
                           },
                           "build": {
@@ -12286,6 +13076,24 @@
                                 "type": "string",
                                 "format": "uuid",
                                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "onlineStep": {
+                                "type": "string",
+                                "enum": [
+                                  "opened",
+                                  "searching",
+                                  "room_created",
+                                  "room_joined",
+                                  "ready",
+                                  "started"
+                                ]
+                              },
+                              "outcome": {
+                                "type": "string",
+                                "enum": [
+                                  "success",
+                                  "failure"
+                                ]
                               }
                             },
                             "additionalProperties": false
@@ -12425,6 +13233,30 @@
             "in": "query",
             "schema": {
               "type": "number"
+            }
+          },
+          {
+            "name": "profile",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "all",
+                "incomplete"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "gender",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "male",
+                "female"
+              ],
+              "type": "string"
             }
           },
           {
@@ -12720,7 +13552,8 @@
                             "tutorial_acknowledged",
                             "action_confirmed",
                             "action_rejected",
-                            "connection_changed"
+                            "connection_changed",
+                            "online_flow"
                           ]
                         },
                         "build": {
@@ -12802,6 +13635,24 @@
                               "type": "string",
                               "format": "uuid",
                               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "onlineStep": {
+                              "type": "string",
+                              "enum": [
+                                "opened",
+                                "searching",
+                                "room_created",
+                                "room_joined",
+                                "ready",
+                                "started"
+                              ]
+                            },
+                            "outcome": {
+                              "type": "string",
+                              "enum": [
+                                "success",
+                                "failure"
+                              ]
                             }
                           },
                           "additionalProperties": false

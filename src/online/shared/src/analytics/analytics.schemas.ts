@@ -13,6 +13,7 @@ export const eventNameSchema = z.enum([
   'action_confirmed',
   'action_rejected',
   'connection_changed',
+  'online_flow',
 ]);
 export const eventContextSchema = z.strictObject({
   mode: z.enum(['hub', 'offline', 'online', 'practice']).optional(),
@@ -63,6 +64,17 @@ export const eventContextSchema = z.strictObject({
   activeMs: z.number().int().min(0).max(30000).optional(),
   connected: z.boolean().optional(),
   runId: z.uuid().optional(),
+  onlineStep: z
+    .enum([
+      'opened',
+      'searching',
+      'room_created',
+      'room_joined',
+      'ready',
+      'started',
+    ])
+    .optional(),
+  outcome: z.enum(['success', 'failure']).optional(),
 });
 export const analyticsEventSchema = z
   .strictObject({
@@ -73,6 +85,26 @@ export const analyticsEventSchema = z
     data: eventContextSchema,
   })
   .superRefine((event, ctx) => {
+    if (
+      event.name === 'online_flow' &&
+      (!event.data.onlineStep ||
+        !event.data.outcome ||
+        event.data.mode !== 'online')
+    )
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Online flow requires online mode, step and outcome',
+        path: ['data'],
+      });
+    if (
+      event.name !== 'online_flow' &&
+      (event.data.onlineStep !== undefined || event.data.outcome !== undefined)
+    )
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Online step requires online flow',
+        path: ['data'],
+      });
     if (event.name !== 'heartbeat' && event.data.activeMs !== undefined)
       ctx.addIssue({
         code: 'custom',

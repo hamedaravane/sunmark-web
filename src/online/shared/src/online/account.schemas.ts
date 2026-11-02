@@ -23,7 +23,7 @@ export const registrationSchema = z.strictObject({
     .pipe(z.string().regex(/^\+[1-9][0-9]{7,14}$/)),
   name: z.string().trim().min(1).max(24),
   age: z.number().int().min(1).max(120),
-  gender: z.enum(['female', 'male', 'other', 'undisclosed']),
+  gender: z.enum(['female', 'male']),
 });
 export const loginSchema = z.strictObject({
   username: usernameSchema,
@@ -36,8 +36,15 @@ export const recoverySchema = z.strictObject({
 });
 export const profileSchema = registrationSchema
   .omit({ password: true })
-  .extend({ id: z.uuid() })
+  // Legacy values remain readable during installed-client/profile completion upgrades.
+  .extend({
+    id: z.uuid(),
+    gender: z.enum(['female', 'male', 'other', 'undisclosed']),
+  })
   .strip();
+export const completeProfileSchema = z.strictObject({
+  gender: z.enum(['male', 'female']),
+});
 export const accountResponseSchema = z.strictObject({ profile: profileSchema });
 export const registrationResponseSchema = accountResponseSchema.extend({
   recoveryCode: z.string(),

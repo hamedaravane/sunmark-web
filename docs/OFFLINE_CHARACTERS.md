@@ -5,7 +5,7 @@ provide little attachment to an offline match. The hypothesis is that recognizab
 rivals, distinct strategies and readable receipts help players understand and
 finish matches, then choose to return. Review offline match completion and repeat
 play by released build, alongside device feedback about comprehension and pacing.
-Use the existing optional analytics only; no new collection or consent is added.
+Use the existing bounded gameplay analytics only; no new event fields are added by character presentation.
 Longer sessions alone are not success. No player observations or engagement lift
 are claimed for this implementation.
 
@@ -46,12 +46,29 @@ with its action in the existing last-100-event history and survives resume.
 Private card draws, exact remaining opponent hands and stolen resource types are
 never exposed. Online projections do not enter the offline report generator.
 
-Bots wait 1.8 seconds after a handover, 2.8 seconds after an opening roll,
-3 seconds after construction, 3.4 seconds after trades, and 3.2–4.2 seconds after
-ordinary rolls (the longer interval covers production). Other events use
-2.8 seconds; a resumed bot turn starts after 1.6 seconds. The existing Quick
-preference reduces these intervals to 55%. Motion reduction leaves reading time
-intact. Animation completion never advances rules.
+Bots now wait 0.5 seconds after handover, 0.65 seconds for opening/other
+steps, 0.9 seconds after construction, 1 second after trades and 0.95–1.2 seconds
+after ordinary rolls. A resumed turn starts after 0.65 seconds. Quick feedback
+still reduces these delays to 55%. UI-only notifications preserve an already
+scheduled deadline rather than restarting it. Pauses, mandatory human choices,
+modals, hidden pages and stale state still stop bot authority. Existing automatic
+story conversations retain their separate preference and manual continuation.
+
+A compact activity card replaces the normal bottom action dock during offline
+rival turns. It shows the complete supplied character portrait, public score and
+a confirmed action headline; tapping the receipt opens the existing detailed
+review. Portraits use a reserved dock slot (92/128px on short/ordinary phones,
+156px on portrait tablets) or the separate landscape control rail (180px;
+320px on desktop). They never overlay the board viewport. The human resource
+hand remains visible and pause/single-step controls remain available. Human
+mandatory choices and modals suppress the card. No hidden hands or future bot
+plans are exposed, no art is replaced, and appearance does not delay commands.
+
+Hypothesis: shorter bounded waits plus visible public actions improve comprehension
+without a slow procession of turns. Review offline progress/completion and return
+by build alongside player feedback; active time alone cannot establish success.
+Focused Node tests cover deadline preservation, public activity content and reserved
+map geometry at phone/tablet/desktop sizes. Device appearance remains owner-tested.
 
 **مکث رقبا** pauses automatic bot work. **یک حرکت** advances one command or
 negotiation step and retains pause. **ادامهٔ خودکار** resumes. A pending bot

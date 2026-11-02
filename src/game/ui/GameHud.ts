@@ -1,3 +1,5 @@
+import { botActivityLayout } from './botActivityLayout';
+import { botActivity } from './botActivity';
 import { dialogueId } from '../narrative/dialogues.fa';
 import { DEVELOPMENT_LABELS, cardAvailability } from './developmentMarkup';
 import { heroDice, actionDock, turnStatus } from './turnMarkup';
@@ -62,7 +64,7 @@ export class GameHud {
                 <header class="match-bar"></header>
                 <div class="match-controls">
                     <header class="command-heading"></header><div class="board-roll"></div><div class="context-line"></div>
-                    <section class="resource-hand" aria-label="منابع شما"></section><section class="action-dock" aria-label="کنترل‌های نوبت"></section>${desktopShortcuts()}<div class="bottom-space"></div>
+                    <section class="bot-activity" aria-label="فعالیت رقیب"></section><section class="resource-hand" aria-label="منابع شما"></section><section class="action-dock" aria-label="کنترل‌های نوبت"></section>${desktopShortcuts()}<div class="bottom-space"></div>
                 </div>
                 <div class="board-viewport"><div class="board-stage"><div class="board-canvas" aria-hidden="true"></div><p class="board-loading">در حال آماده‌سازی جزیره…</p></div></div>
             </section><div class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>`;
@@ -86,6 +88,14 @@ export class GameHud {
                         entry.contentRect.height,
                     );
                     const match = this.part('.match-screen');
+                    const activity = botActivityLayout(
+                        entry.contentRect.width,
+                        entry.contentRect.height,
+                        layout.wide,
+                        layout.desktop,
+                    );
+                    match.style.setProperty('--bot-activity-height', `${activity.height}px`);
+                    match.style.setProperty('--bot-portrait-width', `${activity.portraitWidth}px`);
                     match.classList.toggle('is-wide', layout.wide);
                     match.classList.toggle('is-desktop', layout.desktop);
                     parent.classList.toggle('is-desktop', layout.desktop);
@@ -197,6 +207,9 @@ export class GameHud {
             }
             this.part('.match-controls').append(status);
         }
+        const activity = botActivity(this.session);
+        this.part('.match-screen').classList.toggle('has-bot-activity', !!activity);
+        this.updatePart('.bot-activity', activity);
         this.updatePart('.resource-hand', humanHand(this.session));
         this.part('.resource-hand').setAttribute('aria-label', `منابع ${human.name}`);
         this.updatePart('.action-dock', actionDock(this.session));

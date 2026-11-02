@@ -157,3 +157,27 @@
         padding-block: 5vh;
     }
 }
+
+.account-gender {
+    border: 1px solid #52627e;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 0;
+}
+.account-gender legend {
+    font-size: 13px;
+    padding-inline: 6px;
+}
+.account-gender label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    margin-inline-end: 20px;
+}
+.account-gender input[type='radio'] {
+    width: 18px;
+    height: 18px;
+    min-height: 18px;
+    accent-color: #66d6c8;
+}

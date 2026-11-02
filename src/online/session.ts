@@ -56,7 +56,9 @@ export class OnlineSession implements MatchSession {
         private exit: () => void,
     ) {
         this.trading = new OnlineTrading(client, () => this.emit());
-        this.tutorial.start(false);
+        this.tutorial.start(
+            this.preferences.snapshot.anahitaChosen && this.preferences.snapshot.anahita,
+        );
         this.refresh();
         this.unsubscribe = client.subscribe(() => this.refresh());
     }
@@ -326,6 +328,10 @@ export class OnlineSession implements MatchSession {
         this.emit();
     }
     setExperienceOption(key: ExperienceOption) {
+        if (key === 'anahita') {
+            this.setTutorialEnabled(!this.preferences.snapshot.anahita);
+            return;
+        }
         this.preferences.set(key, !this.preferences.snapshot[key]);
         this.emit();
     }
@@ -507,6 +513,8 @@ export class OnlineSession implements MatchSession {
         this.emit();
     }
     setTutorialEnabled(enabled: boolean) {
+        this.preferences.set('anahita', enabled);
+        this.preferences.set('anahitaChosen', true);
         if (!enabled) {
             this.tutorial.pause();
             if (this.sheet?.kind === 'tutorial') this.sheet = this.tutorialReturn;

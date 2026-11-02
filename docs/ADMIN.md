@@ -5,20 +5,36 @@ with an existing player account that has been explicitly authorized by the opera
 No separate admin password, registration form, or browser-stored access token exists.
 Signing out also ends that browser's game account session.
 
-The Persian, responsive panel provides registration totals, registrations in the
-last 24 hours and seven days, online game status totals, paginated search by name,
-username or phone, and user profile/progression details. Profile age, gender, name
-and phone are self-reported. Registration dates display in Tehran time. Stored
-game status does not establish current presence; offline players and visits are
-not tracked. Account progression and historical game counts can differ.
+The Persian RTL dashboard has a navigation rail, seven/thirty-day reporting,
+growth/activity chart, separate offline/online/practice journeys, online entry
+milestones, return cohort heatmap and concise observations for investigation.
+Every chart states its sample or limitation; immature retention is pending rather
+than zero. Profile fields are self-reported. Registration timestamps display in
+Tehran time; analytical daily boundaries are explicitly UTC. Configured admin
+accounts are excluded from insight charts, but remain labeled in the directory.
 
-The panel is read-only. It cannot edit users, change balances, delete data,
-view passwords/recovery credentials, or inspect private match hands. No CSV export
-or third-party analytics is installed.
+The directory searches literal name/username/phone and filters male/female or
+incomplete legacy profiles. A detail dialog shows server progression, recent
+permitted events and the latest twenty administrator edits. Only display name,
+age (1–120) and gender (male/female) can be edited. The server locks the account,
+compares the previous values, rejects concurrent changes with 409, and writes the
+edit and actor/time audit atomically. Audit entries expire after 180 days. No
+balances, usernames, phones, passwords, administrator privileges or private hands
+can be edited/read through these forms. No CSV export or external analytics exists.
+
+Legacy gender values remain readable during installed-client upgrades. They are
+never offered as choices or guessed from names. Players complete their own choice
+on next authenticated startup/login; administrators should only enter verified
+corrections. A name edit updates the account/session display name for future play;
+existing match snapshots and history retain their recorded names.
 
 ## Player insights
 
-The analytics section shows seven-day observed activity, daily counts, return cohorts, phase/build reach and the latest 50 permitted events in each user’s detail view. It measures only opted-in registered players from this release onward. It explicitly distinguishes these client observations from authoritative game totals. See [analytics definitions and privacy](ANALYTICS.md).
+Basic measurement defaults on prospectively, preserves existing opt-outs and
+provides an account control. See [definitions and retention](ANALYTICS.md).
+Client observations are separate from authoritative online progression. The UI
+stores no directory data in browser storage and clears private views on sign-out,
+authorization failure or page departure. Requests are abortable and time-limited.
 
 ## Access and deployment
 
@@ -45,7 +61,7 @@ API authorization protects the data even though the login page and bundle are pu
 
 Backend database tests cover anonymous/guest/non-admin denial, expired sessions,
 default-deny configuration, foreign origins, safe response fields, literal search
-and pagination. Frontend Node tests cover escaped profile rendering, authenticated
+pagination, protected edits, concurrent-change rejection, audit history, actual insights SQL and default measurement/opt-out behavior. Frontend Node tests cover escaped profile rendering, authenticated
 request policy, unauthorized responses and strict response validation. PWA build
 checks verify the admin entry stays out of precaching. Browser and device review
 remains the owner's interactive test.

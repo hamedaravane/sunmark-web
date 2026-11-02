@@ -405,3 +405,103 @@
     font-size: 11px;
     line-height: 20px;
 }
+
+.hub-sidebar,
+.hub-play {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+}
+@media (min-width: 900px) {
+    .menu-panel.player-hub-panel {
+        max-width: 1120px;
+        padding: 28px;
+    }
+    .player-hub {
+        display: grid;
+        grid-template-columns: minmax(250px, 310px) minmax(0, 1fr);
+        gap: 24px 28px;
+        align-items: start;
+        grid-template-rows: auto auto 1fr;
+    }
+    .hub-brand,
+    .player-hub > .hub-reward,
+    .player-hub > .hub-local-note,
+    .player-hub > .footnote,
+    .player-hub > .app-status {
+        grid-column: 1 / -1;
+    }
+    .player-hub > .hub-player {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .hub-sidebar {
+        grid-column: 1;
+        grid-row: 3;
+    }
+    .hub-play {
+        grid-column: 2;
+        grid-row: 2 / 4;
+        gap: 18px;
+    }
+    .hub-player-top {
+        flex-wrap: wrap;
+    }
+    .hub-identity {
+        flex-basis: 100%;
+    }
+    .hub-wallet {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    .hub-wallet > span:not(.hub-coin) {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+    .hub-modes {
+        gap: 16px;
+    }
+    .hub-mode {
+        min-height: 154px;
+        padding: 20px;
+        gap: 16px;
+    }
+    .hub-mode strong {
+        font-size: 18px;
+        line-height: 30px;
+    }
+    .hub-mode small {
+        font-size: 12px;
+        line-height: 23px;
+    }
+    .menu-panel .hub-section-heading h2 {
+        font-size: 23px;
+        line-height: 36px;
+    }
+    .hub-section-heading > span {
+        font-size: 13px;
+        line-height: 24px;
+    }
+    .hub-next {
+        padding: 16px;
+    }
+    .hub-next h3 {
+        font-size: 15px;
+        line-height: 26px;
+    }
+    .menu-panel .hub-brand h1 {
+        font-size: 34px;
+        line-height: 44px;
+    }
+}
+@media (min-width: 1400px) and (min-height: 850px) {
+    .hub-mode {
+        min-height: 182px;
+        padding: 24px;
+    }
+    .menu-panel.player-hub-panel {
+        padding: 36px;
+    }
+}

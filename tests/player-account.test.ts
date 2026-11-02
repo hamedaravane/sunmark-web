@@ -28,7 +28,10 @@ test('account onboarding separates a short introduction from credentials and esc
     );
     expect(second).not.toContain('<script>');
     expect(second).toContain('autocomplete="new-password"');
-    expect(second).toContain('value="undisclosed"');
+    expect(second).toContain('value="male"');
+    expect(second).toContain('value="female"');
+    expect(second).not.toContain('value="undisclosed"');
+    expect(second).not.toContain('value="other"');
     expect(accountMarkup('login', 1, {}, null, '', false)).toContain(
         'autocomplete="current-password"',
     );

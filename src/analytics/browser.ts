@@ -104,13 +104,13 @@ async function configureAnalyticsOnce(parent: HTMLElement, force = false): Promi
                 /* Optional preference storage. */
             }
         setEnabled(current === true);
-        if (!force && current !== null) return;
+        if (!force) return;
         await new Promise<void>((resolve) => {
             const dialog = document.createElement('dialog');
             dialog.className = 'account-dialog';
             dialog.dir = 'rtl';
-            dialog.setAttribute('aria-label', 'آمار اختیاری بازی');
-            dialog.innerHTML = `<section class="account-card"><p class="account-eyebrow">کمک به بهترشدن سان‌مارک</p><h1>آمار اختیاری بازی</h1><p class="account-description">اگر موافق باشی، زمان تقریبی بازی فعال، بازگشت به بازی، پیشرفت آموزش، مرحله‌ها و نوع اقدام‌ها برای بهبود بازی ثبت می‌شود. این آمار به حساب تو متصل است و فقط مدیر بازی آن را می‌بیند.</p><p class="account-note">رمز، کلید بازیابی، متن نوشته‌ها، موقعیت مکانی و دست‌های مخفی در این آمار ثبت نمی‌شوند. رویدادهای خام با دورهٔ ۹۰روزه پاک می‌شوند؛ زمان اولین و آخرین فعالیت تا خاموش‌کردن این گزینه می‌ماند. هر زمان از بخش حساب می‌توانی این گزینه را خاموش کنی؛ با خاموش‌کردن، رویدادهای ذخیره‌شدهٔ حساب پاک می‌شوند. بازی به این انتخاب وابسته نیست.</p><button class="account-primary" data-choice="yes">موافقم؛ کمک به بهبود بازی</button><button data-choice="no">ارسال نشود</button><button data-choice="later">فعلاً ادامه بازی</button><p class="account-error" role="alert"></p></section>`;
+            dialog.setAttribute('aria-label', 'آمار پایهٔ بازی');
+            dialog.innerHTML = `<section class="account-card"><p class="account-eyebrow">کمک به بهترشدن سان‌مارک</p><h1>آمار پایهٔ بازی</h1><p class="account-description">زمان تقریبی استفادهٔ فعال، بازگشت، پیشرفت آموزش و نوع اقدام‌ها برای بهترشدن بازی ثبت می‌شوند. این آمار به حساب تو متصل است و فقط مدیر بازی آن را می‌بیند.</p><p class="account-note">رمز، کلید بازیابی، متن نوشته‌ها، موقعیت مکانی و دست‌های مخفی در این آمار ثبت نمی‌شوند. رویدادهای خام با دورهٔ ۹۰روزه پاک می‌شوند؛ زمان اولین و آخرین فعالیت تا خاموش‌کردن این گزینه می‌ماند. هر زمان از بخش حساب می‌توانی این گزینه را خاموش کنی؛ با خاموش‌کردن، رویدادهای ذخیره‌شدهٔ حساب پاک می‌شوند. بازی به این انتخاب وابسته نیست.</p><button class="account-primary" data-choice="yes">روشن‌کردن آمار پایه</button><button data-choice="no">خاموش‌کردن و حذف رویدادها</button><button data-choice="later">بستن تنظیمات</button><p class="account-error" role="alert"></p></section>`;
             const close = () => {
                 dialog.close();
                 dialog.remove();

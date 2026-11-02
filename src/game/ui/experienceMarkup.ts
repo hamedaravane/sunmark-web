@@ -7,7 +7,7 @@ export function experienceSheet(session: MatchSession): SheetContent {
     const settings = session.preferences.snapshot;
     const haptics = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
     const toggle = (
-        key: 'sound' | 'quick' | 'reduced' | 'haptics',
+        key: 'sound' | 'quick' | 'reduced' | 'haptics' | 'anahita' | 'rivals',
         label: string,
         description: string,
         disabled = false,
@@ -22,9 +22,9 @@ export function experienceSheet(session: MatchSession): SheetContent {
             },
         );
     return {
-        title: 'صدا و حرکت',
+        title: 'صدا، حرکت و گفت‌وگو',
         key: 'experience-settings',
-        body: `${toggle('sound', 'صدای کارها', 'صدای کوتاه تاس، منبع و ساخت؛ بدون موسیقی تکراری')}${toggle('haptics', 'بازخورد لمسی', haptics ? 'لرزش کوتاه برای کارهای مهم' : 'این دستگاه پشتیبانی نمی‌کند', !haptics)}${toggle('quick', 'بازخورد سریع', 'همان نتیجه‌ها، با حرکت کوتاه‌تر برای نوبت‌های پی‌درپی')}${toggle('reduced', 'حرکت کمتر', 'بدون پرواز و چرخش؛ نتیجه و دارایی همیشه روشن می‌مانند')}<p class="footnote">تنظیم حرکت کمتر دستگاه هم رعایت می‌شود. هیچ حرکتی نتیجهٔ تاس یا زمان مجاز کارها را عوض نمی‌کند.</p>${button('راهنمای رابط بازی', 'open:experience-guide', { className: 'button button--quiet full-width' })}`,
+        body: `${toggle('anahita', 'گفت‌وگوهای آناهیتا', 'انتخابت روی این دستگاه برای بازی‌های بعد هم حفظ می‌شود')}${session.rivals ? toggle('rivals', 'گفت‌وگوهای خودکار رقبا', 'مستقل از آناهیتا؛ خاموش‌کردن، بازی و نوبت‌ها را تغییر نمی‌دهد') : ''}${toggle('sound', 'صدای کارها', 'صدای کوتاه تاس، منبع و ساخت؛ بدون موسیقی تکراری')}${toggle('haptics', 'بازخورد لمسی', haptics ? 'لرزش کوتاه برای کارهای مهم' : 'این دستگاه پشتیبانی نمی‌کند', !haptics)}${toggle('quick', 'بازخورد سریع', 'همان نتیجه‌ها، با حرکت کوتاه‌تر برای نوبت‌های پی‌درپی')}${toggle('reduced', 'حرکت کمتر', 'بدون پرواز و چرخش؛ نتیجه و دارایی همیشه روشن می‌مانند')}<p class="footnote">تنظیم حرکت کمتر دستگاه هم رعایت می‌شود. هیچ حرکتی نتیجهٔ تاس یا زمان مجاز کارها را عوض نمی‌کند.</p>${button('راهنمای رابط بازی', 'open:experience-guide', { className: 'button button--quiet full-width' })}`,
         footer: button('ادامه بازی', 'resume-game', {
             className: 'button button--primary full-width',
         }),

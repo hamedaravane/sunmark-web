@@ -105,7 +105,7 @@ Matches use the 25-card development deck, complete seven discard/move/theft reso
 
 ## Mobile game experience
 
-The real match uses standalone tappable dice in the ocean that carry the committed result into the header, one compact contextual dock with hammer/trade/deck tools and the current primary action, a shared resource hand, compact resource-cost construction cards, and a pinnable build goal compared against actual trade payments. Owned development cards show their effect and timing, with a private reveal after purchase. Score/title feedback follows confirmed game state. Pause → **صدا و حرکت** offers optional synthesized sound, supported-device haptics, faster feedback and reduced motion; all start quiet and preserve the saved match. See [implementation and verification](docs/MOBILE_GAME_EXPERIENCE.md).
+The real match uses standalone tappable dice in the ocean that carry the committed result into the header, one compact contextual dock with hammer/trade/deck tools and the current primary action, a shared resource hand, compact resource-cost construction cards, and a pinnable build goal compared against actual trade payments. Owned development cards show their effect and timing, with a private reveal after purchase. Score/title feedback follows confirmed game state. Pause → **صدا، حرکت و گفت‌وگو** offers optional synthesized sound, supported-device haptics, faster feedback and reduced motion; all start quiet and preserve the saved match. See [implementation and verification](docs/MOBILE_GAME_EXPERIENCE.md).
 
 Actual-size before/after comparisons and the responsive layout decisions are documented in [the contextual dock redesign](docs/CONTEXTUAL_DOCK.md).
 
@@ -117,8 +117,8 @@ Online play includes private four-seat rooms, guest sessions, host-selected bots
 
 ## Administration
 
-The protected, read-only [admin panel](https://sunmarkgame.top/admin.html) shows registered users and online game statistics. Access requires an explicitly authorized player account; ordinary accounts cannot read administrative data. See [admin setup and verification](docs/ADMIN.md).
+The protected [admin panel](https://sunmarkgame.top/admin.html) provides player journeys, activity/return charts, searchable profiles and audited name/age/gender editing. Access requires an explicitly authorized player account; ordinary accounts cannot read administrative data. See [admin setup and verification](docs/ADMIN.md).
 
 ## Product learning
 
-Sustained, voluntary player engagement and repeat play guide product decisions. The protected admin panel includes optional player analytics, active-time estimates, behavior trends and return cohorts. See [product strategy](docs/PRODUCT_STRATEGY.md) and [analytics permissions, metrics and retention](docs/ANALYTICS.md).
+Sustained, voluntary player engagement and repeat play guide product decisions. The protected admin panel includes basic player analytics with a persistent opt-out, active-time estimates, behavior trends and return cohorts. See [product strategy](docs/PRODUCT_STRATEGY.md) and [analytics permissions, metrics and retention](docs/ANALYTICS.md).

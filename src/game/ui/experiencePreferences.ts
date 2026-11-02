@@ -4,6 +4,10 @@ export const EXPERIENCE_DEFAULTS = {
     quick: false,
     reduced: false,
     introduced: false,
+    anahita: true,
+    rivals: true,
+    anahitaChosen: false,
+    rivalsChosen: false,
 };
 export type ExperienceOption = keyof typeof EXPERIENCE_DEFAULTS;
 type PreferenceStorage = Pick<Storage, 'getItem' | 'setItem'>;

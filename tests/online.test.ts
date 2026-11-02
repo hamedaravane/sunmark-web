@@ -422,3 +422,21 @@ it('expired online cookies return to sign-in without erasing saved seat recovery
     expect(onlineMarkup(client, newDrafts())).toContain('data-online="account"');
     client.destroy();
 });
+
+it('records only fixed online milestones and distinguishes rejected joins from confirmed entry', async () => {
+    const flow = vi.fn();
+    const request = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(json({ message: 'Not found' }, 404))
+        .mockResolvedValueOnce(json(snapshot()));
+    const client = new OnlineClient('http://localhost', null, request, noNetworkSocket, flow);
+    await client.join('12345');
+    expect(flow).toHaveBeenLastCalledWith('room_joined', 'failure');
+    await client.join('12345');
+    expect(flow).toHaveBeenLastCalledWith('room_joined', 'success');
+    expect(flow.mock.calls).toEqual([
+        ['room_joined', 'failure'],
+        ['room_joined', 'success'],
+    ]);
+    client.destroy();
+});

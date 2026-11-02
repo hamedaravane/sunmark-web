@@ -3,6 +3,7 @@ import {
     accountResponseSchema,
     registrationResponseSchema,
     registrationSchema,
+    completeProfileSchema,
 } from '../online/shared/src/online/account.schemas';
 import { accountMarkup, type AccountMode } from './markup';
 import { apiBase, playerIdentity, saveIdentity } from './identity';
@@ -19,7 +20,14 @@ export function showAccount(
         root.className = 'account-dialog';
         root.dir = 'rtl';
         parent.append(root);
-        let mode: AccountMode = playerIdentity() ? (signIn ? 'login' : 'profile') : 'register';
+        let mode: AccountMode =
+            playerIdentity()?.profileComplete === false
+                ? 'complete'
+                : playerIdentity()
+                  ? signIn
+                      ? 'login'
+                      : 'profile'
+                  : 'register';
         let step = 1,
             busy = false;
         let recovery = '';
@@ -86,16 +94,18 @@ export function showAccount(
                 return;
             }
             const data =
-                mode === 'register'
-                    ? registrationSchema.safeParse({
-                          ...values,
-                          age: Number(
-                              (values.age ?? '').replace(/[۰-۹٠-٩]/g, (c) =>
-                                  String(c.charCodeAt(0) - (c >= '۰' && c <= '۹' ? 1776 : 1632)),
-                              ),
-                          ),
-                      })
-                    : null;
+                mode === 'complete'
+                    ? completeProfileSchema.safeParse({ gender: values.gender })
+                    : mode === 'register'
+                      ? registrationSchema.safeParse({
+                            ...values,
+                            age: Number(
+                                (values.age ?? '').replace(/[۰-۹٠-٩]/g, (c) =>
+                                    String(c.charCodeAt(0) - (c >= '۰' && c <= '۹' ? 1776 : 1632)),
+                                ),
+                            ),
+                        })
+                      : null;
             if (data && !data.success) {
                 error(
                     'اطلاعات را بررسی کن؛ شماره همراه با کد کشور، سن ۱ تا ۱۲۰ و رمز حداقل ۱۰ نویسه باشد.',
@@ -107,7 +117,7 @@ export function showAccount(
             void (async () => {
                 try {
                     const result = await request(
-                        mode === 'register' ? 'register' : mode,
+                        mode === 'complete' ? 'profile' : mode === 'register' ? 'register' : mode,
                         data?.success
                             ? data.data
                             : {
@@ -119,17 +129,22 @@ export function showAccount(
                               },
                     );
                     const parsed =
-                        mode === 'login'
+                        mode === 'login' || mode === 'complete'
                             ? accountResponseSchema.parse(result)
                             : registrationResponseSchema.parse(result);
                     saveIdentity({
                         id: parsed.profile.id,
                         name: parsed.profile.name,
                         username: parsed.profile.username,
+                        profileComplete:
+                            parsed.profile.gender === 'male' || parsed.profile.gender === 'female',
                     });
                     for (const key of Object.keys(values)) delete values[key];
                     if ('recoveryCode' in parsed && typeof parsed.recoveryCode === 'string') {
                         recovery = parsed.recoveryCode;
+                        render();
+                    } else if (playerIdentity()?.profileComplete === false) {
+                        mode = 'complete';
                         render();
                     } else close();
                 } catch (e) {
@@ -150,7 +165,13 @@ export function showAccount(
                     ? event.target.closest<HTMLButtonElement>('[data-account]')?.dataset.account
                     : null;
             if (!action || busy) return;
-            if (action === 'done') close();
+            if (action === 'done') {
+                if (playerIdentity()?.profileComplete === false) {
+                    recovery = '';
+                    mode = 'complete';
+                    render();
+                } else close();
+            }
             if (action === 'analytics') {
                 void configureAnalytics(parent, true);
             }
@@ -194,7 +215,7 @@ export function showAccount(
         });
         root.addEventListener('cancel', (event) => {
             event.preventDefault();
-            if (!busy) close();
+            if (!busy && mode !== 'complete') close();
         });
         render();
         root.showModal();

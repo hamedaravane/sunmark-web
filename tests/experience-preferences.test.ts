@@ -49,3 +49,31 @@ test('corrupt or unavailable preference storage falls back and cannot prevent se
     copy.quick = false;
     expect(typed.snapshot.quick).toBe(true);
 });
+
+test('conversation choices persist into fresh sessions and do not disable deliberate practice', async () => {
+    const { GameSession } = await import('../src/game/ui/session');
+    const values = new Map<string, string>();
+    const storage = {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => {
+            values.set(key, value);
+        },
+    };
+    const first = new GameSession(undefined, undefined, new ExperiencePreferences(storage));
+    first.start(4, true, 'Player', true);
+    first.setTutorialEnabled(false);
+    first.setRivalDialogue(false);
+    const next = new GameSession(undefined, undefined, new ExperiencePreferences(storage));
+    next.start(4, true, 'Player', true);
+    expect(next.tutorial.enabled).toBe(false);
+    expect(next.rivals.enabled).toBe(false);
+    expect(next.preferences.snapshot).toMatchObject({
+        anahita: false,
+        rivals: false,
+        anahitaChosen: true,
+        rivalsChosen: true,
+    });
+    next.returnToMenu();
+    next.requestPlay(true);
+    expect(next.practice).toBeTruthy();
+});
