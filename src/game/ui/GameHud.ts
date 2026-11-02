@@ -419,6 +419,9 @@ export class GameHud {
             void applyUpdate(this.app, this.session);
         }
         if (action === 'tutorial-next') this.session.continueTutorial();
+        if (action === 'bot-pause' && !this.session.online)
+            this.session.setBotPaused?.(!this.session.botPaused);
+        if (action === 'bot-step' && !this.session.online) this.session.stepBot?.();
         if (action === 'tutorial-pause') this.session.setTutorialEnabled(false);
         if (action === 'tutorial-resume') this.session.setTutorialEnabled(true);
         if (action === 'lesson' && Object.prototype.hasOwnProperty.call(LESSONS, value))
@@ -437,6 +440,8 @@ export class GameHud {
                 'rules',
                 'review',
                 'history',
+                'turn-review',
+                'characters',
                 'targets',
                 'inspect',
                 'journal',
@@ -456,6 +461,8 @@ export class GameHud {
                     | 'rules'
                     | 'review'
                     | 'history'
+                    | 'turn-review'
+                    | 'characters'
                     | 'targets'
                     | 'inspect'
                     | 'journal'

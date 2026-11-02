@@ -48,7 +48,14 @@ test('stale or illegal target selections preserve the modal and the required rob
     session.chooseTargetFromSheet(original);
     expect(session.sheet).toEqual({ kind: 'targets' });
     expect(session.placement?.targetId).toBeNull();
-    const destination = session.targets[0];
+    const destination = session.targets.find((id) =>
+        session
+            .state!.board.tiles.find((tile) => tile.id === id)!
+            .vertexIds.every((vertexId) => {
+                const building = session.state!.board.vertices[vertexId].building;
+                return !building || building.ownerId === session.humanPlayer!.id;
+            }),
+    )!;
     session.chooseTargetFromSheet(destination);
     expect(session.state).toBe(before);
     expect(session.state!.board.tiles.find(({ robber }) => robber)!.id).toBe(original);

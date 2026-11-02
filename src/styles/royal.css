@@ -943,3 +943,102 @@
 .is-wide:not(.is-desktop) .bottom-space {
     height: 6px;
 }
+
+/* Offline spectators keep full touch targets inside the existing action ledge. */
+.bot-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    min-width: 0;
+}
+.bot-controls .button {
+    min-height: 48px;
+    padding: 6px;
+    font-size: 12px;
+    line-height: 20px;
+}
+.bot-receipt {
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    padding: 2px 8px;
+    line-height: 20px;
+}
+.bot-receipt > span,
+.bot-receipt > small {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.bot-receipt > small {
+    font-size: 11px;
+}
+.character-gallery {
+    display: grid;
+    gap: 14px;
+}
+.character-card,
+.character-dialogue {
+    margin: 0;
+    padding: 16px;
+}
+.character-dialogue + .character-dialogue {
+    margin-top: 12px;
+}
+.character-description p,
+.intro-greeting {
+    margin-block: 8px;
+    line-height: 1.9;
+}
+.intro-greeting {
+    font-size: 12px;
+}
+.turn-review-dice {
+    display: flex;
+    direction: ltr;
+    justify-content: center;
+    gap: 8px;
+}
+.turn-review-dice .dice-face {
+    width: 56px;
+    height: 58px;
+}
+.character-showcase {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.character-showcase .character-description {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+}
+.character-portrait {
+    flex-shrink: 0;
+}
+
+.hub-rivals {
+    display: flex;
+    flex-shrink: 0;
+    gap: 4px;
+}
+.hub-rivals .player-avatar {
+    width: 38px;
+    height: 38px;
+}
+.hub-characters > span:last-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    text-align: start;
+}
+.hub-characters small {
+    font-size: 11px;
+}
+@media (max-width: 359px) {
+    .character-showcase {
+        flex-direction: column;
+    }
+}

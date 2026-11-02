@@ -1,4 +1,4 @@
-"""Export full-resolution WebP runtime assets from preserved PNG masters.
+"""Export full-resolution WebP assets from PNG masters or preserve supplied WebP bytes.
 
 Requires Python 3 and Pillow >= 10.2 with WebP support. No network/API is used.
 """
@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import math
+import shutil
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageStat, features
@@ -92,17 +93,27 @@ def main():
     for asset in manifest["assets"]:
         if args.group and asset["group"] != args.group:
             continue
-        master = MASTERS / Path(asset["file"]).with_suffix(".png")
+        master = MASTERS / asset.get("source_file", str(Path(asset["file"]).with_suffix(".png")))
         output = RUNTIME / asset["file"]
         if hashlib.sha256(master.read_bytes()).hexdigest() != asset["source_sha256"]:
             raise ValueError(f"Master hash changed; review and update the manifest: {master}")
         with Image.open(master) as source:
             if source.mode not in ("RGB", "RGBA") or list(source.size) != asset["size"]:
                 raise ValueError(f"Unexpected master format/dimensions: {master}")
-            profile = "checked" if args.check else export(source, output, asset, manifest["minimum_psnr"])
+            if asset.get("preserve_encoded"):
+                if source.format != "WEBP":
+                    raise ValueError(f"Expected a supplied WebP master: {master}")
+                if not args.check:
+                    output.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(master, output)
+                if output.read_bytes() != master.read_bytes():
+                    raise ValueError(f"Supplied encoding changed: {output}")
+                profile = "supplied WebP; byte-identical"
+            else:
+                profile = "checked" if args.check else export(source, output, asset, manifest["minimum_psnr"])
             score = verify(source, output, asset, manifest["minimum_psnr"])
         before, after = master.stat().st_size, output.stat().st_size
-        if after >= before:
+        if not asset.get("preserve_encoded") and after >= before:
             raise ValueError(f"Export is not smaller than its master: {output}")
         before_total += before
         after_total += after
@@ -111,7 +122,7 @@ def main():
     if not args.group:
         # Retired paintings remain checked masters, never regenerated into public/.
         for asset in manifest.get("references", []):
-            master = MASTERS / Path(asset["file"]).with_suffix(".png")
+            master = MASTERS / asset.get("source_file", str(Path(asset["file"]).with_suffix(".png")))
             if hashlib.sha256(master.read_bytes()).hexdigest() != asset["source_sha256"]:
                 raise ValueError(f"Preserved master hash changed: {master}")
             with Image.open(master) as source:

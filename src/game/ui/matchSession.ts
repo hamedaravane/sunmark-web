@@ -7,8 +7,20 @@ import type { ProgressionStore } from '../progression/progression';
 /** Both authorities drive the same HUD, sheets, renderer and input vocabulary. */
 export type MatchSession = Omit<
     GameSession,
-    'state' | 'trading' | 'transition' | 'advanceBot' | 'botReady' | 'start' | 'progression'
+    | 'state'
+    | 'trading'
+    | 'transition'
+    | 'advanceBot'
+    | 'botReady'
+    | 'start'
+    | 'progression'
+    | 'botPaused'
+    | 'setBotPaused'
+    | 'stepBot'
 > & {
+    readonly botPaused?: boolean;
+    setBotPaused?(paused: boolean): void;
+    stepBot?(): void;
     readonly transition: PresentedTransition | null;
     readonly state: MatchState | null;
     readonly progression?: ProgressionStore;

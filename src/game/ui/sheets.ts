@@ -37,6 +37,7 @@ import { PLAYER_NAME_LIMIT } from './playerIdentity';
 import { onlineProgressionSheet, onlineRewardMarkup } from './onlineProgressionMarkup';
 import { onlineProgression } from '../../account/progression';
 import { progressionSheet, rewardMarkup, storageNotice } from './progressionMarkup';
+import { characterDescription, characterGallery, turnReviewContent } from './characterMarkup';
 
 export const PHASE_LABELS = {
     'setup-roll': 'تاس تعیین آغازکننده',
@@ -73,6 +74,7 @@ export function costRow(option: BuildOption): string {
 }
 
 export function sheetContent(session: MatchSession, updateReady = false): SheetContent {
+    if (session.sheet?.kind === 'characters') return characterGallery();
     const online = onlineProgressionSheet(session);
     if (online) return online;
     const progression = progressionSheet(session);
@@ -81,7 +83,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
         return {
             title: 'با چه اسمی وارد جزیره می‌شی؟',
             preserveInput: true,
-            body: `<p class="sheet-intro">تو در برابر سه ربات بازی می‌کنی. اسمت کنار آواتار و امتیازت دیده می‌شه.</p>
+            body: `<p class="sheet-intro">میترا، اَشی و سپنتا آرمیتی رقیبان هوش مصنوعی تو هستند. اسمت کنار آواتار و امتیازت دیده می‌شه.</p>
                 <label class="name-label" for="player-name">اسم تو</label>
                 <div class="name-entry"><input id="player-name" data-action="player-name" name="player-name" type="text" dir="auto" maxlength="${PLAYER_NAME_LIMIT}" value="${escape(session.playerNameDraft)}" placeholder="اسمت رو بنویس…" autocomplete="nickname" enterkeyhint="go" aria-describedby="name-hint"><span class="name-entry-value${session.playerNameDraft ? '' : ' is-empty'}" dir="auto" aria-hidden="true">${escape(session.playerNameDraft || 'اسمت رو بنویس…')}</span></div>
                 <p id="name-hint" class="footnote">تا ${number(PLAYER_NAME_LIMIT)} حرف؛ اگه خالی بذاری، «بازیکن» صدات می‌کنیم.</p>
@@ -99,6 +101,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
     if (advanced) return advanced;
     if (sheet.kind === 'help') return pauseMenuContent(session, updateReady);
     if (sheet.kind === 'review') return gameReviewContent(session);
+    if (sheet.kind === 'turn-review' && !session.online) return turnReviewContent(session);
     if (sheet.kind === 'domestic') return domesticContent(session);
     if (sheet.kind === 'tutorial') return tutorialContent(session);
     if (sheet.kind === 'journal') return journalContent(session);
@@ -232,7 +235,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
         const own = selected.id === player.id;
         return {
             title: selected.name,
-            body: `<div class="player-detail" style="--owner:${color(selected.color)}"><span class="owner-badge">${number(state.players.findIndex((p) => p.id === selected.id) + 1)}</span><p class="score-large">${number(summary.score)} <span>از ${number(state.victoryTarget)} امتیاز</span></p></div><dl class="detail-list"><div><dt>راه</dt><dd>${number(summary.roads)}</dd></div><div><dt>آبادی</dt><dd>${number(summary.settlements)}</dd></div><div><dt>شهر</dt><dd>${number(summary.cities)}</dd></div><div><dt>مجموع منابع</dt><dd>${number(summary.resources)}</dd></div>${own ? `<div><dt>امتیاز کارت‌های مخفی تو</dt><dd>${number((state.development?.hands[selected.id] ?? []).filter((c) => c.kind === 'victory-point').length)}</dd></div>` : ''}</dl>${scoreAwards(state, selected.id, player.id)}<h3>بندرهای در دسترس</h3>${ownedPortsMarkup(state.board, selected.id)}<p class="footnote">هر آبادی ۱ و هر شهر ۲ امتیاز دارد؛ عنوان‌های راه و ارتش هرکدام ۲ امتیاز می‌دهند. کارت‌های امتیازی حریف‌ها مخفی‌اند. راه‌ها به ۱۵ قطعه محدودند.</p>`,
+            body: `<div class="player-detail" style="--owner:${color(selected.color)}">${playerAvatar(matchAvatar(state, selected.id, player.id))}<p class="score-large">${number(summary.score)} <span>از ${number(state.victoryTarget)} امتیاز</span></p></div>${!session.online && !own ? characterDescription(matchAvatar(state, selected.id, player.id)) : ''}<dl class="detail-list"><div><dt>راه</dt><dd>${number(summary.roads)}</dd></div><div><dt>آبادی</dt><dd>${number(summary.settlements)}</dd></div><div><dt>شهر</dt><dd>${number(summary.cities)}</dd></div><div><dt>مجموع منابع</dt><dd>${number(summary.resources)}</dd></div>${own ? `<div><dt>امتیاز کارت‌های مخفی تو</dt><dd>${number((state.development?.hands[selected.id] ?? []).filter((c) => c.kind === 'victory-point').length)}</dd></div>` : ''}</dl>${scoreAwards(state, selected.id, player.id)}<h3>بندرهای در دسترس</h3>${ownedPortsMarkup(state.board, selected.id)}<p class="footnote">هر آبادی ۱ و هر شهر ۲ امتیاز دارد؛ عنوان‌های راه و ارتش هرکدام ۲ امتیاز می‌دهند. کارت‌های امتیازی حریف‌ها مخفی‌اند. راه‌ها به ۱۵ قطعه محدودند.</p>`,
             footer:
                 own && ['roll', 'actions'].includes(state.phase)
                     ? button('کارت‌های تو', 'open:development', {
@@ -266,7 +269,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
                 .map((p) => {
                     const summary = getPlayerSummary(state, p.id);
                     const avatar = matchAvatar(state, p.id, player.id);
-                    return `<article style="--owner:${color(p.color)}"><div class="rival-detail-heading">${playerAvatar(avatar)}<h3>${escape(p.name)} <span class="bot-label">${matchBot(state, p.id, player.id) ? 'ربات' : 'بازیکن'}</span>${state.players[state.activePlayerIndex].id === p.id && state.phase !== 'finished' ? ' • در حال بازی' : ''}</h3></div><p>${number(summary.score)} از ${number(state.victoryTarget)} امتیاز</p><p class="muted">${number(summary.settlements)} آبادی • ${number(summary.cities)} شهر • ${number(summary.roads)} راه</p></article>`;
+                    return `<article style="--owner:${color(p.color)}"><div class="rival-detail-heading">${playerAvatar(avatar)}<h3>${escape(p.name)} <span class="bot-label">${matchBot(state, p.id, player.id) ? 'ربات' : 'بازیکن'}</span>${state.players[state.activePlayerIndex].id === p.id && state.phase !== 'finished' ? ' • در حال بازی' : ''}</h3></div>${!session.online ? characterDescription(avatar) : ''}<p>${number(summary.score)} از ${number(state.victoryTarget)} امتیاز</p><p class="muted">${number(summary.settlements)} آبادی • ${number(summary.cities)} شهر • ${number(summary.roads)} راه</p></article>`;
                 })
                 .join('')}</div>`,
         };
@@ -279,7 +282,10 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
                 .reverse()
                 .map(
                     (event) =>
-                        `<li><span class="muted">دور ${number(event.turn)} • ${escape(event.player)}</span><p>${escape(event.text)}</p></li>`,
+                        `<li><span class="muted">دور ${number(event.turn)} • ${escape(event.player)}</span>${event.text
+                            .split('\n')
+                            .map((line) => `<p>${escape(line)}</p>`)
+                            .join('')}</li>`,
                 )
                 .join(
                     '',

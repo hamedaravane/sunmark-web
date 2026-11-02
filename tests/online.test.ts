@@ -1,3 +1,4 @@
+import { turnReport } from '../src/game/ui/turnReport';
 import { OnlineSession } from '../src/online/session';
 import { actionDock } from '../src/game/ui/turnMarkup';
 import { humanHeader, humanHand } from '../src/game/ui/humanHud';
@@ -211,7 +212,7 @@ describe('online frontend', () => {
         session.destroy();
         client.destroy();
     });
-    it('renders identical header, hand and dock from equivalent local and remote views', () => {
+    it('shares standings, hand and dock while keeping local portraits separate from server identities', () => {
         const local = new GameSession();
         local.start(4, false, 'A');
         const state = local.state!;
@@ -233,7 +234,23 @@ describe('online frontend', () => {
         const client = new OnlineClient('http://unused', null);
         client.snapshot = remote;
         const online = new OnlineSession(client, () => {});
-        expect(humanHeader(online)).toBe(humanHeader(local));
+        const withoutAvatarArt = (markup: string) =>
+            markup.replace(/ data-avatar="[^"]+"(?: data-art="[^"]+")?/g, '');
+        expect(withoutAvatarArt(humanHeader(online))).toBe(withoutAvatarArt(humanHeader(local)));
+        expect(humanHeader(online)).not.toContain('mithra-avatar');
+        expect(humanHeader(local)).toContain('mithra-avatar');
+        expect(
+            turnReport(
+                {
+                    id: 1,
+                    action: { kind: 'roll' },
+                    before: online.state!,
+                    after: online.state!,
+                    production: [],
+                },
+                online.humanPlayer!.id,
+            ),
+        ).toBeNull();
         expect(humanHand(online)).toBe(humanHand(local));
         expect(actionDock(online)).toBe(actionDock(local));
         online.destroy();

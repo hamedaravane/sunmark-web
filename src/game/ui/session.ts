@@ -41,7 +41,9 @@ import { TutorialDirector } from '../tutorial/director';
 import type { LessonId } from '../tutorial/lessons.fa';
 import type { MatchStore, SavedMatch } from '../persistence/matchStore';
 import { PlayerTrading } from './playerTrading';
-import { BOT_NAMES, playerName } from './playerIdentity';
+import { BOT_NAMES, LEGACY_BOT_NAMES, playerName } from './playerIdentity';
+import { characterForSeat } from './characters';
+import { turnReport } from './turnReport';
 import { ExperiencePreferences, type ExperienceOption } from './experiencePreferences';
 import { ProgressionStore, createProgressionId } from '../progression/progression';
 
@@ -58,6 +60,7 @@ export type Sheet =
               | 'steal'
               | 'domestic'
               | 'history'
+              | 'turn-review'
               | 'help'
               | 'rules'
               | 'review'
@@ -85,6 +88,7 @@ export type Sheet =
               | 'online-cosmetics'
               | 'referrals';
       }
+    | { kind: 'characters' }
     | { kind: 'new-match' | 'player-name'; count: 3 | 4; guided: boolean };
 export interface Placement {
     kind: BuildType | 'robber';
@@ -125,6 +129,7 @@ export class GameSession {
     private controlledPlayerId: string | null = null;
     private transitionId = 0;
     transition: MatchTransition | null = null;
+    botPaused = false;
     private listeners = new Set<() => void>();
     sheet: Sheet | null = null;
     placement: Placement | null = null;
@@ -226,6 +231,12 @@ export class GameSession {
         this.progressionMatchId = saved.progressionId ?? createProgressionId();
         this.gameState = saved.state;
         this.controlledPlayerId = saved.humanPlayerId ?? saved.state.players[0].id;
+        this.botPaused = false;
+        const humanSeat = this.gameState.players.findIndex((p) => p.id === this.controlledPlayerId);
+        this.gameState.players.forEach((p, seat) => {
+            if (seat !== humanSeat && LEGACY_BOT_NAMES.includes(p.name))
+                p.name = characterForSeat(seat, humanSeat)!.name;
+        });
         const identity = playerIdentity();
         const self = this.gameState.players.find((p) => p.id === this.controlledPlayerId);
         if (self && identity) self.name = identity.name;
@@ -423,6 +434,7 @@ export class GameSession {
     }
 
     start(count: 3 | 4, guided = true, name = 'بازیکن', introduce = false): void {
+        this.botPaused = false;
         this.progressionMatchId = createProgressionId();
         this.buildGoal = null;
         this.practice = null;
@@ -444,6 +456,7 @@ export class GameSession {
         this.emit();
     }
     returnToMenu(): void {
+        this.botPaused = false;
         this.save();
         this.buildGoal = null;
         this.practice = null;
@@ -474,6 +487,7 @@ export class GameSession {
                 'rules',
                 'review',
                 'history',
+                'turn-review',
                 'inspect',
                 'app',
                 'update',
@@ -833,8 +847,16 @@ export class GameSession {
             return;
         this.primary();
     }
-    advanceBot(expectedState: GameState = this.state!): void {
-        if (!this.botReady || this.state !== expectedState) return;
+    setBotPaused(paused: boolean): void {
+        if (!this.state || this.practice || this.state.phase === 'finished') return;
+        this.botPaused = paused;
+        this.emit();
+    }
+    stepBot(): void {
+        if (this.botPaused && !this.sheet && this.state) this.advanceBot(this.state, true);
+    }
+    advanceBot(expectedState: GameState = this.state!, manual = false): void {
+        if ((!manual && this.botPaused) || !this.botReady || this.state !== expectedState) return;
         const state = this.state!;
         if (this.trading.botStep()) return;
         if (
@@ -844,7 +866,9 @@ export class GameSession {
             this.trading.pitchHuman();
             return;
         }
-        const command = chooseBotCommand(state);
+        const humanSeat = state.players.findIndex((p) => p.id === this.humanPlayer!.id);
+        const actorSeat = state.players.findIndex((p) => p.id === resolutionActor(state));
+        const command = chooseBotCommand(state, characterForSeat(actorSeat, humanSeat)?.id);
         if (command && ['trade', 'end-turn'].includes(command.kind) && this.trading.initiateBot())
             return;
         if (!command) return;
@@ -952,6 +976,15 @@ export class GameSession {
             }
             const awards = awardChanges(before, result.state);
             if (awards) text += `؛ ${awards}`;
+            const report = !this.practice && turnReport(this.transition, this.humanPlayer!.id);
+            if (report)
+                text = [
+                    text,
+                    ...report.details,
+                    ...report.conversation
+                        .filter((line) => line.speaker !== 'آناهیتا' || this.tutorial.enabled)
+                        .map((line) => `${line.speaker}: «${line.text}»`),
+                ].join('\n');
             this.record(
                 text,
                 action.kind === 'discard'

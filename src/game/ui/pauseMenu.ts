@@ -52,6 +52,7 @@ export function gameReviewContent(session: MatchSession): SheetContent {
         key: 'game-review',
         body: `<div class="pause-menu">${session.online ? '<p class="footnote">بازی آنلاین در پس‌زمینه ادامه دارد؛ منو نوبت دیگران را متوقف نمی‌کند.</p>' : ''}
             ${menuOption('رویدادهای بازی', 'مرور تاس‌ها، ساخت‌وساز و معامله‌ها', 'open:history')}
+            ${!session.online && !session.practice ? menuOption('بازبینی آخرین حرکت', 'منابع، هزینه‌ها و گفت‌وگوی رقبا', 'open:turn-review') + menuOption('هم‌نشینان جزیره', 'شخصیت و شیوهٔ بازی سه رقیب', 'open:characters') : ''}
             ${menuOption('خانه‌های جزیره', 'فهرست زمین‌ها و تولید هر خانه', 'open:inspect')}
             ${menuOption('راهنمای رابط بازی', 'تاس لمسی، هزینه‌ها و دست کارت‌ها', 'open:experience-guide')}
             ${!session.practice ? `<section class="pause-section"><h3>شروع دوباره</h3>${menuOption('شروع بازی تازه', 'پس از تأیید، بازی فعلی جایگزین می‌شود', 'restart-match')}</section>` : ''}

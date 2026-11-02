@@ -114,6 +114,60 @@
         "divider": [385, 575, 485, 110],
         "rosette": [930, 480, 310, 310]
       }
+    },
+    {
+      "file": "characters/mithra/portrait.webp",
+      "source_file": "characters/mithra/portrait.webp",
+      "preserve_encoded": true,
+      "group": "opponents",
+      "size": [1024, 1536],
+      "source_sha256": "f88d828cfed2dbb746dd90589e946763a70d9f5f552f752e890faca2105eb5d0",
+      "frames": {}
+    },
+    {
+      "file": "characters/mithra/avatar.webp",
+      "source_file": "characters/mithra/avatar.webp",
+      "preserve_encoded": true,
+      "group": "opponents",
+      "size": [1254, 1254],
+      "source_sha256": "b9487a3da4d6f5772aacf8759065e48b6ccbb2a2d522e5ba7104e09d15a647ff",
+      "frames": {}
+    },
+    {
+      "file": "characters/ashi/portrait.webp",
+      "source_file": "characters/ashi/portrait.webp",
+      "preserve_encoded": true,
+      "group": "opponents",
+      "size": [1024, 1536],
+      "source_sha256": "a223cb1d59bd9fcd7c9a98ffdd2da7fea14c6136e72c53d303ef009b87f23d1b",
+      "frames": {}
+    },
+    {
+      "file": "characters/ashi/avatar.webp",
+      "source_file": "characters/ashi/avatar.webp",
+      "preserve_encoded": true,
+      "group": "opponents",
+      "size": [1254, 1254],
+      "source_sha256": "b643401155a62447cc05564749d517ccca238dddc9c4547e995639c6606daec4",
+      "frames": {}
+    },
+    {
+      "file": "characters/spenta-armaiti/portrait.webp",
+      "source_file": "characters/spenta-armaiti/portrait.webp",
+      "preserve_encoded": true,
+      "group": "opponents",
+      "size": [1122, 1402],
+      "source_sha256": "93466ce1fc4a6f576235f286eee8a777daf1ce0f1f10200d725771e3346befb6",
+      "frames": {}
+    },
+    {
+      "file": "characters/spenta-armaiti/avatar.webp",
+      "source_file": "characters/spenta-armaiti/avatar.webp",
+      "preserve_encoded": true,
+      "group": "opponents",
+      "size": [1254, 1254],
+      "source_sha256": "1a3c4ec68b29e78cfa183bf9b182f6aed84f33822d401447e37df9d79b304d94",
+      "frames": {}
     }
   ],
   "references": [
@@ -198,6 +252,15 @@
         "wool": [244, 608, 484, 392],
         "stone": [768, 584, 496, 420]
       }
+    },
+    {
+      "file": "characters/ashi/avatar-alternate.webp",
+      "source_file": "characters/ashi/avatar-alternate.webp",
+      "preserve_encoded": true,
+      "group": "opponents",
+      "size": [1254, 1254],
+      "source_sha256": "171ef30fce42e6b87df986d08464141caee0276f05069b83ef1f2a3ad6de59d2",
+      "frames": {}
     }
   ]
 }

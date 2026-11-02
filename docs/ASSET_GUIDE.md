@@ -8,6 +8,9 @@ Put files loaded by the browser under `public/assets/`. Keep the directory tree 
 public/assets/
   backgrounds/
   characters/anahita/
+  characters/mithra/
+  characters/ashi/
+  characters/spenta-armaiti/
   dice/
   effects/
   fonts/
@@ -135,8 +138,8 @@ Sunmark retains the existing gold sun-rosette/griffin victory emblem as its app 
 
 ## Player avatars
 
-Player identities use shared library human/robot icons within runtime
-ownership-colored seal rims. `ui/playerIdentity.ts` still owns names and seat
+Human and server bot identities use shared library icons within runtime
+ownership-colored seal rims. Local rivals use supplied portrait Images. `ui/playerIdentity.ts` still owns names and seat
 identity. Former original avatar drawing code is retained as historical source;
 it is not a runtime consumer. No manufacturer logos or per-color images are added.
 
@@ -149,3 +152,7 @@ consume that atlas, and it is included in offline preparation. The original
 rosette remains brand artwork; results use the collection trophy. Persian labels
 remain runtime text. Historical review captures are development artifacts, not
 current icon references. See [ICONOGRAPHY.md](ICONOGRAPHY.md).
+
+## Supplied offline rival portraits
+
+Six full-resolution WebP portraits/avatars live under `characters/{mithra,ashi,spenta-armaiti}/`, each with `avatar.webp` and `portrait.webp`. The seven supplied WebP originals, including the unused Ashi alternative, are preserved outside runtime packaging. Because these arrive already encoded, the manifest supports `source_file` and `preserve_encoded`: export/check copies and verifies identical bytes, dimensions, alpha and source hashes, without another lossy pass. The older PNG master workflow remains unchanged. Visible avatar/portrait placeholders load through the shared lazy portrait loader; missing optional images use a rosette and never block a match. See [Offline characters](OFFLINE_CHARACTERS.md) for the filename mapping and sizes.

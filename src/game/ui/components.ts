@@ -3,9 +3,10 @@ import { FA } from './messages.fa';
 import { ART, DICE_FACES, type ArtFrame, type ArtName } from '../assets';
 import type { AvatarId } from './playerIdentity';
 import { icon } from '../../ui/icons';
+import { characterById } from './characters';
 
 export function playerAvatar(avatar: AvatarId): string {
-    return `<span class="player-avatar" data-avatar="${avatar}" aria-hidden="true"></span>`;
+    return `<span class="player-avatar" data-avatar="${avatar}"${characterById(avatar) ? ` data-art="${avatar}-avatar"` : ''} aria-hidden="true"></span>`;
 }
 
 export const number = (value: number): string => value.toLocaleString('fa-IR');

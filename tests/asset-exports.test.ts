@@ -5,6 +5,8 @@ import { ART, DICE_FACES, TEXTURE_FILES } from '../src/game/assets';
 
 interface ExportedAsset {
     file: string;
+    source_file?: string;
+    preserve_encoded?: boolean;
     size: [number, number];
     source_sha256: string;
     frames: Record<string, [number, number, number, number]>;
@@ -13,7 +15,7 @@ const manifest = JSON.parse(
     readFileSync(new URL('../scripts/image-exports.json', import.meta.url), 'utf8'),
 ) as { assets: ExportedAsset[]; references: ExportedAsset[] };
 
-test('every runtime image is a smaller WebP backed by an unchanged full-resolution PNG master', () => {
+test('runtime images retain verified masters and preserve supplied WebP bytes', () => {
     const runtime = new URL('../public/assets/', import.meta.url);
     const files = readdirSync(runtime, { recursive: true, encoding: 'utf8' })
         .filter((file) => /\.(png|jpe?g|webp|avif)$/i.test(file))
@@ -22,13 +24,18 @@ test('every runtime image is a smaller WebP backed by an unchanged full-resoluti
     for (const asset of manifest.assets) {
         const output = readFileSync(new URL(asset.file, runtime));
         const master = readFileSync(
-            new URL(`../art/reference/${asset.file.replace(/\.webp$/, '.png')}`, import.meta.url),
+            new URL(
+                `../art/reference/${asset.source_file ?? asset.file.replace(/\.webp$/, '.png')}`,
+                import.meta.url,
+            ),
         );
         expect(output.subarray(0, 4).toString()).toBe('RIFF');
         expect(output.subarray(8, 12).toString()).toBe('WEBP');
-        expect(output.length).toBeLessThan(master.length);
+        if (asset.preserve_encoded) expect(output.equals(master)).toBe(true);
+        else expect(output.length).toBeLessThan(master.length);
         expect(createHash('sha256').update(master).digest('hex')).toBe(asset.source_sha256);
-        expect([master.readUInt32BE(16), master.readUInt32BE(20)]).toEqual(asset.size);
+        if (!asset.preserve_encoded)
+            expect([master.readUInt32BE(16), master.readUInt32BE(20)]).toEqual(asset.size);
     }
 });
 
@@ -45,13 +52,17 @@ test('loader textures and atlas crops agree with the verified full-resolution ex
 });
 
 test('retired terrain, robber, bank, token and resource paintings retain verified masters outside runtime packaging', () => {
-    expect(manifest.references).toHaveLength(10);
+    expect(manifest.references).toHaveLength(11);
     for (const asset of manifest.references) {
         const master = readFileSync(
-            new URL(`../art/reference/${asset.file.replace(/\.webp$/, '.png')}`, import.meta.url),
+            new URL(
+                `../art/reference/${asset.source_file ?? asset.file.replace(/\.webp$/, '.png')}`,
+                import.meta.url,
+            ),
         );
         expect(createHash('sha256').update(master).digest('hex')).toBe(asset.source_sha256);
-        expect([master.readUInt32BE(16), master.readUInt32BE(20)]).toEqual(asset.size);
+        if (!asset.preserve_encoded)
+            expect([master.readUInt32BE(16), master.readUInt32BE(20)]).toEqual(asset.size);
         expect(manifest.assets.some((runtime) => runtime.file === asset.file)).toBe(false);
     }
 });

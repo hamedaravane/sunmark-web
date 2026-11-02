@@ -12,6 +12,8 @@ import { goalMarkup, BUILD_LABELS, missingLabel } from './buildFeedback';
 import { costRow } from './sheets';
 import { transitionReceipt, turnSurface } from './turnSurface';
 import type { MatchSession } from './matchSession';
+import { botControls } from './characterMarkup';
+import { turnReport } from './turnReport';
 
 export function heroDice(session: MatchSession): string {
     const state = session.state!;
@@ -81,6 +83,21 @@ export function turnStatus(session: MatchSession, showReceipt = true): string {
     )
         return `<div class="placement-guidance"><p class="turn-receipt">${escape(text)}</p>${costRow(getBuildOption(state, session.placement.kind))}</div>`;
     if (!text && session.practice) text = PRACTICE_TASKS[session.practice.stage];
+    if (!text && !session.online && !session.isHumanTurn) {
+        const report = turnReport(session.transition, human.id);
+        if (report) {
+            const line = report.conversation[0];
+            const detail = line ? `${line.speaker}: ${line.text}` : report.details.join(' · ');
+            return button(
+                `<span>${session.botPaused ? 'مکث · ' : ''}${escape(report.headline)}</span><small>${escape(detail)} ‹</small>`,
+                'open:turn-review',
+                {
+                    className: 'button context-button bot-receipt',
+                    label: `${report.headline}؛ بازبینی جزئیات منابع و گفت‌وگو`,
+                },
+            );
+        }
+    }
     if (!text && session.saveStatus === 'unavailable')
         return button('ذخیره در دسترس نیست؛ جزئیات', 'open-app', {
             className: 'button context-button storage-warning',
@@ -157,6 +174,18 @@ export function actionDock(session: MatchSession): string {
     const surface = turnSurface(state, human.id, !!session.practice);
     const primary = primaryAction(session);
     const placement = session.placement;
+    const botActing = ['discard', 'robber', 'steal', 'road-building'].includes(state.phase)
+        ? resolutionActor(state) !== human.id
+        : !session.isHumanTurn;
+    if (
+        !session.online &&
+        !session.practice &&
+        botActing &&
+        !primary &&
+        !placement &&
+        state.phase !== 'finished'
+    )
+        return `${botControls(session)}${button('رویدادها', 'open:history', { className: 'button dock-primary' })}`;
     let tools: string;
     if (placement) {
         const required =

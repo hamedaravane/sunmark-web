@@ -95,7 +95,7 @@ test('public standings show ties, the acting bot, and four individually inspecta
     expect(new Set(rows.map((p) => p.avatar)).size).toBe(4);
     const header = humanHeader(session);
     const hand = humanHand(session);
-    expect(header).toContain('نوبت اطلس');
+    expect(header).toContain('نوبت میترا');
     expect(header.match(/، ربات؛/g)).toHaveLength(3);
     expect(header.match(/class="seat-chip/g)).toHaveLength(3);
     expect(header.match(/class="header-active/g)).toHaveLength(1);

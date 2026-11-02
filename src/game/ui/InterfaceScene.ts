@@ -435,20 +435,14 @@ export class InterfaceScene extends Scene {
             this.end(layer);
     }
     private loadNarrator(): void {
-        if (
-            this.narratorLoading ||
-            !(
-                this.session.tutorial.enabled ||
-                this.session.sheet?.kind === 'journal' ||
-                this.session.sheet?.kind === 'tutorial'
-            )
-        )
-            return;
+        if (this.narratorLoading) return;
         // Load visible art first, then warm only the next queued expression while the player reads.
-        const names = [...this.parent.querySelectorAll<HTMLElement>('[data-art^="anahita-"]')]
+        const names = [...this.parent.querySelectorAll<HTMLElement>('[data-art]')]
+            .filter((node) => node.getClientRects().length > 0)
             .map((node) => node.dataset.art as keyof typeof ART)
             .filter(
                 (name, index, all) =>
+                    name in ART &&
                     all.indexOf(name) === index &&
                     !this.textures.exists(`ui-${name}`) &&
                     !this.unavailablePortraits.has(name),
@@ -522,7 +516,7 @@ export class InterfaceScene extends Scene {
     private paintElement(el: HTMLElement, box: UiBox, layer: PaintLayer): void {
         drawComponent(layer.graphics, el, box, this.pressed);
         const has = (name: string) => el.classList.contains(name);
-        const name = elementIcon(el);
+        const name = el.dataset.art ? null : elementIcon(el);
         if (name) {
             if (iconNeedsPlate(name) && !has('player-avatar'))
                 layer.graphics
@@ -541,12 +535,12 @@ export class InterfaceScene extends Scene {
         }
         if (el.dataset.art) {
             const texture = `ui-${el.dataset.art}`;
-            if (el.dataset.art.startsWith('anahita-') && !this.textures.exists(texture))
+            if (!this.textures.exists(texture))
                 drawRosette(
                     layer.graphics,
                     box.x + box.width / 2,
                     box.y + box.height / 2,
-                    20,
+                    Math.min(20, box.width / 3),
                     UI_INK.gold,
                 );
             else this.paintImage(layer, el, texture, 'crop', box);

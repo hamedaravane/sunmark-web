@@ -70,6 +70,8 @@ test('review retains keyboard inspection and history; restarting a live match re
     const content = sheetContent(session);
     expect(actions(content.body)).toEqual([
         'open:history',
+        'open:turn-review',
+        'open:characters',
         'open:inspect',
         'open:experience-guide',
         'restart-match',

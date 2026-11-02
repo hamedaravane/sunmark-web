@@ -1,6 +1,7 @@
 import { icon } from '../../ui/icons';
 import type { SheetContent } from './bottomSheet';
 import { button, color, escape, number, playerAvatar } from './components';
+import { characterForSeat } from './characters';
 import { avatarForSeat } from './playerIdentity';
 import type { MatchSession } from './matchSession';
 
@@ -30,7 +31,7 @@ export function introductionContent(session: MatchSession, ready: boolean): Shee
                         seat,
                     ) => `<li class="intro-participant" style="--owner:${color(player.color)}">
                 ${playerAvatar(avatarForSeat(seat, humanSeat))}
-                <div><b dir="auto">${escape(player.name)}</b><small>${seat === humanSeat ? 'شما' : 'رقیب ربات'} • ${colorNames[player.color] ?? color(player.color)}</small></div>
+                <div><b dir="auto">${escape(player.name)}</b><small>${seat === humanSeat ? 'شما' : 'هوش مصنوعی'} • ${colorNames[player.color] ?? color(player.color)}</small>${characterForSeat(seat, humanSeat) ? `<small>${characterForSeat(seat, humanSeat)!.strategy}</small><p class="intro-greeting">«${characterForSeat(seat, humanSeat)!.greeting}»</p>` : ''}</div>
                 <span class="owner-badge" aria-label="رنگ بازیکن ${color(player.color)}"></span>
             </li>`,
                 )

@@ -9,7 +9,7 @@ export interface SheetContent {
     body: string;
     /** Persistent context painted outside the scrolling body mask. */
     context?: string;
-    narrator?: { portrait: ArtName; key: string };
+    narrator?: { portrait: ArtName; key: string; role?: string };
     footer?: string;
     key?: string;
     focusAction?: string;
@@ -91,7 +91,7 @@ export class BottomSheet {
         this.dialog.classList.toggle('narrator-sheet', !!portrait);
         this.dialog.dataset.portrait = portrait ?? '';
         this.dialog.dataset.narration = content.narrator?.key ?? '';
-        const header = `<header class="sheet-header${portrait ? ' narrator-heading' : ''}"><h2 id="sheet-title">${icon(portrait ? 'practice' : 'sun', 22)}${escape(content.title)}${portrait ? '<span class="narrator-role">همراه سفر</span>' : ''}</h2>${button('×', 'close-sheet', { className: 'icon-button', label: 'بستن پنجره' })}</header>`;
+        const header = `<header class="sheet-header${portrait ? ' narrator-heading' : ''}"><h2 id="sheet-title">${icon(portrait ? 'practice' : 'sun', 22)}${escape(content.title)}${portrait ? `<span class="narrator-role">${escape(content.narrator?.role ?? 'همراه سفر')}</span>` : ''}</h2>${button('×', 'close-sheet', { className: 'icon-button', label: 'بستن پنجره' })}</header>`;
         const expandedBody = content.body.replace(
             /<summary(?:\s[^>]*)?>/g,
             (opening) =>

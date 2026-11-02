@@ -1,6 +1,17 @@
-export const BOT_NAMES = ['اطلس', 'آسیمو', 'سوفیا'] as const;
+import { CHARACTERS, characterForSeat } from './characters';
+
+export const BOT_NAMES = CHARACTERS.map((character) => character.name);
+export const LEGACY_BOT_NAMES = ['اطلس', 'آسیمو', 'سوفیا'];
 export const PLAYER_NAME_LIMIT = 24;
-export const AVATARS = ['human', 'atlas', 'asimo', 'sophia'] as const;
+export const AVATARS = [
+    'human',
+    'mithra',
+    'ashi',
+    'spenta-armaiti',
+    'atlas',
+    'asimo',
+    'sophia',
+] as const;
 export type AvatarId = (typeof AVATARS)[number];
 
 /** Preserve Persian joining characters; discard controls that can spoof surrounding labels. */
@@ -17,7 +28,12 @@ export function playerName(value: string): string {
 }
 
 export function avatarForSeat(seat: number, humanSeat: number): AvatarId {
+    return characterForSeat(seat, humanSeat)?.id ?? 'human';
+}
+
+/** Remote server bots retain their existing identities and server strategy. */
+export function legacyAvatarForSeat(seat: number, humanSeat: number): AvatarId {
     if (seat === humanSeat) return 'human';
     const botIndex = seat < humanSeat ? seat : seat - 1;
-    return AVATARS[1 + (botIndex % BOT_NAMES.length)];
+    return (['atlas', 'asimo', 'sophia'] as const)[botIndex % 3];
 }

@@ -1,13 +1,13 @@
 import { remoteState } from './matchState';
 import { getPlayerSummary } from './matchState';
 import type { MatchState } from './matchState';
-import { avatarForSeat } from './playerIdentity';
+import { avatarForSeat, legacyAvatarForSeat } from './playerIdentity';
 import type { UiBox } from './graphicsTheme';
 
 export function matchAvatar(state: MatchState, id: string, humanId: string) {
     return remoteState(state) && !state.bots[id]
         ? ('human' as const)
-        : avatarForSeat(
+        : (remoteState(state) ? legacyAvatarForSeat : avatarForSeat)(
               state.players.findIndex((p) => p.id === id),
               state.players.findIndex((p) => p.id === humanId),
           );

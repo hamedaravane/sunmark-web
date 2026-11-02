@@ -14,6 +14,36 @@ export const TEXTURE_FILES = {
 } as const satisfies { menuBackground: string };
 
 export const ART = {
+    'mithra-avatar': {
+        file: 'characters/mithra/avatar.webp',
+        source: [1254, 1254],
+        frame: [0, 0, 1254, 1254],
+    },
+    'mithra-portrait': {
+        file: 'characters/mithra/portrait.webp',
+        source: [1024, 1536],
+        frame: [0, 0, 1024, 1536],
+    },
+    'ashi-avatar': {
+        file: 'characters/ashi/avatar.webp',
+        source: [1254, 1254],
+        frame: [0, 0, 1254, 1254],
+    },
+    'ashi-portrait': {
+        file: 'characters/ashi/portrait.webp',
+        source: [1024, 1536],
+        frame: [0, 0, 1024, 1536],
+    },
+    'spenta-armaiti-avatar': {
+        file: 'characters/spenta-armaiti/avatar.webp',
+        source: [1254, 1254],
+        frame: [0, 0, 1254, 1254],
+    },
+    'spenta-armaiti-portrait': {
+        file: 'characters/spenta-armaiti/portrait.webp',
+        source: [1122, 1402],
+        frame: [0, 0, 1122, 1402],
+    },
     'anahita-calm': {
         file: 'characters/anahita/calm.webp',
         source: [1086, 1448],

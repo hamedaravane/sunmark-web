@@ -70,7 +70,15 @@ test('seven has priority and explanation cannot bypass or pay for robber relocat
     expect(session.state).toBe(before);
     expect(readDialogue(session)).toEqual(['seven']);
     expect(session.placement?.kind).toBe('robber');
-    session.preview(session.targets[0]);
+    const target = session.targets.find((id) =>
+        session
+            .state!.board.tiles.find((tile) => tile.id === id)!
+            .vertexIds.every((vertexId) => {
+                const building = session.state!.board.vertices[vertexId].building;
+                return !building || building.ownerId === session.humanPlayer!.id;
+            }),
+    )!;
+    session.preview(target);
     session.primary();
     expect(session.state!.phase).toBe('actions');
     expect(readDialogue(session)).toContain('robber-moved');

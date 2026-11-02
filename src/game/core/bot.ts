@@ -8,23 +8,31 @@ import { getBuildOption, getProductionProbability } from './queries';
 import { getVictoryPoints } from './game';
 import { getBankTradeRatio } from './ports';
 import { RESOURCE_TYPES, type GameState } from './types';
+import { BOT_POLICIES, type BotPersonality } from './botPersonality';
 
-function siteValue(state: GameState, vertexId: string): number {
+function siteValue(state: GameState, vertexId: string, personality: BotPersonality): number {
+    const policy = BOT_POLICIES[personality];
     const vertex = state.board.vertices[vertexId];
     const tiles = state.board.tiles.filter((t) => vertex.tileIds.includes(t.id) && t.resource);
     const production = tiles.reduce(
-        (sum, tile) => sum + getProductionProbability(tile.number!).outcomes,
+        (sum, tile) =>
+            sum +
+            getProductionProbability(tile.number!).outcomes *
+                (policy.resources[tile.resource!] ?? 1),
         0,
     );
     const variety = new Set(tiles.map((t) => t.resource)).size;
     const port = state.board.ports.some((p) =>
         state.board.edges[p.edgeId].vertexIds.includes(vertexId),
     );
-    return production + variety * 2 + (port ? 2 : 0);
+    return production + variety * policy.variety + (port ? policy.port : 0);
 }
 
 /** Find a useful expansion path, never build roads just to spend spare resources. */
-export function expansionRoad(state: GameState): string | null {
+export function expansionRoad(
+    state: GameState,
+    personality: BotPersonality = 'balanced',
+): string | null {
     const { board } = state;
     const owner = state.players[state.activePlayerIndex].id;
     const distances = new Map<string, { distance: number; firstEdge: string | null }>();
@@ -64,14 +72,18 @@ export function expansionRoad(state: GameState): string | null {
             )
             .sort(
                 ([a, pa], [b, pb]) =>
-                    (siteValue(state, b) + 1) / pb.distance -
-                    (siteValue(state, a) + 1) / pa.distance,
+                    (siteValue(state, b, personality) + 1) / pb.distance -
+                    (siteValue(state, a, personality) + 1) / pa.distance,
             )[0]?.[1].firstEdge ?? null
     );
 }
 
 /** Deterministic, modest opponents: public board + own inventory, no dice/hand cheating. */
-export function chooseBotCommand(state: GameState): GameCommand | null {
+export function chooseBotCommand(
+    state: GameState,
+    personality: BotPersonality = 'balanced',
+): GameCommand | null {
+    const policy = BOT_POLICIES[personality];
     if (state.phase === 'finished') return null;
     if (state.phase === 'setup-roll') return { kind: 'setup-roll' };
     const openingType = setupPlacementType(state);
@@ -79,13 +91,13 @@ export function chooseBotCommand(state: GameState): GameCommand | null {
         const targets = getSetupTargets(state);
         const value = (id: string) =>
             openingType === 'settlement'
-                ? siteValue(state, id)
+                ? siteValue(state, id, personality)
                 : Math.max(
                       ...state.board.edges[id].vertexIds.map((v) =>
                           Math.max(
                               ...state.board.vertices[v].neighborIds
                                   .filter((n) => !state.board.vertices[n].building)
-                                  .map((n) => siteValue(state, n)),
+                                  .map((n) => siteValue(state, n, personality)),
                               0,
                           ),
                       ),
@@ -123,7 +135,9 @@ export function chooseBotCommand(state: GameState): GameCommand | null {
         return {
             kind: 'build',
             type: 'road',
-            targetId: expansionRoad(state) ?? getBuildOption(state, 'road').legalTargetIds[0],
+            targetId:
+                expansionRoad(state, personality) ??
+                getBuildOption(state, 'road').legalTargetIds[0],
         };
     const card = state.development?.hands[player.id].find(
         (c) => !developmentPlayError(state, c.id),
@@ -158,7 +172,9 @@ export function chooseBotCommand(state: GameState): GameCommand | null {
                 const leader = getPublicVictoryPoints(state, building.ownerId);
                 return (
                     sum +
-                    (building.ownerId === player.id ? -4 : 1 + leader / state.victoryTarget) *
+                    (building.ownerId === player.id
+                        ? -4
+                        : 1 + (policy.leaderPressure * leader) / state.victoryTarget) *
                         (building.type === 'city' ? 2 : 1) *
                         getProductionProbability(tile.number!).outcomes
                 );
@@ -172,13 +188,17 @@ export function chooseBotCommand(state: GameState): GameCommand | null {
     const city = getBuildOption(state, 'city');
     const settlement = getBuildOption(state, 'settlement');
     const bestSite = (ids: string[]) =>
-        [...ids].sort((a, b) => siteValue(state, b) - siteValue(state, a))[0];
+        [...ids].sort(
+            (a, b) => siteValue(state, b, personality) - siteValue(state, a, personality),
+        )[0];
+    if (policy.settlementFirst && !settlement.reason)
+        return { kind: 'build', type: 'settlement', targetId: bestSite(settlement.legalTargetIds) };
     if (!city.reason)
         return { kind: 'build', type: 'city', targetId: bestSite(city.legalTargetIds) };
     if (!settlement.reason)
         return { kind: 'build', type: 'settlement', targetId: bestSite(settlement.legalTargetIds) };
     // Save a settlement's wood/brick instead of extending roads past a ready site.
-    const road = settlement.legalTargetIds.length ? null : expansionRoad(state);
+    const road = settlement.legalTargetIds.length ? null : expansionRoad(state, personality);
     if (road && canAfford(player, BUILD_COSTS.road))
         return { kind: 'build', type: 'road', targetId: road };
     const goals: BuildType[] = [];
@@ -190,15 +210,32 @@ export function chooseBotCommand(state: GameState): GameCommand | null {
             (sum, r) => sum + Math.max(0, BUILD_COSTS[type][r] - player.resources[r]),
             0,
         );
-    goals.sort((a, b) => missing(a) - missing(b));
+    goals.sort(
+        (a, b) =>
+            missing(a) - missing(b) ||
+            (personality === 'balanced'
+                ? 0
+                : policy.settlementFirst
+                  ? Number(a !== 'settlement') - Number(b !== 'settlement')
+                  : Number(a !== 'city') - Number(b !== 'city')),
+    );
     for (const goal of goals) {
         const cost = BUILD_COSTS[goal];
         for (const receive of RESOURCE_TYPES.filter((r) => player.resources[r] < cost[r])) {
-            const give = RESOURCE_TYPES.find(
-                (r) =>
-                    r !== receive &&
-                    player.resources[r] - cost[r] >= getBankTradeRatio(state.board, player.id, r),
-            );
+            const give = [...RESOURCE_TYPES]
+                .sort((a, b) =>
+                    personality === 'ashi'
+                        ? getBankTradeRatio(state.board, player.id, a) -
+                              getBankTradeRatio(state.board, player.id, b) ||
+                          player.resources[b] - player.resources[a]
+                        : 0,
+                )
+                .find(
+                    (r) =>
+                        r !== receive &&
+                        player.resources[r] - cost[r] >=
+                            getBankTradeRatio(state.board, player.id, r),
+                );
             if (give)
                 return {
                     kind: 'trade',

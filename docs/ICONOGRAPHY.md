@@ -141,3 +141,7 @@ the selected SVG drawings and is not a browser screenshot or evidence of actual
 device layout. The user performs the final visual check at 390×844 and desktop,
 including trading, construction, cards, disabled controls, online lobbies and
 opening the installed app without connectivity.
+
+## Supplied rival portraits
+
+Mithra, Ashi and Spenta Armaiti use their supplied character illustrations for local rival identity slots. These are character artwork, as with Anahita, and are the explicit exception to generic robot identity icons. Functional pictograms, human profile and server bot slots retain this collection. See [Offline characters](OFFLINE_CHARACTERS.md).

@@ -115,11 +115,21 @@ export class GameFeedback {
                 );
             }
         }
-        if (
-            (action.kind === 'roll' || action.kind === 'setup-roll') &&
-            before.players[before.activePlayerIndex].id === humanId
-        ) {
-            const origin = this.rollOrigin(transition);
+        if (action.kind === 'roll' || action.kind === 'setup-roll') {
+            const boardBox = this.query('.board-viewport')?.getBoundingClientRect();
+            const hasOceanRoom =
+                !this.query('.match-screen.dice-on-ledge') && !this.query('.match-screen.is-wide');
+            const origin =
+                before.players[before.activePlayerIndex].id === humanId
+                    ? this.rollOrigin(transition)
+                    : boardBox && hasOceanRoom
+                      ? {
+                            x: boardBox.x + boardBox.width / 2 - 62,
+                            y: boardBox.bottom - 90,
+                            width: 124,
+                            height: 58,
+                        }
+                      : null;
             const values = action.kind === 'roll' ? after.lastRoll : after.setup?.lastRoll?.dice;
             if (origin && values && !this.session.sheet)
                 this.ui.feedback?.diceRoll(origin, this.query('.dice-pair'), values);
@@ -127,28 +137,25 @@ export class GameFeedback {
         }
         if (action.kind === 'roll') {
             if (!this.session.sheet)
-                transition.production
-                    .filter((grant) => grant.playerId === humanId)
-                    .slice(0, 6)
-                    .forEach((grant, index) => {
-                        const source = this.board.tileAnchor(grant.tileId);
-                        const target =
-                            grant.playerId === humanId
-                                ? this.query(
-                                      `.hand-resource[data-resource="${grant.resource}"] .resource-icon`,
-                                  )
-                                : null;
-                        const owner = after.players.find(({ id }) => id === grant.playerId)!;
-                        if (source && target)
-                            this.ui.feedback?.fly(
-                                source,
-                                target,
-                                grant.resource,
-                                number(grant.amount),
-                                owner.color,
-                                200 + index * 30,
-                            );
-                    });
+                transition.production.slice(0, 12).forEach((grant, index) => {
+                    const source = this.board.tileAnchor(grant.tileId);
+                    const target =
+                        grant.playerId === humanId
+                            ? this.query(
+                                  `.hand-resource[data-resource="${grant.resource}"] .resource-icon`,
+                              )
+                            : this.query(`.seat-chip[data-action="player:${grant.playerId}"]`);
+                    const owner = after.players.find(({ id }) => id === grant.playerId)!;
+                    if (source && target)
+                        this.ui.feedback?.fly(
+                            source,
+                            target,
+                            grant.resource,
+                            number(grant.amount),
+                            owner.color,
+                            700 + index * 90,
+                        );
+                });
         }
         const pointDelta = getVictoryPoints(after, humanId) - getVictoryPoints(before, humanId);
         if (pointDelta) {
