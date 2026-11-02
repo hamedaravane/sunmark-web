@@ -1,3 +1,4 @@
+import { dialogueId } from '../narrative/dialogues.fa';
 import { DEVELOPMENT_LABELS, cardAvailability } from './developmentMarkup';
 import { heroDice, actionDock, turnStatus } from './turnMarkup';
 import { turnSurface } from './turnSurface';
@@ -418,6 +419,13 @@ export class GameHud {
         if (action === 'app-update') {
             void applyUpdate(this.app, this.session);
         }
+        if (action === 'rival-next') this.session.continueRival?.();
+        if (action === 'rival-reply' && (value === 'bold' || value === 'curious'))
+            this.session.replyRival?.(value);
+        if (action === 'rival-mute') this.session.setRivalDialogue?.(false);
+        if (action === 'rival-toggle')
+            this.session.setRivalDialogue?.(!this.session.rivals?.enabled);
+        if (action === 'rival-replay' && dialogueId(value)) this.session.replayRival?.(value);
         if (action === 'tutorial-next') this.session.continueTutorial();
         if (action === 'bot-pause' && !this.session.online)
             this.session.setBotPaused?.(!this.session.botPaused);

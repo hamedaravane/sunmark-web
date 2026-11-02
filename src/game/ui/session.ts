@@ -42,8 +42,10 @@ import type { LessonId } from '../tutorial/lessons.fa';
 import type { MatchStore, SavedMatch } from '../persistence/matchStore';
 import { PlayerTrading } from './playerTrading';
 import { BOT_NAMES, LEGACY_BOT_NAMES, playerName } from './playerIdentity';
-import { characterForSeat } from './characters';
+import { characterById, characterForSeat } from './characters';
 import { turnReport } from './turnReport';
+import { RivalDirector } from '../narrative/rivalDirector';
+import { DIALOGUES, type DialogueId } from '../narrative/dialogues.fa';
 import { ExperiencePreferences, type ExperienceOption } from './experiencePreferences';
 import { ProgressionStore, createProgressionId } from '../progression/progression';
 
@@ -61,6 +63,7 @@ export type Sheet =
               | 'domestic'
               | 'history'
               | 'turn-review'
+              | 'rival-dialogue'
               | 'help'
               | 'rules'
               | 'review'
@@ -106,6 +109,7 @@ export class GameSession {
     readonly preferences = new ExperiencePreferences();
     buildGoal: BuildType | null = null;
     readonly tutorial = new TutorialDirector();
+    readonly rivals = new RivalDirector();
     practice: Practice | null = null;
     readonly trading = new PlayerTrading(
         () => ({
@@ -125,6 +129,7 @@ export class GameSession {
         },
     );
     private tutorialReturnSheet: Sheet | null = null;
+    private rivalReturnSheet: Sheet | null = null;
     private gameState: GameState | null = null;
     private controlledPlayerId: string | null = null;
     private transitionId = 0;
@@ -171,6 +176,8 @@ export class GameSession {
         } else this.requestStart(4);
     }
     private startPractice(): void {
+        this.rivals.reset(false);
+        this.rivalReturnSheet = null;
         this.buildGoal = null;
         const { state, practice } = createPractice();
         this.gameState = state;
@@ -258,6 +265,8 @@ export class GameSession {
                 : tutorial,
         );
         this.trading.restore(saved.trading);
+        this.rivals.restore(saved.rivals);
+        this.rivalReturnSheet = null;
         this.buildGoal = saved.buildGoal ?? null;
         this.transition = null;
         this.transitionId = 0;
@@ -287,6 +296,7 @@ export class GameSession {
             humanPlayerId: this.humanPlayer!.id,
             state: this.state,
             tutorial: this.tutorial.snapshot(),
+            rivals: this.rivals.snapshot(),
             trading: this.trading.table.snapshot(),
             history: [...this.history],
         };
@@ -306,6 +316,7 @@ export class GameSession {
         );
     }
     get botReady(): boolean {
+        if (this.rivalReady) return false;
         if (this.practice || !this.state || this.state.phase === 'finished') return false;
         if (['discard', 'robber', 'steal', 'road-building'].includes(this.state.phase))
             return !this.sheet && resolutionActor(this.state) !== this.humanPlayer!.id;
@@ -355,6 +366,7 @@ export class GameSession {
             this.trading.sync();
             if (
                 !this.practice &&
+                this.sheet?.kind !== 'rival-dialogue' &&
                 !['discard', 'steal', 'road-building'].includes(this.state.phase) &&
                 this.state.robberResolution?.source !== 'knight'
             )
@@ -370,11 +382,13 @@ export class GameSession {
                 this.tutorial.current &&
                 !['discard', 'steal', 'road-building'].includes(this.state.phase) &&
                 this.sheet?.kind !== 'tutorial' &&
+                this.sheet?.kind !== 'rival-dialogue' &&
                 this.sheet?.kind !== 'introduction'
             ) {
                 this.tutorialReturnSheet = this.sheet;
                 this.sheet = { kind: 'tutorial' };
             }
+            if (!this.practice) this.rivals.observe(this.transition, this.humanPlayer!.id);
         }
         this.save();
         this.listeners.forEach((listener) => listener());
@@ -388,6 +402,96 @@ export class GameSession {
             humanPlayerId: this.humanPlayer!.id,
             reviewingTrade: !!this.give && !!this.receive && this.give !== this.receive,
         };
+    }
+    get rivalCharacters() {
+        if (!this.state || !this.humanPlayer) return [];
+        const humanSeat = this.state.players.findIndex((p) => p.id === this.humanPlayer!.id);
+        return this.state.players
+            .map((_, seat) => characterForSeat(seat, humanSeat)?.id)
+            .filter((id): id is NonNullable<typeof id> => !!id);
+    }
+    get rivalReady(): boolean {
+        const state = this.state;
+        return (
+            !!state &&
+            !this.practice &&
+            (!this.botPaused || state.phase === 'finished') &&
+            this.rivals.pending &&
+            !this.tutorial.current &&
+            !this.placement &&
+            !this.give &&
+            !this.receive &&
+            ![
+                'discard',
+                'robber',
+                'steal',
+                'road-building',
+                'setup-settlement',
+                'setup-road',
+            ].includes(state.phase) &&
+            (!this.sheet || (this.sheet.kind === 'results' && state.phase === 'finished')) &&
+            !!this.rivals.view(this.tutorial.enabled, this.rivalCharacters)
+        );
+    }
+    presentRival(expectedState: GameState = this.state!): void {
+        if (!this.rivalReady || this.state !== expectedState) return;
+        this.rivalReturnSheet = this.sheet;
+        this.rivals.begin(this.state!.turn);
+        this.sheet = { kind: 'rival-dialogue' };
+        this.recordRivalLine();
+        this.emit();
+    }
+    private recordRivalLine(): void {
+        const view = this.rivals.view(this.tutorial.enabled, this.rivalCharacters);
+        if (!view) return;
+        const speaker = characterById(view.beat.speaker)?.name ?? 'آناهیتا';
+        const text = `${speaker}: «${view.beat.text}»`;
+        if (this.history[this.history.length - 1]?.text !== text) this.record(text, speaker);
+    }
+    continueRival(): void {
+        if (this.sheet?.kind !== 'rival-dialogue') return;
+        this.rivals.advance(this.tutorial.enabled, this.rivalCharacters);
+        if (this.rivals.view(this.tutorial.enabled, this.rivalCharacters)) this.recordRivalLine();
+        else {
+            this.sheet = this.rivalReturnSheet;
+            this.rivalReturnSheet = null;
+        }
+        this.emit();
+    }
+    replyRival(choice: 'bold' | 'curious'): void {
+        if (
+            this.sheet?.kind !== 'rival-dialogue' ||
+            !this.rivals.view(this.tutorial.enabled, this.rivalCharacters)?.canReply
+        )
+            return;
+        this.rivals.reply(choice, this.tutorial.enabled, this.rivalCharacters);
+        this.recordRivalLine();
+        this.emit();
+    }
+    setRivalDialogue(enabled: boolean): void {
+        if (!this.state || this.practice) return;
+        this.rivals.setEnabled(enabled);
+        if (!enabled && this.sheet?.kind === 'rival-dialogue') {
+            this.sheet = this.rivalReturnSheet;
+            this.rivalReturnSheet = null;
+        }
+        this.emit();
+    }
+    replayRival(id: DialogueId): void {
+        if (
+            !this.state ||
+            this.practice ||
+            this.sheet?.kind !== 'characters' ||
+            !this.rivals.seen.has(id) ||
+            !(id in DIALOGUES)
+        )
+            return;
+        this.rivals.replay(id);
+        this.rivals.begin(this.state.turn);
+        this.rivalReturnSheet = this.sheet;
+        this.sheet = { kind: 'rival-dialogue' };
+        this.recordRivalLine();
+        this.emit();
     }
     continueTutorial(): void {
         if (this.sheet?.kind !== 'tutorial') return;
@@ -452,6 +556,8 @@ export class GameSession {
         this.error = null;
         this.tutorialReturnSheet = null;
         this.tutorial.start(guided);
+        this.rivals.reset(introduce, introduce);
+        this.rivalReturnSheet = null;
         this.record(FA.startNote);
         this.emit();
     }
@@ -462,6 +568,8 @@ export class GameSession {
         this.practice = null;
         this.trading.reset();
         this.tutorial.start(false);
+        this.rivals.reset(false);
+        this.rivalReturnSheet = null;
         this.tutorialReturnSheet = null;
         this.gameState = null;
         this.controlledPlayerId = null;
@@ -500,7 +608,7 @@ export class GameSession {
         if (this.practice && ['domestic', 'end-turn', 'journal', 'results'].includes(sheet.kind))
             return;
         if (sheet.kind === 'domestic' && !this.state) return;
-        if (this.sheet?.kind === 'tutorial') return;
+        if (this.sheet?.kind === 'tutorial' || this.sheet?.kind === 'rival-dialogue') return;
         if (
             this.state &&
             isSetup(this.state) &&
@@ -514,6 +622,13 @@ export class GameSession {
         this.emit();
     }
     closeSheet(): void {
+        if (this.sheet?.kind === 'rival-dialogue') {
+            this.rivals.skip();
+            this.sheet = this.rivalReturnSheet;
+            this.rivalReturnSheet = null;
+            this.emit();
+            return;
+        }
         if (this.sheet?.kind === 'domestic') this.trading.dismiss();
         if (this.sheet?.kind === 'experience-guide') this.preferences.set('introduced', true);
         if (this.sheet?.kind === 'tutorial') {

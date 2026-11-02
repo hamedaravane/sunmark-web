@@ -1042,3 +1042,18 @@
         flex-direction: column;
     }
 }
+
+.player-avatar {
+    overflow: hidden;
+    border-radius: 50%;
+}
+.rival-replies {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-block: 12px;
+}
+.rival-replies .button {
+    min-height: 48px;
+    font-size: 13px;
+}

@@ -8,6 +8,7 @@ import type { MatchEvent } from '../ui/session';
 import type { TutorialMemory } from '../tutorial/director';
 import { LESSONS } from '../tutorial/lessons.fa';
 import { integer, label, record, validGameState } from './validateState';
+import { validRivalMemory, type RivalMemory } from '../narrative/rivalDirector';
 
 export interface SavedMatch {
     /** Stable local reward identity; legacy saves acquire one on resume. */
@@ -20,6 +21,7 @@ export interface SavedMatch {
     tutorial: TutorialMemory;
     history: MatchEvent[];
     trading?: TradeMemory;
+    rivals?: RivalMemory;
 }
 export interface SaveStorage {
     getItem(key: string): string | null;
@@ -60,6 +62,11 @@ export function decodeSave(raw: string): SavedMatch | null {
         )
             return null;
         if (value.trading !== undefined && !validTrading(value.trading, state)) return null;
+        if (
+            value.rivals !== undefined &&
+            (!validRivalMemory(value.rivals) || value.rivals.lastRound > state.turn)
+        )
+            return null;
         if (
             value.humanPlayerId !== undefined &&
             !state.players.some((player) => player.id === value.humanPlayerId)

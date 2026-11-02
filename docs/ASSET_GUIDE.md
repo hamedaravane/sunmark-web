@@ -156,3 +156,5 @@ current icon references. See [ICONOGRAPHY.md](ICONOGRAPHY.md).
 ## Supplied offline rival portraits
 
 Six full-resolution WebP portraits/avatars live under `characters/{mithra,ashi,spenta-armaiti}/`, each with `avatar.webp` and `portrait.webp`. The seven supplied WebP originals, including the unused Ashi alternative, are preserved outside runtime packaging. Because these arrive already encoded, the manifest supports `source_file` and `preserve_encoded`: export/check copies and verifies identical bytes, dimensions, alpha and source hashes, without another lossy pass. The older PNG master workflow remains unchanged. Visible avatar/portrait placeholders load through the shared lazy portrait loader; missing optional images use a rosette and never block a match. See [Offline characters](OFFLINE_CHARACTERS.md) for the filename mapping and sizes.
+
+Character avatar framing uses small cached circular textures generated at runtime from the existing avatar frames, including shared human/robot icons. The renderer clips pixels before drawing inside the ownership rim; original files and checksums remain unchanged. Full narrative portraits keep their complete source frame.

@@ -1,4 +1,5 @@
 import { icon } from '../../ui/icons';
+import { rivalDialogueContent } from './rivalDialogueMarkup';
 import { matchAvatar, matchBot } from './headerModel';
 import { scoreAwards } from './scoreMarkup';
 import { constructionSheet } from './constructionMarkup';
@@ -74,7 +75,9 @@ export function costRow(option: BuildOption): string {
 }
 
 export function sheetContent(session: MatchSession, updateReady = false): SheetContent {
-    if (session.sheet?.kind === 'characters') return characterGallery();
+    if (session.sheet?.kind === 'rival-dialogue' && session.rivals)
+        return rivalDialogueContent(session);
+    if (session.sheet?.kind === 'characters') return characterGallery(session);
     const online = onlineProgressionSheet(session);
     if (online) return online;
     const progression = progressionSheet(session);

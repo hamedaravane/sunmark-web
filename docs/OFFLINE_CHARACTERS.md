@@ -104,3 +104,72 @@ TypeScript/lint/build and asset verification cover packaging. Interactive browse
 and device review belongs to the user, per repository instructions. Review on
 390 × 844 and short landscape screens before drawing conclusions about visual
 readability or engagement.
+
+## Automatic conversations during play
+
+Player feedback clarified that optional move-review dialogue did not meet the
+intended experience: the rivals must appear and speak during the match, like
+Anahita. The new hypothesis is that recognizable voices and direct interaction
+make milestones and rivalries feel personal. Evaluate comprehension, completed
+offline matches and voluntary return together with device feedback; longer modal
+reading alone is not evidence of improvement. No new analytics are introduced.
+
+`narrative/dialogues.fa.ts` now provides 26 multi-speaker conversations (79 scripted
+beats), plus distinct responses to optional player replies. Mithra is direct,
+competitive and loyal to his word; Ashi is playful, calculating and interested in
+opportunity; Spenta Armaiti is patient, warm and committed to growth. They address
+the player, react to one another and occasionally converse with enabled Anahita.
+
+A real new-match entry includes their arrival conversation after the participant
+screen and Anahita's queued opening guidance. Later conversations react to the
+completed opening, player and rival construction, ports, trades, production and
+dry rolls, theft, public leads, scoring titles, the closing race and each possible
+winner. Quiet stretches can trigger one of three reflective exchanges on return
+to the human turn. Events are one-time checkpoints, with at most one ordinary
+conversation per numbered round, a single pending conversation, and explicit
+opening/ending exceptions. There is no repeating per-action popup.
+
+`RivalDirector` reads confirmed transitions without submitting commands, consuming
+randomness or inspecting private opponent holdings. The existing turn runner
+opens a ready conversation after 1.1 seconds of board feedback (immediately when
+there is no new transition to present). This is independent of animation callbacks.
+Bots wait during pending ready conversations and while the native modal is open.
+Visibility, updates, manual bot pause, mandatory discards/Ahriman/free roads,
+placement/bank drafts, other sheets and Anahita's active lessons take priority.
+The large existing narrator stage switches to each speaker's complete supplied
+portrait and name as the player continues. The ending returns to the results and can speak after a manually stepped victory even if bot play remains paused.
+
+The last speaker can answer **چالش را می‌پذیرم** or **از روشت بگو**. These optional
+fictional responses change only the conversation, never strategy, costs, resources,
+random results or rewards. Continue advances dialogue; closing skips just the
+current conversation. **خاموش‌کردن گفت‌وگوی رقبا** is a separate per-match opt-out
+from Anahita. The character gallery exposes the setting and replay of past story
+checkpoints, including while automatic dialogue is muted. No countdown forces the
+player to read or respond.
+
+An optional validated `rivals` save field preserves the setting, checkpoints,
+current line/reply and pacing round. Existing saves without it enable future
+conversations without replaying old actions or restarting the arrival. Normal
+programmatic `start` calls that explicitly skip participant introduction also skip
+this new-match story entry; the production name/entry flow enables it. Disposable
+practice and server-controlled online games keep their existing narration path.
+Story history uses the existing bounded match log. Reload restores dialogue at the
+next safe presentation point without replaying rule commands or duplicating its
+last recorded line.
+
+## Circular avatars
+
+`ui/avatarTextures.ts` creates a cached 256 × 256 circular cutout from a loaded
+portrait/icon frame. Both Canvas and WebGL draw that alpha-clipped texture inside
+the ownership rim, including within separately masked scrolling sheets. Canvas
+clipping happens before drawing any source pixels, so square corners and hair or
+ornaments cannot overflow the circle. A contained fallback is used if allocation
+is unavailable. DOM placeholders also have circular overflow clipping, but the
+visible fix is in Phaser. Source masters and runtime WebP files stay unchanged;
+there are no per-player-color image copies or per-instance WebGL mask filters.
+
+Focused tests cover automatic entry with every rival, Anahita priority/cameos,
+player replies without game mutation/randomness, timed/hidden-page presentation,
+save/reload/mute/replay, mandatory-choice/draft priority, event diversity and
+frequency, private-information independence, corrupt story metadata, and circular
+texture clipping/cache reuse. Device review remains with the user.

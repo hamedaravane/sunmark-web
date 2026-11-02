@@ -1,3 +1,4 @@
+import { circularAvatarTexture } from './avatarTextures';
 import { CANVAS, Scene, type GameObjects } from 'phaser';
 import { ART, assetUrl } from '../assets';
 import { elementIcon, iconNeedsPlate, ICON_TEXTURE } from '../../ui/icons';
@@ -556,6 +557,15 @@ export class InterfaceScene extends Scene {
         square = false,
     ): void {
         if (!this.textures.exists(texture) || !this.textures.get(texture).has(frame)) return;
+        if (node.classList.contains('player-avatar')) {
+            const circular = circularAvatarTexture(this, texture, frame);
+            if (circular) {
+                texture = circular;
+                frame = '__BASE';
+                scale = 0.9;
+                square = true;
+            } else scale = Math.min(scale, Math.SQRT1_2 * 0.9);
+        }
         const id = this.key(node, 'image');
         let image = layer.objects.get(id) as GameObjects.Image | undefined;
         if (!image) {

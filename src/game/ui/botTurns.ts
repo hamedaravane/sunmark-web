@@ -40,16 +40,26 @@ export class BotTurnRunner {
     refresh = (): void => {
         if (this.timer !== null) clearTimeout(this.timer);
         this.timer = null;
-        if (this.disposed || !this.available() || this.session.botPaused || !this.session.botReady)
+        const dialogue = this.session.rivalReady;
+        if (
+            this.disposed ||
+            !this.available() ||
+            (this.session.botPaused && !dialogue) ||
+            (!dialogue && !this.session.botReady)
+        )
             return;
         const state = this.session.state!;
         this.timer = setTimeout(
             () => {
                 this.timer = null;
-                if (!this.disposed && this.available()) this.session.advanceBot(state);
+                if (!this.disposed && this.available()) {
+                    if (dialogue) this.session.presentRival(state);
+                    else this.session.advanceBot(state);
+                }
                 this.refresh();
             },
-            (this.delay ?? botTurnDelay(this.session)) *
+            (this.delay ??
+                (dialogue ? (this.session.transition ? 1100 : 0) : botTurnDelay(this.session))) *
                 (this.session.preferences.snapshot.quick ? 0.55 : 1),
         );
     };

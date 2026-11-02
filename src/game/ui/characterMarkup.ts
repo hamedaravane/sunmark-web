@@ -2,6 +2,7 @@ import { CHARACTERS, characterById } from './characters';
 import { artSprite, button, diceFace, escape, playerAvatar } from './components';
 import type { SheetContent } from './bottomSheet';
 import type { MatchSession } from './matchSession';
+import { rivalJournal } from './rivalDialogueMarkup';
 import { turnReport } from './turnReport';
 
 export function characterDescription(id: string): string {
@@ -11,11 +12,11 @@ export function characterDescription(id: string): string {
         : '';
 }
 
-export function characterGallery(): SheetContent {
+export function characterGallery(session?: MatchSession): SheetContent {
     return {
         title: 'هم‌نشینان جزیره',
         key: 'character-gallery',
-        body: `<p class="sheet-intro">سه رقیب هوش مصنوعی، سه شیوهٔ بازی. قوانین، هزینه‌ها و شانس تاس برای همه یکسان است.</p><div class="character-gallery">${CHARACTERS.map((character) => `<article class="character-card"><div class="rival-detail-heading">${playerAvatar(character.id)}<h3>${character.name}</h3><span class="bot-label">هوش مصنوعی</span></div><div class="character-showcase">${artSprite(`${character.id}-portrait`, 132, 'character-portrait')}${characterDescription(character.id)}</div></article>`).join('')}</div><p class="footnote">آناهیتا در مسیر یادگیری همراه توست؛ این سه شخصیت برای پیروزی با تو رقابت می‌کنند.</p>`,
+        body: `<p class="sheet-intro">سه رقیب هوش مصنوعی، سه شیوهٔ بازی. قوانین، هزینه‌ها و شانس تاس برای همه یکسان است.</p><div class="character-gallery">${CHARACTERS.map((character) => `<article class="character-card"><div class="rival-detail-heading">${playerAvatar(character.id)}<h3>${character.name}</h3><span class="bot-label">هوش مصنوعی</span></div><div class="character-showcase">${artSprite(`${character.id}-portrait`, 132, 'character-portrait')}${characterDescription(character.id)}</div></article>`).join('')}</div><p class="footnote">آناهیتا در مسیر یادگیری همراه توست؛ این سه شخصیت برای پیروزی با تو رقابت می‌کنند.</p>${rivalJournal(session)}`,
         footer: button('بازگشت', 'close-sheet', { className: 'button button--primary full-width' }),
     };
 }

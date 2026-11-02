@@ -39,7 +39,13 @@ function openingTarget(state: GameState): string {
 }
 
 function dismissDialogue(session: GameSession): void {
-    while (session.sheet?.kind === 'tutorial') session.continueTutorial();
+    for (let i = 0; i < 50; i++) {
+        if (session.sheet?.kind === 'tutorial') session.continueTutorial();
+        else if (session.rivalReady) session.presentRival();
+        else if (session.sheet?.kind === 'rival-dialogue') session.continueRival();
+        else return;
+    }
+    throw new Error('Fixture dialogue stalled');
 }
 
 export function completeSessionSetup(session: GameSession): void {

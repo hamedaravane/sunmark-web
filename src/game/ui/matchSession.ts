@@ -17,7 +17,21 @@ export type MatchSession = Omit<
     | 'botPaused'
     | 'setBotPaused'
     | 'stepBot'
+    | 'rivals'
+    | 'rivalCharacters'
+    | 'rivalReady'
+    | 'presentRival'
+    | 'continueRival'
+    | 'replyRival'
+    | 'setRivalDialogue'
+    | 'replayRival'
 > & {
+    readonly rivals?: GameSession['rivals'];
+    readonly rivalCharacters?: GameSession['rivalCharacters'];
+    continueRival?(): void;
+    replyRival?(choice: 'bold' | 'curious'): void;
+    setRivalDialogue?(enabled: boolean): void;
+    replayRival?: GameSession['replayRival'];
     readonly botPaused?: boolean;
     setBotPaused?(paused: boolean): void;
     stepBot?(): void;
