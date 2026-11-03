@@ -82,11 +82,27 @@ export class InterfaceScene extends Scene {
         super('InterfaceScene');
     }
     preload(): void {
-        for (const name of ['corner', 'divider', 'rosette', 'glint'] as const)
+        for (const name of [
+            'corner',
+            'divider',
+            'rosette',
+            'glint',
+            'mithra-portrait',
+            'ashi-portrait',
+            'spenta-armaiti-portrait',
+        ] as const)
             this.load.image(`ui-${name}`, assetUrl(ART[name].file));
     }
     create(): void {
-        for (const name of ['corner', 'divider', 'rosette', 'glint'] as const) {
+        for (const name of [
+            'corner',
+            'divider',
+            'rosette',
+            'glint',
+            'mithra-portrait',
+            'ashi-portrait',
+            'spenta-armaiti-portrait',
+        ] as const) {
             const [x, y, w, h] = ART[name].frame;
             this.textures.get(`ui-${name}`).add('crop', 0, x, y, w, h);
         }
@@ -514,7 +530,13 @@ export class InterfaceScene extends Scene {
             if (style.display === 'contents') {
                 if (element.classList.contains('match-controls') && layer === this.hud) return;
                 for (const child of element.children)
-                    if (child instanceof HTMLElement) visit(child);
+                    if (
+                        child instanceof HTMLElement &&
+                        (!(element instanceof HTMLDetailsElement) ||
+                            element.open ||
+                            child.tagName === 'SUMMARY')
+                    )
+                        visit(child);
                 return;
             }
             const box = this.box(element);
@@ -544,6 +566,15 @@ export class InterfaceScene extends Scene {
         drawComponent(layer.graphics, el, box, this.pressed);
         const has = (name: string) => el.classList.contains(name);
         const name = el.dataset.art ? null : elementIcon(el);
+        if (name === 'close') {
+            const x = box.x + box.width / 2,
+                y = box.y + box.height / 2;
+            layer.graphics
+                .lineStyle(2, UI_INK.ivory, 0.9)
+                .lineBetween(x - 5, y - 5, x + 5, y + 5)
+                .lineBetween(x + 5, y - 5, x - 5, y + 5);
+            return;
+        }
         if (name) {
             if (iconNeedsPlate(name) && !has('player-avatar'))
                 layer.graphics

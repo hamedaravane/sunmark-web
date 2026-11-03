@@ -1,5 +1,5 @@
 import type { GameObjects } from 'phaser';
-import { drawRosette, drawSurface, UI_INK, type Material, type UiBox } from './graphicsTheme';
+import { drawSurface, UI_INK, type Material, type UiBox } from './graphicsTheme';
 
 export const RESOURCE_MATERIAL: Record<string, Material> = {
     wood: 'emerald',
@@ -36,17 +36,20 @@ export function drawWing(
 }
 
 export function drawResourceCell(g: GameObjects.Graphics, b: UiBox, resource: string): void {
-    drawSurface(g, b, RESOURCE_MATERIAL[resource] ?? 'lapis', {
-        radius: 12,
-        quiet: true,
-        flat: true,
-    });
-    // A small polished pedestal grounds the inventory illustration, rather than framing it.
-    g.fillStyle(0xfff7d5, 0.13).fillEllipse(
-        b.x + b.width * 0.68,
-        b.y + b.height * 0.46,
-        b.width * 0.46,
-        12,
+    drawSurface(g, b, 'inset', { radius: 8, quiet: true, flat: true });
+    const colors: Record<string, number> = {
+        wood: 0x74a87f,
+        brick: 0xcd8e77,
+        wheat: 0xd9b66f,
+        wool: 0x76b5b3,
+        stone: 0xa6b7c5,
+    };
+    g.fillStyle(colors[resource] ?? 0xd9b66f, 0.75).fillRoundedRect(
+        b.x + 8,
+        b.y + b.height - 3,
+        b.width - 16,
+        2,
+        1,
     );
 }
 
@@ -57,18 +60,13 @@ export function drawCardFrame(
     selected: boolean,
     pressed: boolean,
 ): void {
-    drawSurface(g, b, CARD_MATERIAL[kind] ?? 'amethyst', {
-        radius: 17,
+    drawSurface(g, b, selected ? (CARD_MATERIAL[kind] ?? 'turquoise') : 'inset', {
+        radius: 10,
         pressed,
-        accent: selected ? 0xffe7a3 : 0xd4b17b,
+        quiet: true,
+        flat: true,
+        accent: selected ? UI_INK.gold : undefined,
     });
-    const cx = b.x + b.width / 2;
-    // The illustrated emblem has its own coin setting; title and availability stay clear.
-    g.fillStyle(0x172443, 0.35).fillCircle(cx, b.y + 42, 30);
-    g.lineStyle(1, 0xffe7a3, 0.6).strokeCircle(cx, b.y + 42, 28);
-    drawWing(g, b.x + 12, b.y + b.height - 12, 19, 1);
-    drawWing(g, b.x + b.width - 12, b.y + b.height - 12, 19, -1);
-    if (selected) drawRosette(g, b.x + b.width - 13, b.y + 14, 7);
 }
 
 export function drawMenuCrown(g: GameObjects.Graphics, b: UiBox): void {

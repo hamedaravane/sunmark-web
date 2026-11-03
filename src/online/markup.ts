@@ -13,5 +13,12 @@ export function onlineMarkup(client: OnlineClient, draft: Drafts): string {
         : client.connected
           ? 'متصل به اتاق'
           : 'اتاق خصوصی با دوستان';
-    return `<header data-surface="inset">${icon('online', 32)}${label('بازی آنلاین', 'h1')}${button(client.snapshot ? 'اتاق‌ها' : 'منو', client.snapshot ? 'back' : 'exit')}${label(status, 'small')}</header><main class="online-panel">${client.error ? `<p data-paint role="alert">${escape(client.error)}</p>` : ''}${draft.notice ? label(draft.notice) : ''}${roomMarkup(client, draft)}</main>`;
+    const view = !client.session
+        ? 'guest'
+        : client.snapshot
+          ? 'lobby'
+          : client.matchmaking?.state === 'waiting'
+            ? 'search'
+            : draft.screen;
+    return `<header class="online-header" data-surface="inset"><div class="online-brand">${icon('online', 28)}<div>${label('هم‌سفران جزیره', 'h1')}${label(status, 'small')}</div></div>${button(client.snapshot ? 'اتاق‌ها' : 'خانه', client.snapshot ? 'back' : 'exit')}</header><main class="online-panel" data-view="${view}">${client.error ? `<p data-paint role="alert">${escape(client.error)}</p>` : ''}${draft.notice ? label(draft.notice) : ''}${roomMarkup(client, draft)}</main>`;
 }

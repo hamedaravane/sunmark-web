@@ -83,7 +83,7 @@ test('a rejected trade keeps resources, draft and history intact', () => {
     const before = session.state;
     const transition = session.transition;
     const historyCount = session.history.length;
-    expect(sheetContent(session).body).toContain(
+    expect(sheetContent(session).footer).toContain(
         'data-action="confirm-trade" class="button button--primary full-width" disabled',
     );
     session.confirmTrade();

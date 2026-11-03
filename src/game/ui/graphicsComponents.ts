@@ -32,8 +32,22 @@ export function drawComponent(
     );
     const owner = Number.isFinite(ownerValue) ? ownerValue : UI_INK.gold;
     const disabled = el instanceof HTMLButtonElement && el.disabled;
-    const selected = el.getAttribute('aria-pressed') === 'true';
-    if (has('roll-object')) {
+    const selected = el.getAttribute('aria-pressed') === 'true' && !has('setting-option');
+    if (has('setting-switch')) {
+        const on = el.dataset.enabled === 'true';
+        g.fillStyle(on ? 0x337365 : 0x345052).fillRoundedRect(
+            box.x,
+            box.y,
+            box.width,
+            box.height,
+            box.height / 2,
+        );
+        g.fillStyle(on ? UI_INK.gold : 0xadbfbb).fillCircle(
+            on ? box.x + box.width - box.height / 2 : box.x + box.height / 2,
+            box.y + box.height / 2,
+            box.height / 2 - 3,
+        );
+    } else if (has('roll-object')) {
         const cx = box.x + box.width / 2;
         g.fillStyle(0x0a2041, 0.3).fillEllipse(cx, box.y + box.height - 23, box.width - 8, 16);
         // A pair of wing inlays anchors the dice without a modal or solid panel.
@@ -75,14 +89,16 @@ export function drawComponent(
         drawSurface(
             g,
             box,
-            has('development-feature')
-                ? (CARD_MATERIAL[
-                      el.querySelector<HTMLElement>('[data-emblem]')?.dataset.emblem ?? ''
-                  ] ?? 'amethyst')
-                : has('build-goal')
-                  ? 'turquoise'
-                  : 'inset',
-            { quiet: true, radius: 17, accent: has('development-purchase') ? 0xbb94e5 : undefined },
+            has('development-empty')
+                ? 'inset'
+                : has('development-feature')
+                  ? (CARD_MATERIAL[
+                        el.querySelector<HTMLElement>('[data-emblem]')?.dataset.emblem ?? ''
+                    ] ?? 'amethyst')
+                  : has('build-goal')
+                    ? 'turquoise'
+                    : 'inset',
+            { quiet: true, radius: 17, accent: undefined },
         );
     } else if (has('cost-token')) {
         drawSurface(g, box, has('is-short') ? 'coral' : 'card', {
@@ -132,12 +148,12 @@ export function drawComponent(
     } else if (has('captain-score')) {
         drawSurface(g, box, 'honey', { radius: 16, quiet: true, flat: true });
     } else if (has('seat-chip')) {
-        drawSurface(g, box, has('is-active') ? 'lapis' : 'inset', {
+        drawSurface(g, box, has('is-active') ? 'turquoise' : 'inset', {
             quiet: true,
             radius: 13,
             flat: true,
             pressed: pressed === el,
-            accent: selected ? UI_INK.gold : owner,
+            accent: selected ? UI_INK.gold : has('is-active') ? owner : undefined,
         });
         const target = Number(el.dataset.target) || 10,
             score = Number(el.dataset.score) || 0;
@@ -157,10 +173,10 @@ export function drawComponent(
             drawNameSelection(g, el, box);
         }
     } else if (has('resource-hand')) {
-        drawSurface(g, { ...box, height: box.height + 14 }, 'inset', {
+        drawSurface(g, { ...box, height: box.height }, 'inset', {
             radius: 24,
             quiet: true,
-            accent: 0x7e9dc6,
+            accent: undefined,
             flat: true,
         });
     } else if (has('bottom-space')) {
@@ -247,7 +263,7 @@ export function drawComponent(
                 radius: 18,
                 pressed: pressed === el,
                 disabled,
-                accent: has('hub-mode--ranked') ? 0x9cacc8 : undefined,
+                accent: has('hub-mode--offline') ? UI_INK.gold : undefined,
                 quiet: true,
             },
         );
@@ -256,7 +272,7 @@ export function drawComponent(
             radius: 17,
             quiet: true,
             flat: true,
-            accent: UI_INK.gold,
+            accent: has('hub-reward') ? UI_INK.gold : undefined,
         });
     } else if (has('hub-achievement') || has('hub-cosmetic')) {
         drawSurface(g, box, has('is-earned') ? 'emerald' : 'inset', {
@@ -271,16 +287,17 @@ export function drawComponent(
             quiet: true,
             flat: true,
         });
+    } else if (has('council-hero')) {
+        drawSurface(g, box, 'inset', { quiet: true, flat: true, radius: 14 });
+        g.lineStyle(1, UI_INK.gold, 0.25).strokeCircle(
+            box.x + box.width / 2,
+            box.y + box.height * 0.5,
+            box.width * 0.3,
+        );
+    } else if (has('council-route')) {
+        drawSurface(g, box, 'inset', { quiet: true, flat: true, radius: 10 });
     } else if (has('menu-panel')) {
-        drawSurface(g, box, 'inset', { radius: 32, accent: 0xe4b86c });
-        for (const direction of [-1, 1])
-            drawWing(
-                g,
-                direction < 0 ? box.x + 15 : box.x + box.width - 15,
-                box.y + box.height - 14,
-                30,
-                -direction,
-            );
+        drawSurface(g, box, 'inset', { radius: 18, quiet: true, flat: true });
     } else if (has('menu-crown')) {
         drawMenuCrown(g, box);
     } else if (el.matches('.menu-adventure > span')) {
@@ -354,10 +371,10 @@ export function drawComponent(
             1,
         );
     } else if (has('turn-receipt') && !el.closest('.placement-guidance, .is-desktop')) {
-        drawSurface(g, box, 'card', { radius: 18, quiet: true, flat: true });
+        drawSurface(g, box, 'inset', { radius: 10, quiet: true, flat: true });
     } else if (has('placement-guidance')) {
         if (!el.closest('.is-desktop'))
-            drawSurface(g, box, 'card', { radius: 18, quiet: true, flat: true });
+            drawSurface(g, box, 'inset', { radius: 10, quiet: true, flat: true });
     } else if (has('trade-side')) {
         drawSurface(g, box, el.classList.contains('trade-side--give') ? 'coral' : 'turquoise', {
             radius: 18,
@@ -373,12 +390,7 @@ export function drawComponent(
         g.lineStyle(2, UI_INK.gold).strokeCircle(cx, cy, 65);
         for (const direction of [-1, 1]) drawWing(g, cx + direction * 76, cy, 35, direction);
     } else if (has('sheet-header')) {
-        drawSurface(
-            g,
-            box,
-            (el.closest('dialog')?.getAttribute('data-tone') ?? 'lapis') as Material,
-            { radius: 24, accent: UI_INK.gold, quiet: true },
-        );
+        drawSurface(g, box, 'inset', { radius: 0, quiet: true, flat: true });
         g.fillStyle(UI_INK.gold, 0.7).fillRoundedRect(
             box.x + box.width / 2 - 18,
             box.y + 5,
@@ -395,7 +407,7 @@ export function drawComponent(
         if (has('button--tutorial') || has('dock-cards') || has('pre-roll-card'))
             material = 'amethyst';
         if (has('button--quiet') || el.tagName === 'SUMMARY') material = 'inset';
-        if (has('context-button')) material = 'card';
+        if (has('context-button') || has('construction-details')) material = 'card';
         if (has('menu-play')) material = 'emerald';
         if (has('resource-choice') || has('port-chip') || has('port-list-item'))
             material = selected ? 'honey' : 'card';
@@ -419,7 +431,8 @@ export function drawComponent(
                   ? owner
                   : undefined,
             radius: has('icon-button') ? 13 : 17,
-            flat: has('context-button'),
+            flat: true,
+            quiet: has('construction-details'),
         });
         if (selected)
             g.fillStyle(material !== 'inset' ? 0x65543d : UI_INK.gold).fillCircle(
@@ -428,7 +441,7 @@ export function drawComponent(
                 3,
             );
     } else if (has('character-card') || has('character-dialogue')) {
-        drawSurface(g, box, 'inset', { radius: 16, quiet: true, accent: UI_INK.gold });
+        drawSurface(g, box, 'inset', { radius: 16, quiet: true, accent: undefined });
     } else if (el.matches('.detail-list > div, .history-list > li')) {
         g.lineStyle(1, 0x656b61, 0.6).lineBetween(
             box.x,

@@ -22,7 +22,7 @@ export function frameSprite(art: ArtFrame, width: number, className = ''): strin
     const [, , w, h] = art.frame;
     const scale = width / w;
     const px = (value: number) => `${Number(value.toFixed(3))}px`;
-    return `<span aria-hidden="true" class="art-sprite ${escape(className)}" style="width:${px(width)};height:${px(h * scale)}"></span>`;
+    return `<span aria-hidden="true" class="art-sprite ${escape(className)}" style="--art-ratio:${w / h};width:${px(width)};height:${px(h * scale)}"></span>`;
 }
 
 export const artSprite = (name: ArtName, width: number, className = ''): string =>

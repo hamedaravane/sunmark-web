@@ -1,7 +1,7 @@
 import type { GameObjects } from 'phaser';
 import { drawSurface, type Material, type UiBox } from './graphicsTheme';
 
-export const MATCH_INK = { base: 0x24345b, raised: 0x36568c, edge: 0x7e9dc6, gold: 0xffcf75 };
+export const MATCH_INK = { base: 0x102a30, raised: 0x24464a, edge: 0x58726e, gold: 0xd9b66f };
 
 export function matchFace(
     g: GameObjects.Graphics,
@@ -32,12 +32,17 @@ export function dockControl(
     tone: Material = 'lapis',
 ): void {
     const face = primary ? { ...b, x: b.x + 3, width: b.width - 6 } : b;
-    drawSurface(g, face, primary ? 'honey' : tone, {
-        pressed,
-        disabled,
-        radius: primary ? b.height / 2 : tone === 'honey' ? 14 : 21,
-        accent: selected ? 0xffe6a1 : undefined,
-        quiet: !primary,
-    });
+    drawSurface(
+        g,
+        face,
+        primary ? 'honey' : selected ? 'turquoise' : tone === 'coral' ? 'coral' : 'inset',
+        {
+            pressed,
+            disabled,
+            radius: 10,
+            accent: selected ? 0xffe6a1 : undefined,
+            quiet: !primary,
+        },
+    );
     if (selected) g.fillStyle(0xffe6a1).fillCircle(b.x + b.width / 2, b.y + b.height - 7, 2);
 }

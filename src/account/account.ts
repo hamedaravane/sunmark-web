@@ -1,3 +1,4 @@
+import { ART, assetUrl } from '../game/assets';
 import { configureAnalytics } from '../analytics/browser';
 import {
     accountResponseSchema,
@@ -38,14 +39,14 @@ export function showAccount(
             resolve();
         };
         const render = () => {
-            root.innerHTML = accountMarkup(
+            root.innerHTML = `<div class="account-layout"><aside class="account-story"><p>Sunmark</p><h2>هر سفر، یک پیمان تازه</h2><p>جزیره‌ات را بساز؛ با هم‌سفرهایت رقابت کن.</p><img src="${assetUrl(ART['spenta-armaiti-portrait'].file)}" alt="" aria-hidden="true"></aside>${accountMarkup(
                 mode,
                 step,
                 values,
                 playerIdentity(),
                 recovery,
                 allowOffline,
-            );
+            )}</div>`;
         };
         const error = (message: string) => {
             const p = root.querySelector('.account-error');

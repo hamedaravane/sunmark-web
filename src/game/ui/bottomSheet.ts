@@ -5,6 +5,7 @@ import { ART, type ArtName } from '../assets';
 
 export interface SheetContent {
     title: string;
+    screen?: string;
     tone?: Material;
     body: string;
     /** Persistent context painted outside the scrolling body mask. */
@@ -80,6 +81,7 @@ export class BottomSheet {
         const contentChanged = !!content.key && this.dialog.dataset.contentKey !== content.key;
         this.dialog.dataset.contentKey = content.key ?? '';
         this.dialog.dataset.tone = content.tone ?? 'lapis';
+        this.dialog.dataset.screen = content.screen ?? content.key ?? '';
         this.dialog.classList.toggle('introduction-sheet', content.key === 'match-introduction');
         const narrationChanged =
             !!content.narrator && this.dialog.dataset.narration !== content.narrator.key;
@@ -91,7 +93,7 @@ export class BottomSheet {
         this.dialog.classList.toggle('narrator-sheet', !!portrait);
         this.dialog.dataset.portrait = portrait ?? '';
         this.dialog.dataset.narration = content.narrator?.key ?? '';
-        const header = `<header class="sheet-header${portrait ? ' narrator-heading' : ''}"><h2 id="sheet-title">${icon(portrait ? 'practice' : 'sun', 22)}${escape(content.title)}${portrait ? `<span class="narrator-role">${escape(content.narrator?.role ?? 'همراه سفر')}</span>` : ''}</h2>${button('×', 'close-sheet', { className: 'icon-button', label: 'بستن پنجره' })}</header>`;
+        const header = `<header class="sheet-header${portrait ? ' narrator-heading' : ''}"><h2 id="sheet-title" tabindex="-1">${icon(portrait ? 'practice' : 'sun', 22)}${escape(content.title)}${portrait ? `<span class="narrator-role">${escape(content.narrator?.role ?? 'همراه سفر')}</span>` : ''}</h2>${button('×', 'close-sheet', { className: 'icon-button', label: 'بستن پنجره' })}</header>`;
         const expandedBody = content.body.replace(
             /<summary(?:\s[^>]*)?>/g,
             (opening) =>
@@ -112,7 +114,8 @@ export class BottomSheet {
             (
                 preferred ??
                 nameInput ??
-                this.dialog.querySelector<HTMLElement>('[data-action="tutorial-next"]')
+                this.dialog.querySelector<HTMLElement>('[data-action="tutorial-next"]') ??
+                this.dialog.querySelector<HTMLElement>('#sheet-title')
             )?.focus({ preventScroll: true });
         }
         if (wasOpen) {

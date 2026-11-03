@@ -1,10 +1,11 @@
+/* Shared council geometry for server-driven entry and waiting rooms. */
 .online-root {
     position: absolute;
     inset: 0;
     height: var(--app-height);
     overflow: hidden;
     font-family: Vazirmatn, Tahoma, sans-serif;
-    background: #111b3b;
+    background: #102a30;
 }
 .online-canvas,
 .online-semantics {
@@ -19,38 +20,43 @@
 .online-semantics {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
         env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
     pointer-events: none;
 }
-.online-semantics header {
+.online-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 16px 24px;
     flex: none;
+}
+.online-brand {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 8px 16px;
+    min-width: 0;
 }
-.online-semantics header h1 {
-    flex: 1;
-}
-.online-semantics header small {
-    font-size: 11px;
-    max-width: 100px;
+.online-brand > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 .online-semantics :is(h1, h2, h3, p, small, strong) {
     margin: 0;
-    line-height: 1.7;
+    line-height: 1.9;
     overflow-wrap: anywhere;
 }
 .online-semantics h1 {
-    font-size: 18px;
+    font-size: 20px;
 }
 .online-semantics h2 {
-    font-size: 24px;
+    font-size: 26px;
 }
 .online-semantics h3 {
-    font-size: 17px;
+    font-size: 18px;
 }
 .online-semantics p {
     font-size: 14px;
@@ -60,28 +66,37 @@
 }
 .online-panel {
     width: 100%;
-    max-width: 480px;
-    margin: auto;
+    max-width: 1100px;
     min-height: 0;
+    max-height: 100%;
+    margin: auto;
     overflow: auto;
     overscroll-behavior: contain;
-    padding: 20px 20px 28px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 22px;
     pointer-events: auto;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: #58726e transparent;
+}
+.online-panel[data-view='join'],
+.online-panel[data-view='guest'],
+.online-panel[data-view='search'] {
+    max-width: 620px;
+    text-align: center;
+    gap: 20px;
 }
 .online-semantics :is(button, input) {
     font: inherit;
     font-size: 14px;
-    line-height: 1.6;
-    min-height: 48px;
+    line-height: 24px;
+    min-height: 50px;
     min-width: 48px;
     border: 0;
     background: transparent;
     padding: 12px 16px;
-    border-radius: 14px;
+    border-radius: 10px;
 }
 .online-semantics button {
     cursor: pointer;
@@ -90,13 +105,14 @@
     cursor: default;
 }
 .online-semantics :is(button, input):focus-visible {
-    outline: 3px solid #ffcf75;
-    outline-offset: 2px;
+    outline: 3px solid #d9b66f;
+    outline-offset: 3px;
 }
 .online-semantics label {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    text-align: start;
 }
 .online-semantics input {
     font-size: 16px;
@@ -106,58 +122,102 @@
 }
 .online-semantics input[data-draft='code'] {
     direction: ltr;
-    letter-spacing: 3px;
+    letter-spacing: 8px;
     text-align: center;
+    font-size: 28px;
+    min-height: 72px;
 }
 .online-semantics [data-paint] {
     color: transparent !important;
     text-shadow: none !important;
 }
 .online-semantics input:focus {
-    color: #fff4dc !important;
-    caret-color: #ffcf75;
+    color: #f4ebd6 !important;
+    caret-color: #d9b66f;
+}
+.online-mode-grid {
+    display: grid;
+    gap: 16px;
 }
 .online-card,
 .online-welcome,
 .online-invite {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 20px;
+    gap: 16px;
+    padding: 24px;
+}
+.online-card h3 {
+    font-size: 15px;
+}
+.online-card > button:first-of-type {
+    margin-top: auto;
+}
+.online-card {
+    min-height: 240px;
 }
 .online-welcome {
-    text-align: center;
-    padding-block: 28px;
+    padding: 32px 24px;
+    gap: 24px;
 }
 .online-invite {
     text-align: center;
+    align-self: start;
 }
 .online-invite h2 {
     direction: ltr;
-    letter-spacing: 3px;
+    letter-spacing: 8px;
+    font-size: 34px;
+}
+.online-lobby {
+    display: grid;
+    gap: 24px;
+}
+.online-roster {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 .online-seats {
     display: grid;
-    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 }
 .online-seat {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-columns: 36px minmax(0, 1fr);
     gap: 12px;
     align-items: center;
-    padding: 12px;
+    padding: 16px;
+}
+.online-seat h3 {
+    font-size: 14px;
+    line-height: 24px;
 }
 .online-seat button {
-    grid-column: 2;
+    grid-column: 1/-1;
     padding: 8px;
+    font-size: 13px;
+    min-height: 48px;
 }
 [data-avatar] {
     display: block;
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     flex: none;
 }
-
+.queue-seats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+.queue-seats > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 8px;
+    gap: 10px;
+}
 .online-semantics[hidden],
 .online-canvas[hidden] {
     display: none;
@@ -165,6 +225,73 @@
 .online-semantics :is(button, input) {
     pointer-events: auto;
 }
-.online-semantics .online-panel {
-    max-height: 100%;
+@media (min-width: 760px) {
+    .online-header {
+        padding: 20px 36px;
+    }
+    .online-mode-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+    }
+    .online-card {
+        min-height: 340px;
+        padding: 28px 24px;
+    }
+    .online-lobby {
+        grid-template-columns: minmax(240px, 0.65fr) minmax(0, 1.35fr);
+        gap: 28px;
+        direction: ltr;
+    }
+    .online-lobby > * {
+        direction: rtl;
+    }
+    .online-panel {
+        padding: 28px 36px 36px;
+    }
+    .online-panel > h2 {
+        font-size: 30px;
+    }
+    .online-panel[data-view='lobby'] {
+        margin-top: 20px;
+    }
+    .online-card h2 {
+        font-size: 24px;
+    }
+}
+@media (max-width: 759px) {
+    .online-header {
+        padding: 12px 16px;
+    }
+    .online-semantics h1 {
+        font-size: 17px;
+    }
+    .online-brand small {
+        font-size: 11px;
+    }
+    .online-panel {
+        padding: 18px 16px 24px;
+        gap: 18px;
+    }
+    .online-card {
+        min-height: 210px;
+        padding: 22px;
+    }
+    .online-invite {
+        padding: 20px;
+    }
+    .online-seat {
+        padding: 14px 12px;
+        grid-template-columns: 28px minmax(0, 1fr);
+        gap: 8px;
+    }
+    .online-seat [data-avatar] {
+        width: 28px;
+        height: 28px;
+    }
+    .online-seat small {
+        font-size: 11px;
+    }
+    .online-seat h3 {
+        font-size: 13px;
+    }
 }

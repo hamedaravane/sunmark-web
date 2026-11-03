@@ -1,0 +1,26 @@
+[
+  {
+    "name": "playwright",
+    "repository": "https://github.com/openai/skills",
+    "commit": "49f948faa9258a0c61caceaf225e179651397431",
+    "upstream_path": "skills/.curated/playwright"
+  },
+  {
+    "name": "screenshot",
+    "repository": "https://github.com/openai/skills",
+    "commit": "49f948faa9258a0c61caceaf225e179651397431",
+    "upstream_path": "skills/.curated/screenshot"
+  },
+  {
+    "name": "frontend-design",
+    "repository": "https://github.com/anthropics/skills",
+    "commit": "ca45fc496a3436251f191354091d557da31c15b5",
+    "upstream_path": "skills/frontend-design"
+  },
+  {
+    "name": "web-design-guidelines",
+    "repository": "https://github.com/vercel-labs/agent-skills",
+    "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+    "upstream_path": "skills/web-design-guidelines"
+  }
+]

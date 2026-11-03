@@ -21,7 +21,9 @@ test('pause menu has focused actions and experience preferences, one tutorial en
     expect(content.title).toBe('بازی متوقف است');
     expect(actions(content.body)).toEqual([
         'open:journal',
+        'open:history',
         'open:review',
+        'open:characters',
         'new-game',
         'open:experience',
         'open-app',
@@ -124,6 +126,7 @@ test('practice pause menu has a single relevant help entry and update availabili
     const content = sheetContent(session, true);
     expect(actions(content.body)).toEqual([
         'open:rules',
+        'open:history',
         'open:review',
         'new-game',
         'open:experience',
@@ -136,4 +139,23 @@ test('practice pause menu has a single relevant help entry and update availabili
     session.openSheet({ kind: 'rules' });
     expect(sheetContent(session).title).toBe('راهنمای تمرین');
     expect(session.savedMatch).toBeNull();
+});
+
+test('home settings apply narrator choices before entering a new match', () => {
+    const session = new GameSession();
+    session.openSheet({ kind: 'experience' });
+    session.setExperienceOption('anahita');
+    session.setExperienceOption('rivals');
+    expect(session.state).toBeNull();
+    expect(session.preferences.snapshot).toMatchObject({
+        anahita: false,
+        rivals: false,
+        anahitaChosen: true,
+        rivalsChosen: true,
+    });
+    session.closeSheet();
+    session.start(4, true, 'بازیکن', true);
+    expect(session.tutorial.enabled).toBe(false);
+    expect(session.rivals.enabled).toBe(false);
+    expect(session.state?.players).toHaveLength(4);
 });

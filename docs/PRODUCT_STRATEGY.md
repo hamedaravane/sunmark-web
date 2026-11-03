@@ -56,3 +56,29 @@ phone/tablet/desktop feedback. No engagement improvement is established by this
 visual change. Guardrails: unchanged rules/pacing/authority, public-only opponent
 facts, no map/port occlusion, stable board geometry across turns, clear mandatory
 actions and preserved source art. No new analytics are collected.
+
+## 2026-11-03: focused visual review after main sync
+
+Problem: mode icons stretched, offline entry followed disabled online choices in
+isolated builds, and phone construction hid the third option below the fold.
+Hypothesis: clear mode emphasis and compact decision cards reduce scanning before
+play and building. Review first-match progress, construction rejection rates and
+player feedback with the existing measurement only; no improvement in engagement
+is established by screenshot review. Guardrails: preserve the founder composition,
+source art, keyboard/touch access, costs, target confirmation, hidden information,
+opt-outs and bot pacing. Playwright review uses disposable contexts, not accounts.
+
+## 2026-11-03: Council product redesign
+
+Problem: a progression-heavy home and repeated narrow dialogs obscured play,
+comparison and the characters. Hypothesis: a character-led entry, clear current
+turn, stable inventory and task-specific workspaces improve first-match progress
+and comprehension. Evaluate existing entry/progress/completion/rejection signals
+with player feedback; screenshots alone establish neither engagement nor retention
+improvement. Guardrails: unchanged mechanics/authority/costs/privacy/opt-outs,
+no blocked map targets, recoverable navigation and no new analytics. Review fixtures
+use memory storage and intercepted local API responses, never live player writes.
+
+Guest-first startup removes account registration before the first home visit. Account
+entry remains explicit and online play retains its identity requirement. Existing
+account restoration and required profile completion remain intact.

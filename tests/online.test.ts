@@ -120,10 +120,8 @@ describe('online frontend', () => {
     it('shows private rooms as unavailable in an explicitly offline-only build', () => {
         vi.stubEnv('VITE_ONLINE_ENABLED', 'false');
         const markup = menuContent(new AppPlatform(), new GameSession());
-        expect(markup).toContain(
-            'data-action="online" class="hub-mode hub-mode--friends" disabled',
-        );
-        expect(markup).toContain('در این نسخه غیرفعال');
+        expect(markup).toContain('data-action="online" class="button button--quiet" disabled');
+        expect(markup).toContain('رقابت آنلاین در این نسخهٔ آفلاین در دسترس نیست.');
         expect(markup).toContain('data-action="play"');
     });
     it('keeps the runtime match contract compatible with the generated HTTP response type', () => {

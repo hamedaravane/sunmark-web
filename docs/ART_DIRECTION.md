@@ -54,3 +54,16 @@ island and a large rival at the lower-left boundary. On portrait screens, the ri
 sits behind the bottom resource tray, with actions beside it and the island above.
 Safe areas and shorter screens reduce portrait size before sacrificing the island.
 Passive activity art must never cover terrain, ports, or their input targets.
+
+## Council of the Sun (2026-11-03)
+
+The owner's full product redesign supersedes the royal-enamel treatment and the
+founder-sketch placement where described here. Keep the Persian palace, island,
+original character frames and ownership colors. Interface materials are midnight
+petrol, slate, warm ivory, aged brass and restrained jade/rose. Use quiet single-edge
+panels and modest corners; gold emphasizes the next decision. The home introduces
+the three rivals as a cast, while gameplay keeps the island primary and inventory
+beneath standings. Source proportions and visible lower boundaries remain required.
+A simple procedural close cross replaces the disproportionately loud red atlas close
+icon in game sheets; other functional artwork still uses the shared atlas.
+See `UI_REDESIGN_STATE.md` for the complete screen direction and verification record.

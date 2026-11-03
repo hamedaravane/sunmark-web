@@ -69,7 +69,7 @@ export class RoomScene extends Scene {
         this.objects.push(item);
         return item;
     }
-    private text(value: string, x: number, y: number, width: number, size = 15, color = '#fff4dc') {
+    private text(value: string, x: number, y: number, width: number, size = 15, color = '#f4ebd6') {
         return this.keep(
             createSharpText(this, x, y, value, {
                 fontFamily: 'Vazirmatn',
@@ -91,11 +91,11 @@ export class RoomScene extends Scene {
             height = root.height;
         if (!width || !height) return;
         configureDisplayCamera(this);
-        this.cameras.main.setBackgroundColor('#111b3b');
+        this.cameras.main.setBackgroundColor('#102a30');
         if (this.textures.exists('online-palace')) {
             const image = this.keep(this.add.image(width / 2, height / 2, 'online-palace'));
             image.setScale(Math.max(width / image.width, height / image.height));
-            this.keep(this.add.graphics()).fillStyle(0x111b3b, 0.7).fillRect(0, 0, width, height);
+            this.keep(this.add.graphics()).fillStyle(0x102a30, 0.86).fillRect(0, 0, width, height);
         }
         // Every scroll region owns one clipped paint container. Phaser 4 WebGL
         // requires external mask filters; GeometryMask only works in Canvas.
@@ -203,12 +203,12 @@ export class RoomScene extends Scene {
                     box.y + box.height / 2,
                     box.width - 8,
                     parseFloat(style.fontSize) || 14,
-                    isButton && node.disabled ? '#a5afbd' : dark ? '#3c2b24' : '#fff4dc',
+                    isButton && node.disabled ? '#a5afbd' : dark ? '#3c2b24' : '#f4ebd6',
                 ),
             );
             if (node === document.activeElement)
                 graphics
-                    .lineStyle(2, 0xffcf75)
+                    .lineStyle(2, 0xd9b66f)
                     .strokeRoundedRect(box.x - 2, box.y - 2, box.width + 4, box.height + 4, 14);
         }
     }

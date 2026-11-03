@@ -107,6 +107,7 @@ export interface MatchEvent {
 /** One human controller and local bots; drafts never mutate authoritative state. */
 export class GameSession {
     buildGoal: BuildType | null = null;
+    buildFocus: BuildType = 'road';
     readonly tutorial = new TutorialDirector();
     readonly rivals = new RivalDirector();
     practice: Practice | null = null;
@@ -672,6 +673,12 @@ export class GameSession {
             !(this.sheet?.kind === 'introduction' && ['sound', 'haptics'].includes(key))
         )
             return;
+        if (!this.state && (key === 'anahita' || key === 'rivals')) {
+            this.preferences.set(key, !this.preferences.snapshot[key]);
+            this.preferences.set(key === 'anahita' ? 'anahitaChosen' : 'rivalsChosen', true);
+            this.emit();
+            return;
+        }
         if (key === 'anahita') {
             this.setTutorialEnabled(!this.preferences.snapshot.anahita);
             return;

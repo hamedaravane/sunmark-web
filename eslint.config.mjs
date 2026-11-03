@@ -5,7 +5,14 @@ import globals from 'globals';
 import prettier from 'eslint-config-prettier/flat';
 
 export default defineConfig(
-    globalIgnores(['dist/**', 'coverage/**', 'public/assets/**', 'art/**']),
+    globalIgnores([
+        'dist/**',
+        'coverage/**',
+        'public/assets/**',
+        'art/**',
+        '.agents/skills/**',
+        'output/**',
+    ]),
     {
         files: ['**/*.{js,mjs,cjs}'],
         extends: [js.configs.recommended],

@@ -1,4 +1,3 @@
-import { icon } from '../../ui/icons';
 import { button } from './components';
 import type { MatchSession } from './matchSession';
 import type { SheetContent } from './bottomSheet';
@@ -13,10 +12,10 @@ export function experienceSheet(session: MatchSession): SheetContent {
         disabled = false,
     ) =>
         button(
-            `<span class="pause-option-copy"><span>${label}</span><small>${description}</small></span><span>${disabled ? 'در دسترس نیست' : settings[key] ? `روشن ${icon('confirm', 18)}` : 'خاموش'}</span>`,
+            `<span class="pause-option-copy"><span>${label}</span><small>${description}</small></span><span class="setting-state"><span class="setting-switch" data-enabled="${!disabled && settings[key]}" aria-hidden="true"></span><small>${disabled ? 'در دسترس نیست' : settings[key] ? 'روشن' : 'خاموش'}</small></span>`,
             `experience:${key}`,
             {
-                className: 'button pause-option',
+                className: 'button button--quiet pause-option setting-option',
                 pressed: disabled ? false : settings[key],
                 disabled,
             },
@@ -24,8 +23,8 @@ export function experienceSheet(session: MatchSession): SheetContent {
     return {
         title: 'صدا، حرکت و گفت‌وگو',
         key: 'experience-settings',
-        body: `${toggle('anahita', 'گفت‌وگوهای آناهیتا', 'انتخابت روی این دستگاه برای بازی‌های بعد هم حفظ می‌شود')}${session.rivals ? toggle('rivals', 'گفت‌وگوهای خودکار رقبا', 'مستقل از آناهیتا؛ خاموش‌کردن، بازی و نوبت‌ها را تغییر نمی‌دهد') : ''}${toggle('sound', 'صدای کارها', 'صدای کوتاه تاس، منبع و ساخت؛ بدون موسیقی تکراری')}${toggle('haptics', 'بازخورد لمسی', haptics ? 'لرزش کوتاه برای کارهای مهم' : 'این دستگاه پشتیبانی نمی‌کند', !haptics)}${toggle('quick', 'بازخورد سریع', 'همان نتیجه‌ها، با حرکت کوتاه‌تر برای نوبت‌های پی‌درپی')}${toggle('reduced', 'حرکت کمتر', 'بدون پرواز و چرخش؛ نتیجه و دارایی همیشه روشن می‌مانند')}<p class="footnote">تنظیم حرکت کمتر دستگاه هم رعایت می‌شود. هیچ حرکتی نتیجهٔ تاس یا زمان مجاز کارها را عوض نمی‌کند.</p>${button('راهنمای رابط بازی', 'open:experience-guide', { className: 'button button--quiet full-width' })}`,
-        footer: button('ادامه بازی', 'resume-game', {
+        body: `${toggle('anahita', 'گفت‌وگوهای آناهیتا', 'انتخابت روی این دستگاه برای بازی‌های بعد هم حفظ می‌شود')}${session.rivals ? toggle('rivals', 'گفت‌وگوهای خودکار رقبا', 'مستقل از آناهیتا؛ خاموش‌کردن، بازی و نوبت‌ها را تغییر نمی‌دهد') : ''}${toggle('sound', 'صدای کارها', 'صدای کوتاه تاس، منبع و ساخت؛ بدون موسیقی تکراری')}${toggle('haptics', 'بازخورد لمسی', haptics ? 'لرزش کوتاه برای کارهای مهم' : 'این دستگاه پشتیبانی نمی‌کند', !haptics)}${toggle('quick', 'بازخورد سریع', 'همان نتیجه‌ها، با حرکت کوتاه‌تر برای نوبت‌های پی‌درپی')}${toggle('reduced', 'حرکت کمتر', 'بدون پرواز و چرخش؛ نتیجه و دارایی همیشه روشن می‌مانند')}<p class="footnote">تنظیم حرکت کمتر دستگاه هم رعایت می‌شود. هیچ حرکتی نتیجهٔ تاس یا زمان مجاز کارها را عوض نمی‌کند.</p>${button('نصب و وضعیت برنامه', 'open-app', { className: 'button button--quiet full-width' })}${button('راهنمای رابط بازی', 'open:experience-guide', { className: 'button button--quiet full-width' })}`,
+        footer: button(session.state ? 'ادامه بازی' : 'بازگشت به خانه', 'resume-game', {
             className: 'button button--primary full-width',
         }),
     };

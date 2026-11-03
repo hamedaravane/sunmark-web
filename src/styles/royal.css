@@ -510,15 +510,16 @@
 .sheet-footer {
     padding-top: 12px;
 }
+/* Decision first; optional planning stays in the disclosure. */
 .construction-heading {
-    min-height: 52px;
+    min-height: 40px;
 }
 .construction-heading .piece-symbol {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
 }
 .construction-heading h3 {
-    font-size: 20px;
+    font-size: 19px;
 }
 .construction-points {
     max-width: 93px;
@@ -527,21 +528,32 @@
     color: #655038;
 }
 .construction-card {
-    padding: 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 10px;
+    padding: 12px;
     border-radius: 18px;
     color: #393351;
     --muted: #514963;
+}
+.construction-card > *,
+.construction-card details > :not(summary) {
+    grid-column: 1 / -1;
 }
 .construction-card h3 {
     color: #393351;
 }
 .construction-card .availability {
+    margin: 0;
     color: #4c4053;
     font-size: 13px;
     line-height: 22px;
 }
 .construction-card > * + * {
-    margin-top: 7px;
+    margin-top: 0;
+}
+.construction-card .visual-cost {
+    padding: 0;
 }
 .cost-token {
     padding: 4px 6px;
@@ -554,12 +566,27 @@
 .cost-legend {
     color: #d1d9f3;
 }
+.construction-card .construction-actions {
+    grid-column: 1;
+    grid-row: 4;
+}
 .construction-actions .button {
-    min-height: 50px;
+    min-height: 48px;
     font-size: 14px;
 }
+.construction-card details {
+    display: contents;
+}
 .construction-card summary {
-    color: #fff4dc;
+    grid-column: 2;
+    grid-row: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 48px;
+    padding: 8px;
+    color: #393351;
     border-radius: 10px;
 }
 .construction-card .muted {

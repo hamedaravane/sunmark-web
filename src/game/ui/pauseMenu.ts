@@ -26,7 +26,7 @@ export function pauseMenuContent(session: MatchSession, updateReady: boolean): S
                 ${menuOption(practice ? 'آموزش تمرین' : 'آموزش و آناهیتا', practice ? 'هدف و مراحل این تمرین' : session.tutorial.enabled ? 'آناهیتا روشن است • درس‌ها و قوانین' : 'آناهیتا خاموش است • برای روشن‌کردن بزن', practice ? 'open:rules' : 'open:journal')}
             </section>
             <section class="pause-section"><h3>بازی</h3>
-                ${menuOption('بررسی بازی', 'رویدادها و خانه‌های جزیره', 'open:review')}
+                ${menuOption('رویدادهای بازی', 'تاس‌ها، ساخت‌ها و معامله‌های این سفر', 'open:history')}${menuOption('بررسی جزیره', 'خانه‌ها، تولید و آخرین حرکت', 'open:review')}${!practice && !session.online ? menuOption('هم‌نشینان جزیره', 'شخصیت‌ها و گفت‌وگوهای این سفر', 'open:characters') : ''}
                 ${menuOption(session.online ? 'بازگشت به اتاق‌ها' : practice ? 'خروج از تمرین' : 'بازگشت به منوی اصلی', practice ? 'بازی اصلی محفوظ می‌ماند' : session.saveStatus === 'unavailable' ? 'ذخیره خودکار در دسترس نیست' : 'ادامه این بازی با دکمهٔ «بازی»', 'new-game')}
             </section>
             <section class="pause-section"><h3>برنامه</h3>

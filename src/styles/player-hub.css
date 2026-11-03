@@ -174,7 +174,7 @@
     min-height: 112px;
     padding: 12px 11px 15px;
 }
-.hub-mode > span:not(.action-emblem):not(.hub-tag) {
+.hub-mode > span:not(.game-icon):not(.action-emblem):not(.hub-tag) {
     display: flex;
     flex-direction: column;
     gap: 3px;

@@ -32,6 +32,7 @@ export class OnlineSession implements MatchSession {
     state: RemoteMatchState | null = null;
     transition: PresentedTransition | null = null;
     buildGoal: BuildType | null = null;
+    buildFocus: BuildType = 'road';
     sheet: Sheet | null = null;
     placement: Placement | null = null;
     give: ResourceType | null = null;

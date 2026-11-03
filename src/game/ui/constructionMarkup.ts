@@ -33,10 +33,11 @@ export function constructionSheet(session: MatchSession): SheetContent {
     const human = session.humanPlayer!;
     const roadsRemaining =
         15 - Object.values(state.board.edges).filter((e) => e.road?.ownerId === human.id).length;
+    const focus = session.buildFocus;
     return {
         title: 'ساخت‌وساز',
         key: 'construction',
-        body: `<p class="cost-legend">دارایی / هزینه · علامت تأیید: کافی · «کم»: نیاز باقی‌مانده</p>${goalMarkup(session)}<div class="construction-list">${BUILD_TYPES.map(
+        body: `<p class="cost-legend">دارایی / هزینه · علامت تأیید: کافی · «کم»: نیاز باقی‌مانده</p>${goalMarkup(session)}<nav class="construction-choices" aria-label="انتخاب نوع سازه">${BUILD_TYPES.map((type) => button(`${icon(type, 22)}<span>${BUILD_LABELS[type]}</span>`, `construction-focus:${type}`, { className: 'button construction-choice', pressed: type === focus })).join('')}</nav><div class="construction-list">${BUILD_TYPES.map(
             (type) => {
                 const option = getBuildOption(state, type, human.id);
                 const practiceBlocked = !!session.practice && session.practice.stage !== type;
@@ -53,7 +54,7 @@ export function constructionSheet(session: MatchSession): SheetContent {
                             : RESOURCE_TYPES.some((r) => option.missing[r])
                               ? `${missingLabel(option.missing)} کم`
                               : `${number(option.legalTargetIds.length)} محل مجاز · آماده`;
-                return `<article class="build-card construction-card" data-build-kind="${type}"><div class="construction-heading"><span class="piece-symbol piece-symbol--${type}" aria-hidden="true"></span><h3>${BUILD_LABELS[type]}</h3><span class="construction-points">${type === 'road' ? `${number(roadsRemaining)} قطعه باقی` : type === 'city' ? '+۱ ارتقا · مجموع ۲' : '+۱ امتیاز'}</span></div>${resourceCost(option.cost, human.resources)}<p class="availability">${practiceBlocked ? 'در این قدم تمرین، سازهٔ دیگری می‌سازیم.' : escape(reason)}</p><div class="construction-actions">${button('انتخاب محل', `build:${type}`, { className: 'button button--primary', disabled: !!option.reason || practiceBlocked, label: `${BUILD_LABELS[type]}؛ ${reason}؛ انتخاب محل` })}${button(session.buildGoal === type ? `${icon('confirm', 18)} هدف تو` : `${icon('pin', 18)} هدف من`, `pin-build:${type}`, { className: 'button button--quiet', pressed: session.buildGoal === type, disabled: !!session.practice })}</div><details><summary>جزئیات ${BUILD_LABELS[type]}</summary><p>${BUILD_PURPOSE[type]}</p>${buildInventory(option, human.resources)}<p>${escape(locationReason(option))}</p>${
+                return `<article class="build-card construction-card" data-build-kind="${type}"${type === focus ? ' data-focused' : ''}><div class="construction-heading"><span class="piece-symbol piece-symbol--${type}" aria-hidden="true"></span><h3>${BUILD_LABELS[type]}</h3><span class="construction-points">${type === 'road' ? `${number(roadsRemaining)} قطعه باقی` : type === 'city' ? '+۱ ارتقا · مجموع ۲' : '+۱ امتیاز'}</span></div>${resourceCost(option.cost, human.resources)}<p class="availability">${practiceBlocked ? 'در این قدم تمرین، سازهٔ دیگری می‌سازیم.' : escape(reason)}</p><div class="construction-actions">${button('انتخاب محل', `build:${type}`, { className: 'button button--primary', disabled: !!option.reason || practiceBlocked, label: `${BUILD_LABELS[type]}؛ ${reason}؛ انتخاب محل` })}</div><details><summary class="construction-details" aria-label="جزئیات ${BUILD_LABELS[type]}">جزئیات</summary><p>${BUILD_PURPOSE[type]}</p>${!session.practice ? button(session.buildGoal === type ? `${icon('confirm', 18)} هدف تو` : `${icon('pin', 18)} هدف من`, `pin-build:${type}`, { className: 'button button--quiet', pressed: session.buildGoal === type, disabled: !!session.practice }) : ''}${buildInventory(option, human.resources)}<p>${escape(locationReason(option))}</p>${
                     session.isHumanTurn && state.phase === 'actions'
                         ? RESOURCE_TYPES.filter((r) => option.missing[r])
                               .map((r) =>

@@ -20,23 +20,23 @@ export type Material =
 
 /** Shared enamel, gold and parchment palette. Text colors live in semantic CSS. */
 export const UI_INK = {
-    ivory: 0xfff4dc,
-    gold: 0xffcf75,
-    muted: 0xd1d9f3,
-    shadow: 0x111b3b,
-    navy: 0x25345e,
+    ivory: 0xf4ebd6,
+    gold: 0xd9b66f,
+    muted: 0xadbfbb,
+    shadow: 0x081b20,
+    navy: 0x193a40,
 };
 const MATERIALS: Record<Material, readonly [number, number, number, number]> = {
-    limestone: [0xfff1cd, 0xebd4a2, 0xfffbe9, 0xa87543],
-    honey: [0xffdf86, 0xf4b94d, 0xfff1ba, 0xa76230],
-    ivory: [0xffffff, 0xf4e9d0, 0xffffff, 0xa58c64],
-    lapis: [0x416bb5, 0x2a4787, 0x9fcbff, 0x1d305c],
-    inset: [0x334a78, 0x24345b, 0x7d9dcc, 0x14213e],
-    card: [0xfff3d7, 0xf0ddb5, 0xfffcf0, 0xba9158],
-    turquoise: [0x1d7885, 0x165968, 0xa1f2e5, 0x164556],
-    emerald: [0x237e61, 0x195d49, 0xb3f1bd, 0x17493e],
-    amethyst: [0x7d56b6, 0x563786, 0xe4baff, 0x392755],
-    coral: [0xb74461, 0x8f304f, 0xffc3b1, 0x712d4b],
+    limestone: [0xf4ebd6, 0xeee3cb, 0xfff9e9, 0x9e967f],
+    honey: [0xe1c486, 0xd5b06a, 0xf2dda9, 0xa18248],
+    ivory: [0xfff9ec, 0xf4ebd6, 0xffffff, 0xa9a18d],
+    lapis: [0x24464a, 0x203e43, 0x58726e, 0x34575a],
+    inset: [0x17333a, 0x142e34, 0x4d6864, 0x29494c],
+    card: [0xf4ebd6, 0xeee3cb, 0xfff9e9, 0xb4a88b],
+    turquoise: [0x295a5c, 0x244d51, 0x779c90, 0x365f5b],
+    emerald: [0x35695a, 0x2c5b4f, 0x8aad8a, 0x416b56],
+    amethyst: [0x4d505d, 0x424652, 0x92949e, 0x5b6070],
+    coral: [0x91564f, 0x804a45, 0xd4a58c, 0x6b433e],
 };
 export interface SurfaceOptions {
     quiet?: boolean;
@@ -103,15 +103,17 @@ export function drawSurface(
         top = mix(top, 0x697184, 0.8);
         base = mix(base, 0x515c73, 0.85);
         light = 0x9caabd;
-        foot = 0x303d55;
+        foot = 0x293d38;
     }
-    const depth = options.pressed ? 1 : options.flat ? 2 : 4;
+    const depth = options.pressed ? 1 : options.flat ? 0 : 1;
     const face = {
         ...box,
         y: box.y + (options.pressed ? 2 : 0),
         height: Math.max(2, box.height - depth - (options.pressed ? 2 : 0)),
     };
-    const radius = Math.min(options.radius ?? 13, face.height / 2, box.width / 2);
+    const requestedRadius = options.radius ?? 10;
+    const halfSide = Math.min(face.height, box.width) / 2;
+    const radius = Math.min(requestedRadius, requestedRadius >= halfSide ? halfSide : 14);
     g.fillStyle(UI_INK.shadow, 0.35).fillRoundedRect(
         box.x,
         box.y + 3,
@@ -133,15 +135,6 @@ export function drawSurface(
         face.x + face.width - radius,
         face.y + 2,
     );
-    if (!options.quiet && face.width > 90 && face.height > 44) {
-        g.lineStyle(1, light, 0.22).strokeRoundedRect(
-            face.x + 5,
-            face.y + 5,
-            face.width - 10,
-            face.height - 10,
-            Math.max(2, radius - 4),
-        );
-    }
 }
 
 /** Achaemenid eight-petal sun seal, shared by victory, cards and player medals. */

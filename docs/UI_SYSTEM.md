@@ -29,6 +29,7 @@ See [icon inventory, research, license and rendering](ICONOGRAPHY.md).
 - Buttons have explicit line heights. Enamel feet, inner highlights and shadows fit within or immediately below their measured controls; pressing lowers the face. Menu and close controls retain at least 48 × 48 targets, with a discoverable gear and Persian «منو» label in the HUD. Sheet headers start at 66 pixels and grow for wrapped titles.
 - The human captain keeps a prominent portrait, name, own score/target medal and acting-player status. Long human names may wrap over two lines. The latest public dice and a visible menu seal share this row. Three opponents (two in legacy saves) occupy a separate portrait row with public scores, owner rims and ten progress marks. The acting opponent is highlighted. Every player opens their real details; hidden opponent points and hands never enter this projection.
 - Resources are collected objects on a shared enamel shelf, with individual resource-colored plinths, 24/29-pixel illustrations, prominent exact counts and short Persian names. These are passive inventory, visually distinct from resource selectors in sheets. Confirmed gains/spending retain the stationary highlight, exact delta and bounded flights.
+- Construction cards keep identity, resource costs, availability and the location action visible together. Optional planning goals, inventory tables and shortage trade links live inside the native details disclosure. Its summary shares the action row; closed details remain excluded from Phaser traversal even with a zero-box layout wrapper.
 - Detail rows wrap in two flexible columns; construction headers may wrap; trade controls use explicit line heights and narrow-screen padding. The menu centers safely when it fits and remains scrollable without losing its top on shorter screens.
 - The nine 32-pixel port islets sit 20 pixels offshore, within the 40-pixel board margin. See [PORTS.md](PORTS.md).
 
@@ -38,7 +39,7 @@ See [icon inventory, research, license and rendering](ICONOGRAPHY.md).
 - `scenes/GameScene.ts` owns the inset board camera, terrain, coast, pieces, ports, previews, and board effects. Its camera size and semantic board surface share measurements. `rendering/boardInput.ts` listens to that surface and transforms client positions into camera-local coordinates.
 - `ui/GameHud.ts` assembles **transparent semantic controls** and responsive layout nodes. These are the input/accessibility adapter: real buttons, labels, a live region, and a native modal dialog preserve keyboard navigation, screen-reader content, focus trapping, and scrolling. Their labels and state come from the local session. CSS opacity hides their visual output without removing semantics or hit areas. Name entry uses a transparent native input for Persian IME, autofill, and the phone keyboard. Its value is mirrored into an aria-hidden layout span; Phaser paints that measured runtime text, focus border, caret, and selection using browser text ranges. Name-sheet input DOM is preserved across unrelated platform updates to keep composition and selection intact. No visible input layer is added above the canvas.
 - `ui/InterfaceScene.ts` paints the same layout as Graphics, Text, and preserved Image crops. The stage is pointer-transparent; semantic buttons dispatch through `GameHud` into the existing session. The canvas is decorative in the accessibility tree, preventing duplicate announcements.
-- `ui/graphicsTheme.ts` supplies reusable enamel/parchment/gold/ivory materials. Rounded faces use bounded gradient strips, a shaded foot, setting, and upper highlight, without masks, texture downloads or randomness. `ui/royalArt.ts` supplies resource/card palettes, stepped wings, card frames, the menu crest and gear. `styles/global.css` holds semantic foundations; `styles/royal.css` owns the current composition and typography.
+- `ui/graphicsTheme.ts` supplies reusable enamel/parchment/gold/ivory materials. Rounded faces use bounded gradient strips, a shaded foot, setting, and upper highlight, without masks, texture downloads or randomness. `ui/royalArt.ts` supplies resource/card palettes, stepped wings, card frames, the menu crest and gear. `styles/global.css` holds semantic foundations; `styles/council.css` owns the current composition and typography.
 - `ui/headerModel.ts` projects public standings and computes a full-width header backdrop from canvas y=0 through the measured header bottom, filling top/side safe insets with the same lapis material. Controls retain the match grid’s safe-area padding. `ui/playerIdentity.ts` supplies stable seat avatars, local rival names, and bounded/normalized player names; local rivals use supplied portrait Images while human/server bot identities retain shared icon glyphs and runtime owner-colored rims.
 - `ui/graphicsComponents.ts` applies the materials to every control/card/panel, including pressed, disabled, selected, active-player, and keyboard-focus states. Selected choices have a contrasting bronze outline/rosette on light stone and warm gold on dark panels; focus has a separate outer ring. Victory progress derives from the core player summary and match target.
 - `ui/semanticText.ts` measures browser-wrapped text by line so Phaser retains Persian shaping, bidi digits, inline labels, and responsive wrapping. Text crops honor overflow regions and texture resolution. `textGeometry.ts` computes baseline/reading-edge positions and ellipsizes constrained labels in logical reading order. The scrollable modal content uses a Phaser 4 external Mask filter in WebGL and a Graphics geometry mask in Canvas; the header and portrait stay outside it. Do not use `setMask()` for WebGL: Phaser 4 ignores that Canvas-only API.
@@ -212,3 +213,41 @@ and portrait scroll-mask ownership stays separate from the inventory; compact
 landscape masks the complete scrolling rail. Game authority and input projection
 remain unchanged. Pure layout/port tests verify the new viewport bounds; appearance
 and keyboard behavior during resizing remain owner/device review.
+
+## Council redesign (2026-11-03; current)
+
+This owner-authorized redesign supersedes earlier material and layout descriptions.
+`styles/council.css` is the single imported visual composition stylesheet over the
+semantic foundations in `global.css`; the earlier royal/desktop/hub/composition
+stylesheets remain historical source references and are not imported. Palette and
+surface rendering live in `graphicsTheme.ts`, `graphicsComponents.ts`, `royalArt.ts`
+and `matchChrome.ts`. All game pixels remain Phaser, with transparent DOM controls.
+
+On phones, standings occupy 120px, inventory 56px, context 44px and commands 124px;
+the island flexes between inventory and context. Larger screens keep the bounded
+three-column table, move inventory above the island and stretch the right decision
+workspace. Phone construction shows a three-piece selector and one plan; wider
+screens compare all three. Selection is presentation-only. Location preview and
+explicit payment confirmation still use ordinary session commands. Bank confirmation
+is in the fixed footer; card selection, effects and acquisition remain distinct.
+
+`BottomSheet` carries `data-screen` so construction, trading, cards, companions,
+introduction and results can use wider workspaces. Rules have native expandable
+chapters; settings use full-row toggle buttons with an explicit visual state. The
+first focus is the heading for reading dialogs, the native input for entry, or an
+explicit preferred action. Focus trapping and Escape remain native dialog behavior.
+
+Home leads with characters and start/resume, then practice, online play and the
+progression/account paths. Guests enter home directly; online play requests an account
+on demand, while restored incomplete accounts retain required profile completion.
+The home gear opens preferences before a match; narrator
+choices persist into future matches. Installation is optional from settings, without a forced
+first-entry interruption. Native account and online waiting rooms share the palette
+and responsive hierarchy. The account layout preserves password-manager, autofill,
+IME, validation, recovery and privacy controls.
+
+A DEV-only `?review` route mounts the real match renderer with isolated memory
+storage and prepared phases. It is excluded from production. Screenshot fixtures,
+entry/authenticated mock-service fixtures and focused interaction scripts are in
+`scripts/*review.mjs`; see `docs/VISUAL_TOOLING.md`. No fixture reads real saves,
+uses a production account or changes core rules.

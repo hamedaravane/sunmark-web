@@ -5,11 +5,7 @@ import { refreshProgression } from './account/progression';
 import { StartGame } from './game/main';
 import { loadUiFont } from './game/ui/typography';
 import './styles/global.css';
-import './styles/royal.css';
-import './styles/desktop.css';
-import './styles/player-hub.css';
-import './styles/bot-activity.css';
-import './styles/match-composition.css';
+import './styles/council.css';
 import './ui/icons.css';
 
 const parent = document.querySelector<HTMLElement>('#game-container');
@@ -19,14 +15,16 @@ if (!parent) {
 }
 
 void loadUiFont().then(async () => {
-    if (new URLSearchParams(window.location.search).get('demo') === 'pieces') {
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('review')) {
+        const { startDesignReview } = await import('./game/demo/designReview');
+        startDesignReview(parent);
+    } else if (new URLSearchParams(window.location.search).get('demo') === 'pieces') {
         const { startPiecesDemo } = await import('./game/demo/piecesDemo');
         startPiecesDemo(parent);
     } else {
         if (import.meta.env.VITE_ONLINE_ENABLED !== 'false') {
-            const restored = await restoreIdentity();
-            if (!playerIdentity() && !restored) await showAccount(parent);
-            else if (playerIdentity()?.profileComplete === false) await showAccount(parent);
+            await restoreIdentity();
+            if (playerIdentity()?.profileComplete === false) await showAccount(parent);
         }
         await configureAnalytics(parent);
         const offline = document.createElement('div');

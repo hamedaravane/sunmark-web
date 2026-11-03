@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Sunmark — a mobile-first Persian-language strategy board game built with Phaser 4 and TypeScript.",
+  "description": "Sunmark \u2014 a mobile-first Persian-language strategy board game built with Phaser 4 and TypeScript.",
   "scripts": {
     "assets:optimize": "python3 scripts/optimize-images.py",
     "assets:check": "python3 scripts/optimize-images.py --check",
@@ -25,7 +25,12 @@
     "test:api": "vitest run --config vitest.config.integration.ts",
     "api:generate": "openapi-typescript contracts/openapi.json -o src/online/shared/http.d.ts",
     "api:sync": "node scripts/api-sync.mjs",
-    "api:check": "node scripts/api-check.mjs"
+    "api:check": "node scripts/api-check.mjs",
+    "browser:dev": "VITE_ONLINE_ENABLED=false vite --host 127.0.0.1 --port 4173 --strictPort",
+    "browser:cli": "node scripts/browser-cli.mjs",
+    "browser:verify": "node scripts/browser-verify.mjs",
+    "browser:install": "playwright install --with-deps --only-shell chromium",
+    "browser:ui": "node scripts/ui-capture.mjs"
   },
   "dependencies": {
     "phaser": "4.0.0",
@@ -34,11 +39,13 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/cli": "0.1.23",
     "@types/node": "24.19.2",
     "eslint": "10.12.0",
     "eslint-config-prettier": "10.1.8",
     "globals": "17.13.0",
     "openapi-typescript": "7.10.1",
+    "playwright": "1.65.0-alpha-2026-10-30",
     "prettier": "3.9.10",
     "typescript": "~5.7.2",
     "typescript-eslint": "8.71.2",

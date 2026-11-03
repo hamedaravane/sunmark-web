@@ -133,7 +133,7 @@ export class GameHud {
         ) {
             session.playerNameDraft = referral.toLowerCase();
             session.openSheet({ kind: 'referrals' });
-        } else if (!app.installed && !session.online) session.openSheet({ kind: 'app' });
+        }
     }
 
     boardReady(): void {
@@ -295,9 +295,28 @@ export class GameHud {
         if (this.session.sheet.kind === 'update') return updateContent(this.app, this.session);
         if (this.session.sheet.kind === 'app') return appContent(this.app, this.session);
         if (this.session.sheet.kind === 'introduction')
-            return introductionContent(this.session, this.matchPrepared);
+            return {
+                ...introductionContent(this.session, this.matchPrepared),
+                screen: 'introduction',
+            };
         const content = sheetContent(this.session, this.app.updateReady);
         const kind = this.session.sheet.kind;
+        if (content.key === 'game-rules') {
+            const chapters = content.body.split(/<h3>(.*?)<\/h3>/);
+            content.body =
+                chapters[0] +
+                chapters
+                    .slice(1)
+                    .reduce(
+                        (result, part, index, rest) =>
+                            index % 2
+                                ? result
+                                : result +
+                                  `<details class="rule-chapter"><summary>${part}</summary>${rest[index + 1]}</details>`,
+                        '',
+                    );
+        }
+        content.screen = kind;
         content.tone =
             kind === 'build'
                 ? 'coral'
@@ -331,6 +350,9 @@ export class GameHud {
         if (this.app.updating) return;
         const [action, value, resource] = target.dataset.action!.split(':');
         const targetId = target.dataset.action!.slice(action.length + 1);
+        if (action === 'open' && value === 'build' && this.session.practice)
+            this.session.buildFocus =
+                this.session.practice.stage === 'settlement' ? 'settlement' : 'road';
         if (
             action === 'enter-match' &&
             this.matchPrepared &&
@@ -431,6 +453,10 @@ export class GameHud {
         if (action === 'app-retry') this.app.retry();
         if (action === 'app-update') {
             void applyUpdate(this.app, this.session);
+        }
+        if (action === 'construction-focus' && BUILD_TYPES.some((type) => type === value)) {
+            this.session.buildFocus = value as (typeof BUILD_TYPES)[number];
+            this.session.openSheet({ kind: 'build' });
         }
         if (action === 'rival-next') this.session.continueRival?.();
         if (action === 'rival-reply' && (value === 'bold' || value === 'curious'))

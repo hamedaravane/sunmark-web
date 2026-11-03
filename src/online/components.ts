@@ -6,7 +6,7 @@ export const escape = (text: unknown) =>
     );
 export const label = (text: string, kind = 'p') => `<${kind} data-paint>${escape(text)}</${kind}>`;
 export const button = (text: string, action: string, disabled = false) =>
-    `<button data-paint data-online="${escape(action)}" data-tone="${/^(confirm|start|guest|create|join|discard|rematch)/.test(action) ? 'honey' : /^(cancel|reject|withdraw)/.test(action) ? 'coral' : 'turquoise'}" ${disabled ? 'disabled' : ''}>${escape(text)}</button>`;
+    `<button data-paint data-online="${escape(action)}" data-tone="${/^(confirm|start|guest|create|join|discard|rematch|ranked)/.test(action) ? 'honey' : /^(cancel|reject|withdraw)/.test(action) ? 'coral' : 'inset'}" ${disabled ? 'disabled' : ''}>${escape(text)}</button>`;
 export const input = (
     title: string,
     key: string,

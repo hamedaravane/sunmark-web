@@ -59,3 +59,19 @@ For visual or interface work, also read:
 - `npm run format:check` verifies Prettier formatting; `npm run format` formats the repository's supported text files.
 - `npm run check` runs lint, formatting, tests, and the type-checked production build. The automatic release pipeline runs full verification and the production build. Prefer focused local checks unless broader local verification is required; report the checks actually performed.
 - Keep configuration small and shared between development and production unless a concrete deployment need requires a difference.
+
+## Visual design and browser skills
+
+Project-local skills are installed in `.agents/skills/` and indexed with pinned
+upstream provenance in `.agents/skills-sources.json`:
+
+- [Playwright](.agents/skills/playwright/SKILL.md): browser interaction and visual inspection.
+- [Frontend design](.agents/skills/frontend-design/SKILL.md): visual design and responsive layouts.
+- [Web design guidelines](.agents/skills/web-design-guidelines/SKILL.md): UX/accessibility review.
+- [Screenshot](.agents/skills/screenshot/SKILL.md): OS capture fallback.
+
+Read the matching skill before use. Prefer the locally pinned `npm run browser:cli`
+over downloading a CLI with npx. See [visual tooling](docs/VISUAL_TOOLING.md) for
+browser setup, mobile/desktop captures and artifact paths. The user explicitly
+authorized initial browser verification for tooling setup; this does not authorize
+future UI redesign or override the normal scope requirement for browser testing.
