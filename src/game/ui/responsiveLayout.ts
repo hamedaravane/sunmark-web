@@ -26,11 +26,9 @@ export function responsiveLayout(width: number, height: number) {
     const contentHeight = desktop
         ? Math.min(DESKTOP_LAYOUT.maxHeight, height - DESKTOP_LAYOUT.gutter * 2)
         : height;
-    const characterWidth = desktop
-        ? Math.min(240, Math.max(180, Math.round(contentWidth * 0.16)))
-        : 0;
+    const characterWidth = 0;
     const boardWidth = desktop
-        ? contentWidth - controlsWidth - characterWidth - DESKTOP_LAYOUT.gap * 2
+        ? contentWidth - controlsWidth - DESKTOP_LAYOUT.gap
         : wide
           ? width - controlsWidth
           : width;

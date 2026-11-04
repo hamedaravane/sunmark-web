@@ -433,8 +433,8 @@ export class InterfaceScene extends Scene {
             } else {
                 this.portraitExpression = '';
                 drawSurface(this.modal.graphics, box, 'inset', {
-                    radius: 24,
-                    accent: UI_INK.gold,
+                    radius: 16,
+                    flat: true,
                 });
             }
             const header = dialog.querySelector<HTMLElement>('.sheet-header')!;

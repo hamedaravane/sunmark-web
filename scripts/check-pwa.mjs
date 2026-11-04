@@ -75,7 +75,11 @@ for (const file of expected) {
     assert(statSync(path.join(directory, file)).isFile());
     assert(precached.has(file), `Missing offline asset: ${file}`);
 }
-assert.equal(expected.filter((file) => file.startsWith('assets/characters/anahita/')).length, 6);
+for (const name of ['anahita', 'ahriman'])
+    assert(
+        precached.has(`assets/characters/${name}/portrait.webp`),
+        `Missing council character: ${name}`,
+    );
 for (const icon of manifest.icons) {
     const bytes = readFileSync(path.join(directory, icon.src));
     assert.equal(bytes.subarray(1, 4).toString(), 'PNG');

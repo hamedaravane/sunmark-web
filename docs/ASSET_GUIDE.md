@@ -168,3 +168,13 @@ base of a gallery card. Never add padding below a floating cutout. The match’s
 inventory is painted above rival artwork; gallery portraits meet a pedestal.
 This is layout/render ordering only: no new assets, repainted bodies, alternate
 crops, transparency changes or duplicated owner-color art are introduced.
+
+## Updated council illustrations
+
+The supplied Anahita and Ahriman PNG masters are preserved as
+`art/reference/characters/{anahita,ahriman}/portrait.png`. Full-resolution WebP
+exports preserve alpha and use the image-export manifest. The new Anahita art
+replaces the older visual style for all narrator expression keys; it is one supplied
+pose, while original expression masters remain reference-only. Ahriman's full art
+appears in occupied-tile information, where it can be read comfortably; the small
+procedural map marker remains unchanged. Export/check group: `council-characters`.

@@ -67,3 +67,9 @@ beneath standings. Source proportions and visible lower boundaries remain requir
 A simple procedural close cross replaces the disproportionately loud red atlas close
 icon in game sheets; other functional artwork still uses the shared atlas.
 See `UI_REDESIGN_STATE.md` for the complete screen direction and verification record.
+
+Gameplay review removes passive rival cutouts from command areas: character art
+belongs in narrative encounters, identity seals and galleries. Mobile home casts
+are centered as a group. Sheets use one uninterrupted restrained perimeter rather
+than separately outlined header rectangles. New supplied Anahita/Ahriman artwork
+is integrated without repainting, stretching, or synthesizing expressions.

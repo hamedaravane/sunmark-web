@@ -102,3 +102,35 @@ Core mechanics, authority, costs, privacy, artwork and opt-outs preserved. No ne
 analytics. Hypothesis: clearer goals and task workspaces reduce scanning and failed
 first-match actions; assess existing progress/rejection data plus player feedback.
 Screenshots do not establish engagement improvement. No production deployment.
+
+## Gameplay-focused review — latest artwork revision 88c22e0
+
+Problems: passive rival cutouts narrowed phone commands and reserved an otherwise
+empty desktop column; redundant Events navigation competed with primary actions;
+square header surfaces overwrote rounded modal corners; the mobile cast's intrinsic
+aspect-ratio width was right-aligned by RTL layout.
+
+Two implementation passes remove the passive portrait presentation, expand the
+desktop board region, stabilize phone controls, make automated-turn Events secondary,
+and keep only one Events destination. Dialog headers now share the parent surface,
+with inset separators and one quiet perimeter. The mobile cast has a centered box.
+Characters continue speaking through existing narrative dialogs and remain in standings.
+
+New Anahita and Ahriman masters are preserved under art/reference/characters, with
+full-size alpha-preserving WebP exports. All Anahita expression keys use the supplied
+new illustration (one supplied pose, no invented expression variants). Old expression
+masters remain reference-only. Ahriman appears in occupied-tile information; the small
+board marker stays legible and unchanged. No rules or authority changes.
+
+Captures: output/playwright/redesign/gameplay-before and gameplay-final.
+Validation: two implementation passes with fresh, visually inspected mobile/tablet/desktop
+captures. Focused gameplay flows passed at all three sizes with no page errors:
+construction payments, card effects, negotiation, mandatory discard/theft, keyboard
+disclosures and preferences. All 406 tests, typecheck, lint, format, production build,
+PWA check (32 offline files), full asset integrity and diff checks passed. Ordinary
+practice completed and rewarded at all three sizes; new Anahita art visually reviewed
+in actual phone and desktop dialogue. Flow/practice reports have no page errors.
+Hypothesis: stable commands and fewer passive surfaces
+reduce scanning and missed actions. Assess existing rejection/completion signals plus
+player feedback; screenshots alone establish no engagement improvement. No analytics
+changes. Changes remain local for this follow-up.

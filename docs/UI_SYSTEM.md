@@ -251,3 +251,11 @@ storage and prepared phases. It is excluded from production. Screenshot fixtures
 entry/authenticated mock-service fixtures and focused interaction scripts are in
 `scripts/*review.mjs`; see `docs/VISUAL_TOOLING.md`. No fixture reads real saves,
 uses a production account or changes core rules.
+
+### Gameplay refinement
+
+The gameplay workspace no longer reserves a passive rival portrait column or a
+phone toolbar cutout. Rivals retain standings portraits and intentional dialogue.
+Desktop uses board/inventory plus a right command rail. Automated turns offer one
+secondary Events action. The modal parent paints its complete rounded outline;
+headers paint only an inset separator. Mobile home centers the cast's intrinsic box.

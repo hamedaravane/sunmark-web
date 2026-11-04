@@ -390,7 +390,13 @@ export function drawComponent(
         g.lineStyle(2, UI_INK.gold).strokeCircle(cx, cy, 65);
         for (const direction of [-1, 1]) drawWing(g, cx + direction * 76, cy, 35, direction);
     } else if (has('sheet-header')) {
-        drawSurface(g, box, 'inset', { radius: 0, quiet: true, flat: true });
+        // The parent owns the uninterrupted outline, including its rounded corners.
+        g.lineStyle(1, UI_INK.gold, 0.18).lineBetween(
+            box.x + 20,
+            box.y + box.height,
+            box.x + box.width - 20,
+            box.y + box.height,
+        );
         g.fillStyle(UI_INK.gold, 0.7).fillRoundedRect(
             box.x + box.width / 2 - 18,
             box.y + 5,

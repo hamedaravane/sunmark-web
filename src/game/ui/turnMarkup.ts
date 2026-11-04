@@ -185,7 +185,7 @@ export function actionDock(session: MatchSession): string {
         !placement &&
         state.phase !== 'finished'
     )
-        return `${botControls(session)}${button('رویدادها', 'open:history', { className: 'button dock-primary' })}`;
+        return `${botControls(session)}${button('رویدادها', 'open:history', { className: 'button button--quiet bot-history' })}`;
     let tools: string;
     if (placement) {
         const required =

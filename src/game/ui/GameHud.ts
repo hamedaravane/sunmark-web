@@ -1,5 +1,3 @@
-import { botActivityLayout } from './botActivityLayout';
-import { botActivity } from './botActivity';
 import { dialogueId } from '../narrative/dialogues.fa';
 import { DEVELOPMENT_LABELS, cardAvailability } from './developmentMarkup';
 import { heroDice, actionDock, turnStatus } from './turnMarkup';
@@ -88,14 +86,6 @@ export class GameHud {
                         entry.contentRect.height,
                     );
                     const match = this.part('.match-screen');
-                    const activity = botActivityLayout(
-                        entry.contentRect.width,
-                        entry.contentRect.height,
-                        layout.wide,
-                        layout.desktop,
-                    );
-                    match.style.setProperty('--bot-activity-height', `${activity.height}px`);
-                    match.style.setProperty('--bot-portrait-width', `${activity.portraitWidth}px`);
                     match.classList.toggle('is-wide', layout.wide);
                     match.classList.toggle('is-desktop', layout.desktop);
                     parent.classList.toggle('is-desktop', layout.desktop);
@@ -207,9 +197,6 @@ export class GameHud {
             }
             this.part('.command-panel').append(status);
         }
-        const activity = botActivity(this.session);
-        this.part('.match-screen').classList.toggle('has-bot-activity', !!activity);
-        this.updatePart('.bot-activity', activity);
         this.updatePart('.resource-hand', humanHand(this.session));
         this.part('.resource-hand').setAttribute('aria-label', `منابع ${human.name}`);
         this.updatePart('.action-dock', actionDock(this.session));

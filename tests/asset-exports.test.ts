@@ -51,8 +51,8 @@ test('loader textures and atlas crops agree with the verified full-resolution ex
     }
 });
 
-test('retired terrain, robber, bank, token and resource paintings retain verified masters outside runtime packaging', () => {
-    expect(manifest.references).toHaveLength(11);
+test('retired terrain, robber, bank, token, resource and Anahita paintings retain verified masters outside runtime packaging', () => {
+    expect(manifest.references).toHaveLength(17);
     for (const asset of manifest.references) {
         const master = readFileSync(
             new URL(

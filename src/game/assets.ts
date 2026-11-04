@@ -45,34 +45,39 @@ export const ART = {
         frame: [0, 0, 1122, 1402],
     },
     'anahita-calm': {
-        file: 'characters/anahita/calm.webp',
-        source: [1086, 1448],
-        frame: [0, 0, 1086, 1448],
+        file: 'characters/anahita/portrait.webp',
+        source: [1024, 1536],
+        frame: [0, 0, 1024, 1536],
     },
     'anahita-warning': {
-        file: 'characters/anahita/warning.webp',
+        file: 'characters/anahita/portrait.webp',
         source: [1024, 1536],
         frame: [0, 0, 1024, 1536],
     },
     'anahita-worried': {
-        file: 'characters/anahita/worried.webp',
+        file: 'characters/anahita/portrait.webp',
         source: [1024, 1536],
         frame: [0, 0, 1024, 1536],
     },
     'anahita-joyful': {
-        file: 'characters/anahita/joyful.webp',
+        file: 'characters/anahita/portrait.webp',
         source: [1024, 1536],
         frame: [0, 0, 1024, 1536],
     },
     'anahita-playful': {
-        file: 'characters/anahita/playful.webp',
-        source: [1086, 1448],
-        frame: [0, 0, 1086, 1448],
-    },
-    'anahita-explaining': {
-        file: 'characters/anahita/explaining.webp',
+        file: 'characters/anahita/portrait.webp',
         source: [1024, 1536],
         frame: [0, 0, 1024, 1536],
+    },
+    'anahita-explaining': {
+        file: 'characters/anahita/portrait.webp',
+        source: [1024, 1536],
+        frame: [0, 0, 1024, 1536],
+    },
+    'ahriman-portrait': {
+        file: 'characters/ahriman/portrait.webp',
+        source: [1122, 1402],
+        frame: [0, 0, 1122, 1402],
     },
     corner: {
         file: 'ui/ornaments/ornaments.webp',

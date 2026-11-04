@@ -16,6 +16,7 @@ import { getProductionProbability, type BuildOption } from '../core/queries';
 import { getPlayerSummary } from './matchState';
 import { RESOURCE_TYPES } from '../core/types';
 import {
+    artSprite,
     tradeIcon,
     button,
     color,
@@ -262,7 +263,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
             .filter((building) => building !== null);
         return {
             title: tile.resource ? `خانه ${FA.resources[tile.resource]}` : FA.desert,
-            body: `<dl class="detail-list"><div><dt>شماره</dt><dd>${tile.number === null ? '—' : number(tile.number)}</dd></div><div><dt>احتمال تولید در هر تاس</dt><dd>${probability ? `${number(probability.outcomes)} از ${number(probability.total)}` : 'بدون تولید'}</dd></div><div><dt>اهریمن</dt><dd>${tile.robber ? 'تولید این خانه مسدود است' : 'در این خانه نیست'}</dd></div></dl><h3>ساختمان‌های مجاور</h3>${adjacent.length ? `<ul class="plain-list">${adjacent.map((building) => `<li>${escape(state.players.find(({ id }) => id === building.ownerId)!.name)} • ${BUILD_LABELS[building.type]} • تولید ${number(building.type === 'city' ? 2 : 1)} واحد</li>`).join('')}</ul>` : '<p class="muted">ساختمانی در کنار این خانه نیست.</p>'}`,
+            body: `${tile.robber ? `<div class="ahriman-encounter">${artSprite('ahriman-portrait', 96)}<p>اهریمن اینجاست؛ تولید این خانه متوقف است.</p></div>` : ''}<dl class="detail-list"><div><dt>شماره</dt><dd>${tile.number === null ? '—' : number(tile.number)}</dd></div><div><dt>احتمال تولید در هر تاس</dt><dd>${probability ? `${number(probability.outcomes)} از ${number(probability.total)}` : 'بدون تولید'}</dd></div><div><dt>اهریمن</dt><dd>${tile.robber ? 'تولید این خانه مسدود است' : 'در این خانه نیست'}</dd></div></dl><h3>ساختمان‌های مجاور</h3>${adjacent.length ? `<ul class="plain-list">${adjacent.map((building) => `<li>${escape(state.players.find(({ id }) => id === building.ownerId)!.name)} • ${BUILD_LABELS[building.type]} • تولید ${number(building.type === 'city' ? 2 : 1)} واحد</li>`).join('')}</ul>` : '<p class="muted">ساختمانی در کنار این خانه نیست.</p>'}`,
         };
     }
     if (sheet.kind === 'opponents')

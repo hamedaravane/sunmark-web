@@ -10,48 +10,6 @@
       "frames": {}
     },
     {
-      "file": "characters/anahita/calm.webp",
-      "group": "anahita",
-      "size": [1086, 1448],
-      "source_sha256": "e8e1e8eac8fc8b48c2bd887da3f8b36f4b011484fde32cfd578233a993f85b94",
-      "frames": {}
-    },
-    {
-      "file": "characters/anahita/explaining.webp",
-      "group": "anahita",
-      "size": [1024, 1536],
-      "source_sha256": "d8bf95e6d65c2229e2c464f861f8376b7d58442bc2876073a768c3426aff92bc",
-      "frames": {}
-    },
-    {
-      "file": "characters/anahita/joyful.webp",
-      "group": "anahita",
-      "size": [1024, 1536],
-      "source_sha256": "5c2ce3a460b73b670386b8f34d81fee5b0bd0b5ae5d6a0385b2313d0efdf32e5",
-      "frames": {}
-    },
-    {
-      "file": "characters/anahita/playful.webp",
-      "group": "anahita",
-      "size": [1086, 1448],
-      "source_sha256": "fdb641b4ad471c3f7f0fb3b4abc8bb09931eb6fa69f3fa7f6b409c46551d7a72",
-      "frames": {}
-    },
-    {
-      "file": "characters/anahita/warning.webp",
-      "group": "anahita",
-      "size": [1024, 1536],
-      "source_sha256": "5eb2e3896e8c84bdc544bac5bcc86e76215b9001f72722b2f001af251e7fc4a2",
-      "frames": {}
-    },
-    {
-      "file": "characters/anahita/worried.webp",
-      "group": "anahita",
-      "size": [1024, 1536],
-      "source_sha256": "e5fba3bb9800ba2939ce545e1d04c4436e2d648f4b63aa853f60fae2ebd71c91",
-      "frames": {}
-    },
-    {
       "file": "dice/dice.webp",
       "group": "dice",
       "size": [1254, 1254],
@@ -168,6 +126,20 @@
       "size": [1254, 1254],
       "source_sha256": "1a3c4ec68b29e78cfa183bf9b182f6aed84f33822d401447e37df9d79b304d94",
       "frames": {}
+    },
+    {
+      "file": "characters/anahita/portrait.webp",
+      "group": "council-characters",
+      "size": [1024, 1536],
+      "source_sha256": "ab161a11a920a4ea105bc62eb05f82108462e08052778011130b28068a1c7f53",
+      "frames": {}
+    },
+    {
+      "file": "characters/ahriman/portrait.webp",
+      "group": "council-characters",
+      "size": [1122, 1402],
+      "source_sha256": "e6c9ffa8d76200222f6f540cbdb1d26c63f6b6045fc5ddb7d8c3accfe3105e3f",
+      "frames": {}
     }
   ],
   "references": [
@@ -260,6 +232,48 @@
       "group": "opponents",
       "size": [1254, 1254],
       "source_sha256": "171ef30fce42e6b87df986d08464141caee0276f05069b83ef1f2a3ad6de59d2",
+      "frames": {}
+    },
+    {
+      "file": "characters/anahita/calm.webp",
+      "group": "anahita",
+      "size": [1086, 1448],
+      "source_sha256": "e8e1e8eac8fc8b48c2bd887da3f8b36f4b011484fde32cfd578233a993f85b94",
+      "frames": {}
+    },
+    {
+      "file": "characters/anahita/explaining.webp",
+      "group": "anahita",
+      "size": [1024, 1536],
+      "source_sha256": "d8bf95e6d65c2229e2c464f861f8376b7d58442bc2876073a768c3426aff92bc",
+      "frames": {}
+    },
+    {
+      "file": "characters/anahita/joyful.webp",
+      "group": "anahita",
+      "size": [1024, 1536],
+      "source_sha256": "5c2ce3a460b73b670386b8f34d81fee5b0bd0b5ae5d6a0385b2313d0efdf32e5",
+      "frames": {}
+    },
+    {
+      "file": "characters/anahita/playful.webp",
+      "group": "anahita",
+      "size": [1086, 1448],
+      "source_sha256": "fdb641b4ad471c3f7f0fb3b4abc8bb09931eb6fa69f3fa7f6b409c46551d7a72",
+      "frames": {}
+    },
+    {
+      "file": "characters/anahita/warning.webp",
+      "group": "anahita",
+      "size": [1024, 1536],
+      "source_sha256": "5eb2e3896e8c84bdc544bac5bcc86e76215b9001f72722b2f001af251e7fc4a2",
+      "frames": {}
+    },
+    {
+      "file": "characters/anahita/worried.webp",
+      "group": "anahita",
+      "size": [1024, 1536],
+      "source_sha256": "e5fba3bb9800ba2939ce545e1d04c4436e2d648f4b63aa853f60fae2ebd71c91",
       "frames": {}
     }
   ]

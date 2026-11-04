@@ -129,17 +129,17 @@ test.each([
     [1920, 1080],
     [3840, 2160],
 ])(
-    'sketch regions at %i × %i reserve the left portrait, central inventory and right decisions outside the island viewport',
+    'sketch regions at %i × %i reserve inventory and right decisions outside the expanded island viewport',
     (width, height) => {
         const layout = responsiveLayout(width, height);
         const gap = DESKTOP_LAYOUT.gap;
-        const mapLeft = layout.characterWidth + gap;
+        const mapLeft = 0;
         const actionLeft = mapLeft + layout.boardWidth + gap;
         const mapTop = DESKTOP_LAYOUT.headerHeight + gap;
         const trayTop = mapTop + layout.boardHeight + gap;
         expect(actionLeft + layout.controlsWidth).toBe(layout.contentWidth);
         expect(trayTop + DESKTOP_LAYOUT.handHeight).toBe(layout.contentHeight);
-        expect(mapLeft).toBeGreaterThan(layout.characterWidth);
+        expect(layout.characterWidth).toBe(0);
         expect(actionLeft).toBeGreaterThan(mapLeft + layout.boardWidth);
         expect(layout.boardWidth).toBeGreaterThan(layout.controlsWidth);
         expect(layout.boardHeight).toBeGreaterThan(400);

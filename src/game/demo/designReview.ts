@@ -105,7 +105,8 @@ export function startDesignReview(parent: HTMLElement) {
         if (sheets.includes(name)) sheet = { kind: name } as Sheet;
         if (name === 'player' || name === 'rival')
             sheet = { kind: 'player', id: state.players[name === 'rival' ? 1 : 0].id };
-        if (name === 'tile') sheet = { kind: 'tile', id: state.board.tiles[0].id };
+        if (name === 'tile')
+            sheet = { kind: 'tile', id: state.board.tiles.find((tile) => tile.robber)!.id };
         if (name === 'port') sheet = { kind: 'port', id: state.board.ports[0].id };
         if (['deal-incoming', 'deal-confirm', 'deal-counter'].includes(name)) {
             session.openSheet({ kind: 'domestic' });

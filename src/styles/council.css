@@ -708,59 +708,7 @@ p {
     grid-area: bottom;
 }
 .bot-activity {
-    grid-area: dock;
-    min-width: 0;
-    pointer-events: auto;
-    align-self: end;
-    height: 118px;
-    width: 100px;
-    justify-self: end;
-    margin-inline-end: 8px;
-}
-.bot-activity-card {
-    position: relative;
-    height: 100%;
-}
-.bot-activity-portrait {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 78px !important;
-    height: 117px !important;
-}
-.bot-activity-copy {
-    position: absolute;
-    bottom: 0;
-    inset-inline: 0;
-    text-align: center;
-    pointer-events: none;
-}
-.bot-activity-heading strong {
-    display: block;
-    font-size: 11px;
-    line-height: 18px;
-    color: #293b39;
-}
-.bot-activity-heading small,
-.bot-activity-report {
     display: none;
-}
-.portrait-anchor {
-    display: block;
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: 4px;
-}
-.bot-activity:empty {
-    display: none;
-}
-.has-bot-activity .action-dock {
-    width: calc(100% - 118px);
-    justify-self: start;
-    align-self: center;
-    min-height: 100px;
 }
 .bot-controls {
     display: flex;
@@ -1576,9 +1524,9 @@ p {
         width: var(--play-width);
         height: var(--play-height);
         margin: calc((var(--app-height) - var(--play-height)) / 2) auto;
-        grid-template-columns: var(--character-width) minmax(0, 1fr) var(--controls-width);
+        grid-template-columns: minmax(0, 1fr) var(--controls-width);
         grid-template-rows: var(--play-header) var(--play-hand) minmax(0, 1fr);
-        grid-template-areas: 'header header header' 'character hand controls' 'character board controls';
+        grid-template-areas: 'header header' 'hand controls' 'board controls';
         direction: ltr;
         gap: var(--play-gap);
     }
@@ -1844,6 +1792,8 @@ p {
         line-height: 38px;
     }
     .council-cast {
+        width: min(100%, 250px);
+        margin-inline: auto;
         height: 190px;
     }
     .council-hero-copy {
@@ -2134,8 +2084,8 @@ p {
 
 .council-figure--mithra {
     width: min(246px, 48%) !important;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 26%;
+    transform: none;
     z-index: 2;
 }
 .council-figure--ashi {
@@ -2145,8 +2095,8 @@ p {
 }
 .council-figure--spenta-armaiti {
     width: min(228px, 42%) !important;
-    right: 0;
-    left: auto;
+    right: auto;
+    left: 58%;
     z-index: 1;
 }
 .bottom-sheet[data-screen='player'] .detail-list > div:last-child:nth-child(odd) {
@@ -2154,12 +2104,32 @@ p {
 }
 @media (max-width: 759px) {
     .council-figure--mithra {
-        width: min(126px, 42%) !important;
+        width: 48% !important;
     }
     .council-figure--ashi {
-        width: min(104px, 36%) !important;
+        width: 38% !important;
     }
     .council-figure--spenta-armaiti {
-        width: min(125px, 42%) !important;
+        width: 42% !important;
     }
+}
+
+.ahriman-encounter {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.ahriman-encounter .art-sprite {
+    align-self: end;
+}
+
+/* Avoid repeating the same event destination during an automated turn. */
+.is-desktop .command-panel:has(.bot-controls) .desktop-shortcuts [data-action='open:history'] {
+    display: none;
+}
+
+.bot-history {
+    grid-column: 1 / -1;
+    min-height: 48px;
 }
