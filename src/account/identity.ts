@@ -20,6 +20,11 @@ export function playerIdentity(): PlayerIdentity | null {
 export function saveIdentity(value: PlayerIdentity | null) {
     memoryIdentity = value ? identitySchema.parse(value) : null;
     try {
+        window.dispatchEvent(new Event('sunmark:identity'));
+    } catch {
+        /* Non-browser callers do not need UI synchronization. */
+    }
+    try {
         if (value) localStorage.setItem(key, JSON.stringify(identitySchema.parse(value)));
         else localStorage.removeItem(key);
     } catch {

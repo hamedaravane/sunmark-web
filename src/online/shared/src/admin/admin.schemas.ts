@@ -60,6 +60,16 @@ export const insightsSchema = z.strictObject({
     eligibleForMeasurement: countSchema,
     optedOut: countSchema,
   }),
+  guests: z
+    .strictObject({
+      players: countSchema,
+      sessions: countSchema,
+      activeSeconds: countSchema,
+      offlineEntrants: countSchema,
+      offlineFinishers: countSchema,
+      actions: countSchema,
+    })
+    .optional(),
   activity: z.strictObject({
     players: countSchema,
     sessions: countSchema,
@@ -129,6 +139,10 @@ export const adminUserSchema = z.strictObject({
   gender: z.string(),
   createdAt: z.iso.datetime(),
   isAdmin: z.boolean(),
+  offlineMatches: countSchema.optional(),
+  offlineWins: countSchema.optional(),
+  offlineXP: countSchema.optional(),
+  offlineCoins: countSchema.optional(),
   xp: z.number(),
   coins: z.number(),
   matches: z.number(),

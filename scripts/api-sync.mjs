@@ -9,6 +9,7 @@ if (!revision || !/^[a-f0-9]{40}$/.test(revision))
 const root = new URL('../', import.meta.url);
 const directory = await mkdtemp(join(tmpdir(), 'sunmark-contract-'));
 const paths = {
+    'src/online/offlineProgression.ts': 'src/online/shared/src/online/offlineProgression.ts',
     'src/analytics/analytics.schemas.ts': 'src/online/shared/src/analytics/analytics.schemas.ts',
     'src/admin/admin.schemas.ts': 'src/online/shared/src/admin/admin.schemas.ts',
     'src/online/progression.schemas.ts': 'src/online/shared/src/online/progression.schemas.ts',
@@ -19,26 +20,37 @@ const paths = {
     'src/online/wire.ts': 'src/online/shared/src/online/wire.ts',
 };
 try {
-    execFileSync('git', ['init', '-q', directory]);
-    execFileSync(
+    const checkout = process.env.SUNMARK_BACKEND_CHECKOUT;
+    if (!checkout) {
+        execFileSync('git', ['init', '-q', directory]);
+        execFileSync(
+            'git',
+            [
+                '-C',
+                directory,
+                'fetch',
+                '--depth=1',
+                'https://github.com/hamedaravane/sunmark-server.git',
+                revision,
+            ],
+            { stdio: 'pipe' },
+        );
+    }
+    const sourceDirectory = checkout || directory;
+    const actual = execFileSync(
         'git',
-        [
-            '-C',
-            directory,
-            'fetch',
-            '--depth=1',
-            'https://github.com/hamedaravane/sunmark-server.git',
-            revision,
-        ],
-        { stdio: 'pipe' },
-    );
-    const actual = execFileSync('git', ['-C', directory, 'rev-parse', 'FETCH_HEAD'], {
-        encoding: 'utf8',
-    }).trim();
+        ['-C', sourceDirectory, 'rev-parse', checkout ? 'HEAD' : 'FETCH_HEAD'],
+        { encoding: 'utf8' },
+    ).trim();
     if (actual !== revision) throw new Error('Backend commit mismatch');
     const sha256 = {};
     for (const [source, destination] of Object.entries(paths)) {
-        const content = execFileSync('git', ['-C', directory, 'show', `${revision}:${source}`]);
+        const content = execFileSync('git', [
+            '-C',
+            sourceDirectory,
+            'show',
+            `${revision}:${source}`,
+        ]);
         const target = new URL(destination, root);
         await mkdir(new URL('./', target), { recursive: true });
         await writeFile(target, content);

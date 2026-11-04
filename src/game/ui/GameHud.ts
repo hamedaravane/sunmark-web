@@ -38,6 +38,7 @@ export class GameHud {
     private sheet: BottomSheet;
     private unsubscribe: () => void;
     private unsubscribePlatform: () => void;
+    private unsubscribeOfflineProgression: () => void;
     private unsubscribeProgression: () => void;
     private rollOrigin: { state: MatchState; box: UiBox } | null = null;
     private lastNotice = '';
@@ -75,6 +76,12 @@ export class GameHud {
         window.addEventListener('storage', this.onProgressionStorage);
         this.unsubscribe = session.subscribe(() => this.render());
         this.unsubscribePlatform = app.subscribe(() => this.render());
+        this.unsubscribeOfflineProgression =
+            session.progression?.subscribe(() =>
+                queueMicrotask(() => {
+                    if (this.parent.isConnected) this.render();
+                }),
+            ) ?? (() => {});
         this.unsubscribeProgression = subscribeProgression(() => this.render());
         this.sizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
@@ -346,6 +353,8 @@ export class GameHud {
             this.session.sheet?.kind === 'introduction'
         )
             this.session.closeSheet();
+        if (action === 'analytics-settings')
+            this.parent.dispatchEvent(new CustomEvent('sunmark:analytics', { bubbles: true }));
         if (action === 'online-retry') this.session.online?.retry();
         if (action === 'account')
             this.parent.dispatchEvent(new CustomEvent('sunmark:account', { bubbles: true }));
@@ -658,6 +667,7 @@ export class GameHud {
         this.unsubscribe();
         this.unsubscribePlatform();
         this.unsubscribeProgression();
+        this.unsubscribeOfflineProgression();
         this.sizeObserver.disconnect();
         this.sheet.destroy();
         this.parent.removeEventListener('click', this.onClick);

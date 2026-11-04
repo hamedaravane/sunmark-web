@@ -1,3 +1,4 @@
+import { analytics } from '../../analytics/browser';
 import type { MatchState } from '../ui/matchState';
 import { createAhriman, AHRIMAN_OFFSET_RATIO } from '../rendering/ahriman';
 import {
@@ -457,7 +458,17 @@ export class GameScene extends Scene {
                     best = distance;
                 }
             }
-            if (nearest && best <= 28) this.session.preview(nearest);
+            if (nearest && best <= 28) {
+                analytics.track('ui_interaction', {
+                    mode: this.session.online
+                        ? 'online'
+                        : this.session.practice
+                          ? 'practice'
+                          : 'offline',
+                    interaction: 'board-target',
+                });
+                this.session.preview(nearest);
+            }
         } else if (placement?.kind === 'settlement' || placement?.kind === 'city') {
             const nearest = this.session.targets
                 .map((id) => {
@@ -465,7 +476,17 @@ export class GameScene extends Scene {
                     return { id, distance: Math.hypot(x - p.x, y - p.y) };
                 })
                 .sort((a, b) => a.distance - b.distance)[0];
-            if (nearest && nearest.distance <= 28) this.session.preview(nearest.id);
+            if (nearest && nearest.distance <= 28) {
+                analytics.track('ui_interaction', {
+                    mode: this.session.online
+                        ? 'online'
+                        : this.session.practice
+                          ? 'practice'
+                          : 'offline',
+                    interaction: 'board-target',
+                });
+                this.session.preview(nearest.id);
+            }
         } else {
             const tile = state.board.tiles.find((tile) => {
                 const p = this.toScreen(tile),

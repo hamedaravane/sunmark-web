@@ -1,6 +1,6 @@
 # Player hub and progression — first version
 
-Status: implemented in the frontend and authoritative backend. Local/offline rewards and online account progression are separate. The reward values are initial product tuning, not changes to the ten-point board-game rules.
+Status: implemented in the frontend and authoritative backend. Offline rewards now synchronize to a separate server-backed offline ledger; competitive/online progression remains separate. The reward values are initial product tuning, not changes to the ten-point board-game rules.
 
 ## Player experience
 
@@ -118,7 +118,8 @@ succeeded. A failed profile write cannot promise durable rewards after a reload.
 Sequential changes from another tab are read before profile mutations, and
 storage events refresh the hub. localStorage does not provide a transaction across
 simultaneously active tabs; this is a local, single-player convenience ledger,
-not an authoritative economy or an anti-cheat boundary. Clearing browser data
+not an anti-cheat boundary. The offline-sync release adds an idempotent canonical
+server ledger and a version-2 local profile/outbox envelope; see OFFLINE_SYNC.md. Clearing browser data
 clears this profile. The online account has its own recoverable, server-owned progression. Local wealth is never imported into it.
 
 ## Server account, ranked and referral progression
@@ -185,3 +186,15 @@ scrolling, long names, IME and modal focus, account login/recovery, ranked searc
 and reconnect, referral-code confirmation, cosmetic purchases, installed-PWA
 updates/offline behavior and private-room invitations. Automated checks are not a
 claim of browser/device verification.
+
+## Offline synchronization update (2026-11-04)
+
+The prior device-only description above records the original version. The current
+implementation stores offline coins, XP, achievements, practice, cosmetics and
+completion IDs on the server after connectivity returns, including authenticated
+guests. Registered accounts can restore that canonical offline profile on another
+device. Pending commands are durable locally and acknowledged transactionally;
+legacy profiles are preserved/imported and conflicting old snapshots archived.
+Offline rewards remain client-reported and separate from ranked/online wealth.
+Unfinished board saves remain local. See OFFLINE_SYNC.md for exact migration and
+recovery limits, privacy and verification.

@@ -82,3 +82,15 @@ use memory storage and intercepted local API responses, never live player writes
 Guest-first startup removes account registration before the first home visit. Account
 entry remains explicit and online play retains its identity requirement. Existing
 account restoration and required profile completion remain intact.
+
+## 2026-11-04: offline-first synchronization
+
+Problem: a small online population makes offline play essential, while memory-only
+registered-account analytics and device-only progression omit real players and lose
+unsent events. Hypothesis: persistent queues and recoverable offline rewards improve
+continuity and make offline entry/progress/endings/returns measurable. Measure
+offline reach, distinct completion IDs, pending/retried synchronization and recovery
+success, with direct player feedback. Small samples still cannot establish causal
+engagement gains. Guardrails: no repeated prompts, preserve opt-outs/local saves,
+no typed text/private hands, bounded device diagnostics, occurrence-time reports,
+idempotent coins/XP and a separate competitive economy. See OFFLINE_SYNC.md.

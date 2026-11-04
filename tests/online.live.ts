@@ -408,7 +408,15 @@ test('registered players quick-match automatically and recover their seat on ano
         const matchId = players[0]?.client.snapshot?.id;
         if (!matchId) throw new Error('No assigned match');
         await anotherDevice.client.open(matchId);
-        expect(anotherDevice.client.snapshot?.seats[0]?.isYou).toBe(true);
+        // Concurrent queue requests do not guarantee that the first fixture owns seat zero.
+        const originalSeat = players[0]?.client.snapshot?.seats.find(
+            (seat) => seat.isYou,
+        )?.playerId;
+        expect(originalSeat).toBeTruthy();
+        expect(anotherDevice.client.snapshot?.seats.find((seat) => seat.isYou)?.playerId).toBe(
+            originalSeat,
+        );
+        expect(anotherDevice.client.snapshot?.seats.filter((seat) => seat.isYou)).toHaveLength(1);
     } finally {
         for (const p of players) p.client.destroy();
         anotherDevice.client.destroy();

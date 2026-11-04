@@ -1,11 +1,11 @@
 # First-party player analytics
 
 Basic gameplay measurement is prospective and attached to authenticated registered
-accounts. It is on by default for new/previously undecided accounts, with a clear
+accounts or guest sessions. Offline activity uses a durable browser outbox. It is on by default for new/previously undecided accounts, with a clear
 registration notice and Account → Basic analytics and privacy control. There is
 no automatic permission dialog. Existing explicit opt-outs remain off; disabling
-measurement never affects play, progression, matchmaking or rewards. Guests and
-activity before measurement began are not backfilled.
+measurement never affects play, progression, matchmaking or rewards. Guest play is included from the offline-sync release; activity that was never
+recorded before measurement began cannot be backfilled.
 
 ## Collection and boundaries
 
@@ -21,14 +21,18 @@ Allowed events: app open; bounded active-time heartbeat; a fixed screen category
 match entry/exit/completion; phase change; tutorial shown/closed/acknowledged;
 confirmed human action kind; generic action rejection; online connection change; fixed online entry/search/room/ready/start milestones with success/failure.
 Context is a strict whitelist of mode, phase, action kind, screen category,
-numeric lesson index, temporary run ID, active milliseconds, connection boolean, fixed online step and outcome enums.
+numeric lesson index, temporary run ID, active milliseconds, connection boolean, fixed online step and outcome enums, interface-action categories, stable offline
+match IDs, turn/outcome summaries and visibility changes.
 The release SHA and a temporary analytics session UUID identify a version/session.
 
 Never collect passwords, recovery keys, cookies, tokens, typed text, raw errors,
-phone/name/age/gender fields, coordinates, IP/user-agent fingerprints, DOM/session
+phone/name/age/gender fields, coordinates, DOM/session
 recordings, opponent hands, decks, command payloads or whole game snapshots.
 Account association is explicit; these records are not claimed to be anonymous.
 The existing account profile remains separate and already admin-protected.
+The owner-authorized device diagnostic record separately stores bounded browser,
+platform, display, CPU/memory hints and the server-observed connection peer for
+30 days; this is not verified physical location or a fingerprinting system.
 
 The client observes the shared match presentation, not animation callbacks or core
 rule execution. Repeated observations are deduplicated. No game rule or game-state
@@ -36,12 +40,16 @@ mutation depends on diagnostics. The core remains free of analytics imports.
 
 ## Reliability, cost and expiry
 
-The client keeps at most 100 events in memory, uploads at most 20 per request and
-retries the same event IDs. The backend accepts at most 25 events and 120 requests
-per account per 15 minutes, validates all fields and deduplicates by account/event
-ID. No durable offline event log is written. Network outages, closing pages and
-queue overflow can lose events. Ingestion never grants rewards or establishes
-authoritative match results. It is client-reported and can be incomplete or forged.
+The client persists at most 5,000 events per local owner for at most 90 days, using
+individual keys so acknowledgments cannot overwrite concurrent-tab additions. A
+100-event memory fallback keeps play available if storage is denied. Uploads use
+at most 20 events per request; the backend accepts 25 and 120 requests per identity
+per 15 minutes. Retries preserve event IDs. Quota exhaustion, clearing browser data,
+queue overflow or browser restrictions can still lose unsynchronized events.
+`occurredAt` records reported play time, `receivedAt` records upload time. Existing
+rows use their old receipt time. Events older than 90 days are acknowledged without
+reinsertion; extreme future device clocks normalize to receipt time. These client
+reports do not establish authoritative match results.
 
 Raw events expire after 90 days, through indexed cleanup on ingestion and an hourly
 API task while the service runs. First/last observed activity and permission remain
@@ -62,7 +70,8 @@ transport uses bounded timeouts and never exposes request data in error logs.
 - Active time: approximate visible browser time, sampled every 30 seconds, only
   with an interaction in the last 60 seconds. Hidden/idle time is excluded; hub,
   profile, practice and match interaction may contribute. It is not precise play time.
-- Daily activity uses server receipt dates in UTC, not inferred client clocks.
+- Daily activity uses reported occurrence dates in UTC, with receipt timestamps
+  retained separately; delayed uploads can revise past daily/cohort figures.
 - D1/D7: return events on the first/seventh UTC calendar day after the account's
   first observed activity. Eligible first-observation cohorts are within the
   last 30 days and have a fully elapsed return day. Show numerator/denominator;
@@ -110,3 +119,12 @@ reach, not an ordered funnel or proof of failure cause. Practice finishes never
 count as ordinary match finishes. New milestones begin with the new client;
 previous events are not reconstructed. Charts show actual denominators and pending
 return days. No causal engagement improvement is claimed from this small sample.
+
+## Offline-first architecture (2026-11-04)
+
+See [OFFLINE_SYNC.md](OFFLINE_SYNC.md) for durable behavioral queues, authenticated
+guest coverage, idempotent server-backed offline XP/coins/achievements, legacy
+recovery, separate competitive authority, device diagnostics and explicit storage
+limits. The quiet home notice/settings replaces automatic permission prompts.
+Registered-account denominators remain separate from guest activity. Protected user
+rows and timelines now show offline completions and canonical offline progression.

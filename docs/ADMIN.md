@@ -65,3 +65,12 @@ pagination, protected edits, concurrent-change rejection, audit history, actual 
 request policy, unauthorized responses and strict response validation. PWA build
 checks verify the admin entry stays out of precaching. Browser and device review
 remains the owner's interactive test.
+
+## Offline and device coverage (2026-11-04)
+
+The directory now shows synchronized offline completions alongside online matches.
+Player details include a separate canonical offline wallet/achievements and bounded
+device diagnostics, with occurrence-time events. Guest reach/time/offline actions
+are shown separately from registered-account denominators. An empty history is
+unmeasured, not proof of inactivity. Device hints are self-reported; network peer
+addresses can be intermediaries and are not geolocation. See OFFLINE_SYNC.md.

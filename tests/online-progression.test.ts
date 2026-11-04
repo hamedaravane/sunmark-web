@@ -77,8 +77,8 @@ test('restores server-owned progression and renders real rank while keeping offl
     const session = new GameSession(undefined, local);
     const markup = menuContent(new AppPlatform(), session);
     expect(markup).toContain('نقره');
-    expect(markup).toContain('حساب آنلاین');
-    expect(markup).toContain('data-action="hub:online-cosmetics"');
+    expect(markup).toContain('پیشرفت آفلاین');
+    expect(markup).toContain('data-action="hub:cosmetics"');
     session.openSheet({ kind: 'online-profile' });
     expect(sheetContent(session).body).toContain('سکه و تجربهٔ آفلاین به آن منتقل نمی‌شوند');
     expect(rankLabel(onlineProgression())).toContain('۱٬۰۰۰');

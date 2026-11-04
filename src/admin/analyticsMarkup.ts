@@ -22,6 +22,8 @@ const labels: Record<string, string> = {
     action_rejected: 'خطای اقدام',
     connection_changed: 'تغییر اتصال',
     online_flow: 'مرحلهٔ ورود آنلاین',
+    ui_interaction: 'تعامل با رابط',
+    app_visibility: 'نمایش یا پنهان‌شدن بازی',
 };
 const phases: Record<string, string> = {
     'setup-roll': 'تاس آغاز',
@@ -81,5 +83,12 @@ export function analyticsSummary(data: AnalyticsSummary) {
 }
 
 export function analyticsTimeline(data: AnalyticsTimeline) {
-    return `<section class="user-analytics"><h3>فعالیت ثبت‌شدهٔ بازیکن</h3><p class="data-note">وضعیت: ${data.enabled === false ? 'آمار خاموش است' : 'آمار پایه فعال است'}${data.lastSeen ? ' · آخرین دریافت: ' + date(data.lastSeen) : ''}</p>${data.events.length ? `<ol class="activity-list">${data.events.map((event) => `<li><b>${labels[event.name]}</b><time>${date(event.receivedAt)}</time><small dir="auto">${escapeHtml([event.data.mode ? modes[event.data.mode] : '', event.data.onlineStep ? steps[event.data.onlineStep] : '', event.data.outcome === 'success' ? 'تأیید شد' : event.data.outcome === 'failure' ? 'ناموفق' : '', event.data.connected === undefined ? '' : event.data.connected ? 'متصل' : 'قطع اتصال', event.data.phase ? (phases[event.data.phase] ?? event.data.phase) : '', event.data.action ? actions[event.data.action] : '', event.data.lesson === undefined ? '' : 'آموزش ' + number(event.data.lesson + 1)].filter(Boolean).join(' · '))}</small></li>`).join('')}</ol>` : '<p class="data-note">رویداد قابل نمایشی وجود ندارد.</p>'}</section>`;
+    const offline = data.offlineProgression;
+    const progress = offline
+        ? `<section><h3>پیشرفت آفلاین همگام‌شده</h3><p>${number(offline.profile.matches)} بازی · ${number(offline.profile.wins)} برد · ${number(offline.profile.xp)} تجربه · ${number(offline.profile.coins)} سکه</p><p>تمرین: ${offline.profile.practice ? 'کامل' : 'تکمیل نشده'} · ${number(offline.profile.badges.length)} نشان · آخرین همگام‌سازی: ${date(offline.updatedAt)}</p><p class="data-note">نتیجهٔ آفلاین گزارش دستگاه است؛ رتبهٔ رقابتی را تغییر نمی‌دهد.</p></section>`
+        : '<p class="data-note">پیشرفت آفلاین هنوز همگام نشده است.</p>';
+    const devices = data.devices?.length
+        ? `<section><h3>دستگاه‌های مشاهده‌شده</h3><p class="data-note">شناسهٔ مرورگر است، نه اثبات دستگاه یا شخص یکتا. نشانی اتصال ممکن است متعلق به پراکسی باشد؛ موقعیت مکانی نیست.</p>${data.devices.map((d) => `<article><strong>${escapeHtml(d.device.platform || 'سیستم گزارش نشده')}</strong><p dir="ltr">${escapeHtml(d.device.userAgent)}</p><p>${number(d.device.screenWidth)} × ${number(d.device.screenHeight)} · ${d.device.cpuThreads ? number(d.device.cpuThreads) + ' پردازندهٔ منطقی' : ''} ${d.device.memoryGiB ? number(d.device.memoryGiB) + ' GiB' : ''}</p><p>نشانی اتصال: <bdi dir="ltr">${escapeHtml(d.networkPeer)}</bdi> · ${date(d.lastSeen)}</p></article>`).join('')}</section>`
+        : '';
+    return `${progress}${devices}<section class="user-analytics"><h3>فعالیت ثبت‌شدهٔ بازیکن</h3><p class="data-note">وضعیت: ${data.enabled === false ? 'آمار خاموش است' : 'آمار پایه فعال است'}${data.lastSeen ? ' · آخرین دریافت: ' + date(data.lastSeen) : ''}</p>${data.events.length ? `<ol class="activity-list">${data.events.map((event) => `<li><b>${labels[event.name]}</b><time>${date(event.occurredAt ?? event.receivedAt)}</time><small dir="auto">${escapeHtml([event.data.mode ? modes[event.data.mode] : '', event.data.interaction ?? '', event.data.screen ?? '', event.data.building ?? '', event.data.won === undefined ? '' : event.data.won ? 'برد آفلاین' : 'پایان آفلاین بدون برد', event.data.onlineStep ? steps[event.data.onlineStep] : '', event.data.outcome === 'success' ? 'تأیید شد' : event.data.outcome === 'failure' ? 'ناموفق' : '', event.data.connected === undefined ? '' : event.data.connected ? 'متصل' : 'قطع اتصال', event.data.phase ? (phases[event.data.phase] ?? event.data.phase) : '', event.data.action ? actions[event.data.action] : '', event.data.lesson === undefined ? '' : 'آموزش ' + number(event.data.lesson + 1)].filter(Boolean).join(' · '))}</small></li>`).join('')}</ol>` : '<p class="data-note">رویداد قابل نمایشی وجود ندارد.</p>'}</section>`;
 }

@@ -1,154 +1,41 @@
 import { z } from 'zod';
 import type { SaveStorage } from '../persistence/matchStore';
+import {
+    applyOfflineCommand,
+    emptyProfile,
+    offlineProfileSchema,
+    offlineCommandSchema,
+    createProgressionId,
+    SEALS,
+    PROGRESSION_KEY,
+    type OfflineCommand,
+    type Profile,
+    type Reward,
+} from '../../online/shared/src/online/offlineProgression';
+export {
+    BADGES,
+    SEALS,
+    PROGRESSION_KEY,
+    experience,
+    metric,
+    createProgressionId,
+} from '../../online/shared/src/online/offlineProgression';
+export type {
+    BadgeId,
+    SealId,
+    Profile,
+    Reward,
+} from '../../online/shared/src/online/offlineProgression';
 
-export const PROGRESSION_KEY = 'sunmark.progression.v1';
-
-/** getRandomValues also works on local HTTP previews, outside secure contexts. */
-export function createProgressionId(): string {
-    const bytes = globalThis.crypto.getRandomValues(new Uint8Array(16));
-    bytes[6] = (bytes[6] & 0x0f) | 0x40;
-    bytes[8] = (bytes[8] & 0x3f) | 0x80;
-    const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-}
-
-export const BADGES = [
-    {
-        id: 'practice',
-        name: 'اولین گام',
-        description: 'تمرین را کامل کن',
-        metric: 'practice',
-        goal: 1,
-        xp: 100,
-        coins: 40,
-    },
-    {
-        id: 'first-match',
-        name: 'همسفر',
-        description: 'یک بازی آفلاین را تمام کن',
-        metric: 'matches',
-        goal: 1,
-        xp: 50,
-        coins: 10,
-    },
-    {
-        id: 'first-win',
-        name: 'اولین پیروزی',
-        description: 'یک بازی آفلاین را ببر',
-        metric: 'wins',
-        goal: 1,
-        xp: 100,
-        coins: 25,
-    },
-    {
-        id: 'explorer',
-        name: 'جهانگرد',
-        description: 'پنج بازی آفلاین را تمام کن',
-        metric: 'matches',
-        goal: 5,
-        xp: 200,
-        coins: 50,
-    },
-    {
-        id: 'champion',
-        name: 'پیروز جزیره',
-        description: 'پنج بازی آفلاین را ببر',
-        metric: 'wins',
-        goal: 5,
-        xp: 200,
-        coins: 50,
-    },
-] as const;
-export type BadgeId = (typeof BADGES)[number]['id'];
-export const SEALS = [
-    { id: 'sun', name: 'مهر خورشید', cost: 0, color: 0xffcf75 },
-    { id: 'turquoise', name: 'مهر فیروزه', cost: 100, color: 0x59d8ce },
-    { id: 'amethyst', name: 'مهر ارغوان', cost: 200, color: 0xc9a3f7 },
-] as const;
-export type SealId = (typeof SEALS)[number]['id'];
-const badgeId = z.enum(['practice', 'first-match', 'first-win', 'explorer', 'champion']);
-const sealId = z.enum(['sun', 'turquoise', 'amethyst']);
-const count = z.number().int().min(0).max(100_000_000);
-const rewardSchema = z.strictObject({
-    source: z.enum(['match', 'practice']),
-    matchId: z.uuid().nullable(),
-    won: z.boolean(),
-    xp: count,
-    coins: count,
-    badges: z.array(badgeId).max(BADGES.length),
-    previousLevel: z.number().int().min(1),
+const envelopeSchema = z.strictObject({
+    version: z.literal(2),
+    profile: offlineProfileSchema,
+    baseline: offlineProfileSchema,
+    pending: z.array(offlineCommandSchema).max(20000),
+    revision: z.number().int().nonnegative().nullable(),
+    syncedAt: z.string().nullable(),
+    remoteOwner: z.string().nullable().optional(),
 });
-const profileSchema = z
-    .strictObject({
-        version: z.literal(1),
-        name: z.string().min(1).max(48),
-        xp: count,
-        coins: count,
-        matches: count,
-        wins: count,
-        practice: z.boolean(),
-        matchIds: z.array(z.uuid()).max(20_000),
-        badges: z.array(badgeId).max(BADGES.length),
-        owned: z.array(sealId).min(1).max(SEALS.length),
-        equipped: sealId,
-        lastReward: rewardSchema.nullable(),
-    })
-    .refine(
-        (p) =>
-            p.wins <= p.matches &&
-            p.matchIds.length === p.matches &&
-            new Set(p.matchIds).size === p.matchIds.length &&
-            new Set(p.badges).size === p.badges.length &&
-            new Set(p.owned).size === p.owned.length &&
-            p.owned.includes('sun') &&
-            p.owned.includes(p.equipped) &&
-            BADGES.every((b) => p.badges.includes(b.id) === metric(p, b.metric) >= b.goal),
-    );
-export type Profile = z.infer<typeof profileSchema>;
-export type Reward = z.infer<typeof rewardSchema>;
-type Metric = (typeof BADGES)[number]['metric'];
-
-export function metric(
-    profile: { practice: boolean; matches: number; wins: number },
-    key: Metric,
-): number {
-    return key === 'practice' ? Number(profile.practice) : profile[key];
-}
-
-/** Account experience measures participation, never competitive skill. */
-export function experience(xp: number): {
-    level: number;
-    current: number;
-    required: number;
-    percent: number;
-} {
-    let level = 1;
-    let current = Number.isFinite(xp) ? Math.max(0, Math.min(100_000_000, Math.floor(xp))) : 0;
-    let required = 300;
-    while (current >= required) {
-        current -= required;
-        level++;
-        required = Math.min(1500, 300 + (level - 1) * 100);
-    }
-    return { level, current, required, percent: current / required };
-}
-
-function emptyProfile(): Profile {
-    return {
-        version: 1,
-        name: 'بازیکن',
-        xp: 0,
-        coins: 0,
-        matches: 0,
-        wins: 0,
-        practice: false,
-        matchIds: [],
-        badges: [],
-        owned: ['sun'],
-        equipped: 'sun',
-        lastReward: null,
-    };
-}
 function browserStorage(): SaveStorage | null {
     try {
         return globalThis.localStorage ?? null;
@@ -156,11 +43,16 @@ function browserStorage(): SaveStorage | null {
         return null;
     }
 }
-
-/** Device-local rewards. This ledger is never proof of online rank or account wealth. */
+/** Atomic profile/outbox envelope. The server replays commands, never trusts requested reward amounts. */
 export class ProgressionStore {
     private profile = emptyProfile();
+    private baseline = emptyProfile();
+    private pending: OfflineCommand[] = [];
+    private revision: number | null = null;
+    private syncedAt: string | null = null;
+    private remoteOwner: string | null = null;
     private previousRaw: string | null = null;
+    private listeners = new Set<() => void>();
     status: 'saved' | 'empty' | 'invalid' | 'unavailable' = 'empty';
     constructor(
         private storage: SaveStorage | null = browserStorage(),
@@ -168,136 +60,210 @@ export class ProgressionStore {
     ) {
         this.refresh();
     }
-    /** Pick up sequential writes from another tab before reading or changing this profile. */
-    private refresh(): void {
+    subscribe(listener: () => void) {
+        this.listeners.add(listener);
+        return () => {
+            this.listeners.delete(listener);
+        };
+    }
+    private commandStorage(): Storage | null {
+        const candidate = this.storage;
+        return candidate &&
+            'length' in candidate &&
+            'key' in candidate &&
+            'removeItem' in candidate &&
+            typeof candidate.key === 'function' &&
+            typeof candidate.removeItem === 'function'
+            ? (candidate as Storage)
+            : null;
+    }
+    private loadCommands() {
+        const storage = this.commandStorage();
+        if (!storage) return;
+        const prefix = this.key + ':command:';
+        for (let i = 0; i < storage.length; i++) {
+            const key = storage.key(i);
+            if (!key?.startsWith(prefix)) continue;
+            const parsed = offlineCommandSchema.safeParse(
+                JSON.parse(storage.getItem(key) ?? 'null'),
+            );
+            if (parsed.success && !this.pending.some((c) => c.id === parsed.data.id)) {
+                this.pending.push(parsed.data);
+                this.profile = applyOfflineCommand(this.profile, parsed.data);
+            }
+        }
+    }
+    private refresh() {
         try {
-            const storage = this.storage;
-            if (!storage) {
+            if (!this.storage) {
                 this.status = 'unavailable';
                 return;
             }
-            const raw = storage.getItem(this.key);
+            const raw = this.storage.getItem(this.key);
             if (raw === this.previousRaw) return;
             this.previousRaw = raw;
             if (!raw) {
-                this.profile = emptyProfile();
                 this.status = 'empty';
                 return;
             }
-            if (raw.length > 2_000_000) {
+            if (raw.length > 8000000) {
                 this.status = 'invalid';
                 return;
             }
-            let value: unknown;
-            try {
-                value = JSON.parse(raw);
-            } catch {
-                this.status = 'invalid';
-                return;
+            const value: unknown = JSON.parse(raw);
+            const current = envelopeSchema.safeParse(value);
+            if (current.success) {
+                this.profile = current.data.profile;
+                this.baseline = current.data.baseline;
+                this.pending = current.data.pending;
+                this.revision = current.data.revision;
+                this.syncedAt = current.data.syncedAt;
+                this.remoteOwner = current.data.remoteOwner ?? null;
+            } else {
+                const legacy = offlineProfileSchema.safeParse(value);
+                if (!legacy.success) {
+                    this.status = 'invalid';
+                    return;
+                }
+                this.profile = legacy.data;
+                this.baseline = structuredClone(legacy.data);
             }
-            const parsed = profileSchema.safeParse(value);
-            if (parsed.success) {
-                this.profile = parsed.data;
-                this.status = 'saved';
-            } else this.status = 'invalid';
+            this.loadCommands();
+            this.status = 'saved';
         } catch {
             this.status = 'unavailable';
         }
     }
     get snapshot(): Profile {
         this.refresh();
-        const p = this.profile;
-        return {
-            ...p,
-            matchIds: [...p.matchIds],
-            badges: [...p.badges],
-            owned: [...p.owned],
-            lastReward: p.lastReward ? { ...p.lastReward, badges: [...p.lastReward.badges] } : null,
-        };
+        return structuredClone(this.profile);
     }
     get seal() {
-        this.refresh();
-        return SEALS.find((s) => s.id === this.profile.equipped) ?? SEALS[0];
+        return SEALS.find((s) => s.id === this.snapshot.equipped) ?? SEALS[0];
     }
-    rename(name: string): void {
+    get synchronization() {
         this.refresh();
-        if (!name || Array.from(name).length > 24 || name === this.profile.name) return;
-        this.profile.name = name;
+        return { pending: this.pending.length, syncedAt: this.syncedAt, revision: this.revision };
+    }
+    syncRequest(remoteOwner?: string) {
+        this.refresh();
+        if (remoteOwner && this.remoteOwner && this.remoteOwner !== remoteOwner) {
+            // An expired guest cookie creates a new authenticated guest, preserving this device's earned profile.
+            this.baseline = structuredClone(this.profile);
+            this.pending = [];
+            this.revision = null;
+            try {
+                const storage = this.commandStorage();
+                if (storage) {
+                    const prefix = this.key + ':command:';
+                    for (let i = storage.length - 1; i >= 0; i--) {
+                        const key = storage.key(i);
+                        if (key?.startsWith(prefix)) storage.removeItem(key);
+                    }
+                }
+            } catch {
+                /* Best effort cleanup; profile remains intact. */
+            }
+        }
+        if (remoteOwner) this.remoteOwner = remoteOwner;
+        this.refresh();
+        try {
+            this.loadCommands();
+        } catch {
+            /* Keep the current durable envelope. */
+        }
+        return {
+            ...(this.revision === null ? { baseline: structuredClone(this.baseline) } : {}),
+            commands: structuredClone(this.pending.slice(0, 25)),
+        };
+    }
+    reconcile(profile: Profile, revision: number, acknowledged: string[]) {
+        this.refresh();
+        if (this.revision !== null && revision < this.revision) return;
+        // Preserve legacy history on this device before the first canonical reconciliation.
+        if (this.revision === null)
+            try {
+                this.storage?.setItem(this.key + ':legacy-backup', JSON.stringify(this.baseline));
+            } catch {
+                /* Keep the existing envelope if backup fails. */
+            }
+        const ids = new Set(acknowledged);
+        // Acknowledgment removes only known command keys; concurrent tabs keep their additions.
+        const storage = this.commandStorage();
+        try {
+            for (const id of ids) storage?.removeItem(this.key + ':command:' + id);
+        } catch {
+            /* Server receipts keep retries safe. */
+        }
+        this.pending = this.pending.filter((c) => !ids.has(c.id));
+        this.baseline = offlineProfileSchema.parse(profile);
+        this.revision = revision;
+        this.syncedAt = new Date().toISOString();
+        this.profile = this.pending.reduce(applyOfflineCommand, structuredClone(this.baseline));
         this.save();
     }
-    /** Save balance and ownership together; repeated purchase equips without charging again. */
-    equip(id: string): boolean {
+    private apply(command: OfflineCommand) {
         this.refresh();
-        const seal = SEALS.find((s) => s.id === id);
-        if (!seal) return false;
-        if (!this.profile.owned.includes(seal.id)) {
-            if (this.profile.coins < seal.cost) return false;
-            this.profile.coins -= seal.cost;
-            this.profile.owned.push(seal.id);
+        if (this.pending.length >= 20000) {
+            this.status = 'unavailable';
+            return false;
         }
-        this.profile.equipped = seal.id;
+        const next = applyOfflineCommand(this.profile, command);
+        if (JSON.stringify(next) === JSON.stringify(this.profile)) return false;
+        try {
+            this.commandStorage()?.setItem(
+                this.key + ':command:' + command.id,
+                JSON.stringify(command),
+            );
+        } catch {
+            /* Envelope still attempts a durable write. */
+        }
+        this.pending.push(command);
+        this.profile = next;
         this.save();
         return true;
     }
-    completePractice(): Reward | null {
+    rename(name: string) {
+        if (!name || Array.from(name).length > 24) return;
+        this.apply({ id: createProgressionId(), kind: 'rename', name });
+    }
+    equip(id: string): boolean {
         this.refresh();
-        if (this.profile.practice) return null;
-        this.profile.practice = true;
-        return this.grant('practice', null, false, 0, 0);
+        const seal = SEALS.find((s) => s.id === id);
+        if (!seal || (!this.profile.owned.includes(seal.id) && this.profile.coins < seal.cost))
+            return false;
+        this.apply({ id: createProgressionId(), kind: 'equip', seal: seal.id });
+        return true;
+    }
+    completePractice(): Reward | null {
+        return this.apply({ id: createProgressionId(), kind: 'practice' })
+            ? this.snapshot.lastReward
+            : null;
     }
     completeMatch(matchId: string, won: boolean): Reward | null {
-        this.refresh();
-        if (
-            !z.uuid().safeParse(matchId).success ||
-            this.profile.matchIds.includes(matchId) ||
-            this.profile.matchIds.length >= 20_000
-        )
-            return null;
-        this.profile.matchIds.push(matchId);
-        this.profile.matches++;
-        if (won) this.profile.wins++;
-        return this.grant('match', matchId, won, won ? 150 : 100, won ? 30 : 20);
+        if (!z.uuid().safeParse(matchId).success) return null;
+        return this.apply({ id: createProgressionId(), kind: 'match', matchId, won })
+            ? this.snapshot.lastReward
+            : null;
     }
-    private grant(
-        source: Reward['source'],
-        matchId: string | null,
-        won: boolean,
-        xp: number,
-        coins: number,
-    ): Reward {
-        const previousLevel = experience(this.profile.xp).level;
-        const badges = BADGES.filter(
-            (b) => !this.profile.badges.includes(b.id) && metric(this.profile, b.metric) >= b.goal,
-        );
-        for (const badge of badges) {
-            xp += badge.xp;
-            coins += badge.coins;
-            this.profile.badges.push(badge.id);
-        }
-        this.profile.xp += xp;
-        this.profile.coins += coins;
-        const reward: Reward = {
-            source,
-            matchId,
-            won,
-            xp,
-            coins,
-            badges: badges.map((b) => b.id),
-            previousLevel,
-        };
-        this.profile.lastReward = reward;
-        this.save();
-        return { ...reward, badges: [...reward.badges] };
-    }
-    private save(): void {
+    private save() {
         try {
             if (!this.storage) throw new Error('Storage unavailable');
-            const raw = JSON.stringify(this.profile);
+            const raw = JSON.stringify({
+                version: 2,
+                profile: this.profile,
+                baseline: this.baseline,
+                pending: this.pending,
+                revision: this.revision,
+                syncedAt: this.syncedAt,
+                remoteOwner: this.remoteOwner,
+            });
             this.storage.setItem(this.key, raw);
             this.previousRaw = raw;
             this.status = 'saved';
         } catch {
             this.status = 'unavailable';
         }
+        this.listeners.forEach((listener) => listener());
     }
 }

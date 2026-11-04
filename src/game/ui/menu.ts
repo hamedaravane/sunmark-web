@@ -11,7 +11,8 @@ import { rewardMarkup, storageNotice } from './progressionMarkup';
 export function menuContent(app: AppPlatform, session: MatchSession): string {
     const store = session.progression,
         local = store?.snapshot;
-    const server = onlineProgression(),
+    const accountProgress = onlineProgression();
+    const server = local ? null : accountProgress,
         identity = playerIdentity();
     const profile = server ?? local;
     const profileAction = server ? 'hub:online-profile' : 'hub:profile';
@@ -33,11 +34,11 @@ export function menuContent(app: AppPlatform, session: MatchSession): string {
     <h2 class="council-lead">${resume ? 'سفرت منتظر توست' : 'پیمان تازه‌ای ببند'}</h2><p class="council-lead">راه‌ها را گسترش بده، سنجیده معامله کن و جزیره را به نام خودت رقم بزن.</p>
     ${button(`${icon('offline', 28)}<span><strong>${resume ? 'ادامهٔ سفر' : 'شروع سفر'}</strong><small>${resume ? 'بازگشت به جزیرهٔ ذخیره‌شده' : 'بازی آفلاین با میترا، اَشی و آرمیتی'}</small></span>`, 'play', { className: 'button button--primary council-start', disabled: app.updating })}
     ${button(`${icon('practice', 24)}<span><strong>تمرین و آموزش</strong><small>با راهنمای آناهیتا، در بازی یاد بگیر</small></span>`, 'tutorial', { className: 'button council-practice', disabled: app.updating })}
-    <div class="council-online">${button(`${icon('ranked', 22)}<span>رقابت آنلاین<small>${escape(rankLabel(server))}</small></span>`, 'hub:competitive', { className: 'button button--quiet', disabled: app.updating || !online })}${button(`${icon('friends', 22)} با دوستان`, 'online', { className: 'button button--quiet', disabled: app.updating || !online })}</div>
+    <div class="council-online">${button(`${icon('ranked', 22)}<span>رقابت آنلاین<small>${escape(rankLabel(accountProgress))}</small></span>`, 'hub:competitive', { className: 'button button--quiet', disabled: app.updating || !online })}${button(`${icon('friends', 22)} با دوستان`, 'online', { className: 'button button--quiet', disabled: app.updating || !online })}</div>
     ${!online ? '<p class="footnote">رقابت آنلاین در این نسخهٔ آفلاین در دسترس نیست.</p>' : ''}
     ${next && local ? `<section class="council-route"><h3>گام بعدی: ${escape(next.name)}</h3><p>${escape(next.description)} · ${number(Math.min(next.goal, metric(local, next.metric)))} از ${number(next.goal)}</p>${button('مسیر پیشرفت', 'hub:achievements', { className: 'button button--quiet', disabled: app.updating })}</section>` : ''}
     </section>
     <nav class="council-navigation" aria-label="دفتر سفر">${button(`${icon('profile', 22)} پروفایل`, profileAction, { className: 'button button--quiet', disabled: app.updating })}${button(`${icon('achievement', 22)} نشان‌ها`, server ? 'hub:online-achievements' : 'hub:achievements', { className: 'button button--quiet', disabled: app.updating })}${button(`${icon('treasure', 22)} گنجینه`, cosmeticAction, { className: 'button button--quiet', disabled: app.updating })}</nav>
-    <footer class="council-meta">${button('نصب و وضعیت برنامه', 'open-app', { className: 'button button--quiet', disabled: app.updating })}${button(identity ? `حساب ${escape(identity.name)}` : 'ساخت حساب / ورود', 'account', { className: 'button button--quiet', disabled: app.updating })}${online ? button('دعوت دوستان و پاداش', 'hub:referrals', { className: 'button button--quiet', disabled: app.updating }) : ''}<p>${server ? 'پیشرفت آنلاین همگام است؛ سفر آفلاین جداست.' : 'پیشرفت سفر روی همین دستگاه ذخیره می‌شود.'}</p></footer>
-    ${local?.lastReward ? rewardMarkup(local.lastReward, local) : ''}${store ? storageNotice(store) : ''}${menuStatus(app, session)}</div>`;
+    <footer class="council-meta">${button('نصب و وضعیت برنامه', 'open-app', { className: 'button button--quiet', disabled: app.updating })}${button(identity ? `حساب ${escape(identity.name)}` : 'ساخت حساب / ورود', 'account', { className: 'button button--quiet', disabled: app.updating })}${accountProgress ? button('دارایی آنلاین', 'hub:online-profile', { className: 'button button--quiet', disabled: app.updating }) : ''}${online ? button('دعوت دوستان و پاداش', 'hub:referrals', { className: 'button button--quiet', disabled: app.updating }) : ''}<p>${store?.synchronization.syncedAt ? 'پیشرفت سفر با سرور همگام شده است.' : 'پیشرفت سفر محفوظ است؛ پس از اتصال همگام می‌شود.'}</p></footer>
+    ${local?.lastReward ? rewardMarkup(local.lastReward, local) : ''}${store ? storageNotice(store) : ''}${menuStatus(app, session)}<p class="footnote">آمار بازی آفلاین و مشخصات فنی برای بهبود بازی، پس از اتصال همگام می‌شوند.</p>${button('آمار و حریم خصوصی', 'analytics-settings', { className: 'button button--quiet' })}</div>`;
 }

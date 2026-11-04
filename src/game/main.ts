@@ -1,3 +1,4 @@
+import { synchronizeOfflineProgression } from '../account/offlineSync';
 import { playerIdentity } from '../account/identity';
 import type { Game } from 'phaser';
 import { GameSession } from './ui/session';
@@ -28,7 +29,16 @@ export function StartGame(parent: HTMLElement): Game {
             }
             const legacyProgression = storage.getItem(PROGRESSION_KEY);
             if (!storage.getItem(progressionKey) && legacyProgression) {
-                storage.setItem(progressionKey, legacyProgression);
+                const legacyValue: unknown = JSON.parse(legacyProgression);
+                // Rebind the local profile, never a prior owner's server revision.
+                storage.setItem(
+                    progressionKey,
+                    JSON.stringify(
+                        legacyValue && typeof legacyValue === 'object' && 'profile' in legacyValue
+                            ? legacyValue.profile
+                            : legacyValue,
+                    ),
+                );
                 storage.removeItem(PROGRESSION_KEY);
             }
         } catch {
@@ -39,6 +49,7 @@ export function StartGame(parent: HTMLElement): Game {
         new MatchStore(storage, key),
         new ProgressionStore(storage, progressionKey),
     );
+    const disconnectProgression = synchronizeOfflineProgression(session.progression, identity?.id);
     const app = new AppPlatform();
     const bots = new BotTurnRunner(
         session,
@@ -50,6 +61,7 @@ export function StartGame(parent: HTMLElement): Game {
     const disconnectBotsPlatform = app.subscribe(bots.refresh);
     const game = mountMatch(parent, session, app);
     game.events.once('destroy', () => {
+        disconnectProgression();
         visibility.disconnect();
         bots.destroy();
         disconnectBotsPlatform();

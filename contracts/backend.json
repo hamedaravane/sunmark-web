@@ -1,12 +1,13 @@
 {
   "repository": "hamedaravane/sunmark-server",
-  "commit": "c80095f2866b36e1ae7c5104645da29710c6a79f",
+  "commit": "3452bca325c6f400ab84b01496983694cfe64ca4",
   "sha256": {
-    "src/online/shared/src/analytics/analytics.schemas.ts": "81a4e409e2f416b9f46d1ca58465484ed19b4cc5ea436b98e30ec9b18e8c4812",
-    "src/online/shared/src/admin/admin.schemas.ts": "c30a913b9b8ca22cc3c0775473e1d0d0109997a294ece959c1ef8f6103b95ffd",
+    "src/online/shared/src/online/offlineProgression.ts": "8ef9395cd8be76e20b88741cae50e3ec4522040de59415bf77303f3e0903b5d3",
+    "src/online/shared/src/analytics/analytics.schemas.ts": "d6eae2bf0d644e78d172ee9af4a0bc9d2300a41551ebf03a097c5e71dd703376",
+    "src/online/shared/src/admin/admin.schemas.ts": "82c81a857c65365237b0afd45ff1af6be5e0eee9f29d02e67f363b3f2d096a45",
     "src/online/shared/src/online/progression.schemas.ts": "30caa861307a4b105a34aaab3e309dce941f75bb75a46bbc8ff7c87f28c1ef8d",
     "src/online/shared/src/online/account.schemas.ts": "1b956aec81fa684560220dd2a28ea517dc1fae2ac3d91da1d38ca10827a4d2f6",
-    "contracts/openapi.json": "47057bd3cf104329d9990cab526bae84c755edb6fa63892660e5f0009b5200bd",
+    "contracts/openapi.json": "a30c4f0d0a78dae1dc8472ab85869703b98ec5c120b280501ce6ac2329782fc7",
     "src/online/shared/src/game/protocol.ts": "808d7f862d84885f84c6fa53cd7cc71e1c4359469f3d0328bd0ab60646584623",
     "src/online/shared/src/online/schemas.ts": "00eb30deb71f90cdc84d642e79abd0b578b195d18e8e1793ea2be452f9820698",
     "src/online/shared/src/online/wire.ts": "7529f2b50e2202c8bdfefab8ca1073155dc893d95dfacb4fc3946a65c2fc13f6"

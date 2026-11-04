@@ -23,8 +23,9 @@ void loadUiFont().then(async () => {
         startPiecesDemo(parent);
     } else {
         if (import.meta.env.VITE_ONLINE_ENABLED !== 'false') {
-            await restoreIdentity();
-            if (playerIdentity()?.profileComplete === false) await showAccount(parent);
+            if (navigator.onLine) await restoreIdentity();
+            if (navigator.onLine && playerIdentity()?.profileComplete === false)
+                await showAccount(parent);
         }
         await configureAnalytics(parent);
         const offline = document.createElement('div');
@@ -38,6 +39,9 @@ void loadUiFont().then(async () => {
             game = StartGame(offline);
             offlineIdentity = playerIdentity()?.id;
         };
+        parent.addEventListener('sunmark:analytics', () => {
+            void configureAnalytics(parent, true);
+        });
         let accountOpen = false;
         parent.addEventListener('sunmark:account', (event) => {
             if (accountOpen) return;

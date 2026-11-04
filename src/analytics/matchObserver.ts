@@ -38,6 +38,9 @@ export function observeMatch(
                 : 'offline';
         const context: EventContext = {
             mode,
+            ...(!session.online && !session.practice && session.savedMatch?.progressionId
+                ? { matchId: session.savedMatch.progressionId }
+                : {}),
             ...(runId ? { runId } : {}),
             ...(state ? { phase: state.phase } : {}),
         };
@@ -60,7 +63,12 @@ export function observeMatch(
             emit('phase_changed', { ...context, phase: state.phase });
             if (state.phase === 'finished') {
                 finished = true;
-                emit('match_finished', context);
+                emit('match_finished', {
+                    ...context,
+                    ...(state && !session.online
+                        ? { won: state.winnerId === session.humanPlayer?.id, turn: state.turn }
+                        : {}),
+                });
             }
         }
         if (session.practice?.stage === 'complete' && !practiceComplete) {
@@ -81,9 +89,19 @@ export function observeMatch(
                     ? 'tutorial'
                     : kind === 'results'
                       ? 'results'
-                      : kind
-                        ? 'other'
-                        : 'board';
+                      : kind === 'profile' || kind === 'online-profile'
+                        ? 'profile'
+                        : kind === 'achievements' || kind === 'online-achievements'
+                          ? 'achievements'
+                          : kind === 'cosmetics' || kind === 'online-cosmetics'
+                            ? 'cosmetics'
+                            : kind === 'experience'
+                              ? 'settings'
+                              : kind === 'characters'
+                                ? 'characters'
+                                : kind
+                                  ? 'other'
+                                  : 'board';
         if (screen !== nextScreen) {
             screen = nextScreen;
             emit('screen_view', { ...context, screen: nextScreen });
@@ -109,7 +127,11 @@ export function observeMatch(
                 change.action.kind !== 'synchronize' &&
                 resolutionActor(change.before) === session.humanPlayer?.id
             )
-                emit('action_confirmed', { ...context, action: change.action.kind });
+                emit('action_confirmed', {
+                    ...context,
+                    action: change.action.kind,
+                    ...(change.action.kind === 'build' ? { building: change.action.type } : {}),
+                });
         }
         if (session.error && session.error !== error) emit('action_rejected', context);
         error = session.error ?? '';

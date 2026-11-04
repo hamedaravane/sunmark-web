@@ -247,6 +247,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/online/progression/offline/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["syncOfflineProgression"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/online/progression": {
         parameters: {
             query?: never;
@@ -2465,6 +2481,119 @@ export interface operations {
             };
         };
     };
+    syncOfflineProgression: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional expected account; rejects a stale tab after switching sign-in. */
+                "X-Sunmark-Player"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    accountId: string;
+                    baseline?: {
+                        /** @enum {number} */
+                        version: 1;
+                        name: string;
+                        xp: number;
+                        coins: number;
+                        matches: number;
+                        wins: number;
+                        practice: boolean;
+                        matchIds: string[];
+                        badges: ("practice" | "first-match" | "first-win" | "explorer" | "champion")[];
+                        owned: ("sun" | "turquoise" | "amethyst")[];
+                        /** @enum {string} */
+                        equipped: "sun" | "turquoise" | "amethyst";
+                        lastReward: {
+                            /** @enum {string} */
+                            source: "match" | "practice";
+                            /** Format: uuid */
+                            matchId: string | null;
+                            won: boolean;
+                            xp: number;
+                            coins: number;
+                            badges: ("practice" | "first-match" | "first-win" | "explorer" | "champion")[];
+                            previousLevel: number;
+                        } | null;
+                    };
+                    commands: ({
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        kind: "match";
+                        /** Format: uuid */
+                        matchId: string;
+                        won: boolean;
+                    } | {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        kind: "practice";
+                    } | {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        kind: "equip";
+                        /** @enum {string} */
+                        seal: "sun" | "turquoise" | "amethyst";
+                    } | {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        kind: "rename";
+                        name: string;
+                    })[];
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        accountId: string;
+                        revision: number;
+                        profile: {
+                            /** @enum {number} */
+                            version: 1;
+                            name: string;
+                            xp: number;
+                            coins: number;
+                            matches: number;
+                            wins: number;
+                            practice: boolean;
+                            matchIds: string[];
+                            badges: ("practice" | "first-match" | "first-win" | "explorer" | "champion")[];
+                            owned: ("sun" | "turquoise" | "amethyst")[];
+                            /** @enum {string} */
+                            equipped: "sun" | "turquoise" | "amethyst";
+                            lastReward: {
+                                /** @enum {string} */
+                                source: "match" | "practice";
+                                /** Format: uuid */
+                                matchId: string | null;
+                                won: boolean;
+                                xp: number;
+                                coins: number;
+                                badges: ("practice" | "first-match" | "first-win" | "explorer" | "champion")[];
+                                previousLevel: number;
+                            } | null;
+                        };
+                        acknowledged: string[];
+                    };
+                };
+            };
+        };
+    };
     getPlayerProgression: {
         parameters: {
             query?: never;
@@ -2988,6 +3117,14 @@ export interface operations {
                             eligibleForMeasurement: number;
                             optedOut: number;
                         };
+                        guests?: {
+                            players: number;
+                            sessions: number;
+                            activeSeconds: number;
+                            offlineEntrants: number;
+                            offlineFinishers: number;
+                            actions: number;
+                        };
                         activity: {
                             players: number;
                             sessions: number;
@@ -3216,7 +3353,7 @@ export interface operations {
                         }[];
                         eventsByName: {
                             /** @enum {string} */
-                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed" | "online_flow";
+                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed" | "online_flow" | "ui_interaction" | "app_visibility";
                             events: number;
                             players: number;
                         }[];
@@ -3272,13 +3409,77 @@ export interface operations {
                         firstSeen: string | null;
                         /** Format: date-time */
                         lastSeen: string | null;
+                        offlineProgression?: {
+                            profile: {
+                                /** @enum {number} */
+                                version: 1;
+                                name: string;
+                                xp: number;
+                                coins: number;
+                                matches: number;
+                                wins: number;
+                                practice: boolean;
+                                matchIds: string[];
+                                badges: ("practice" | "first-match" | "first-win" | "explorer" | "champion")[];
+                                owned: ("sun" | "turquoise" | "amethyst")[];
+                                /** @enum {string} */
+                                equipped: "sun" | "turquoise" | "amethyst";
+                                lastReward: {
+                                    /** @enum {string} */
+                                    source: "match" | "practice";
+                                    /** Format: uuid */
+                                    matchId: string | null;
+                                    won: boolean;
+                                    xp: number;
+                                    coins: number;
+                                    badges: ("practice" | "first-match" | "first-win" | "explorer" | "champion")[];
+                                    previousLevel: number;
+                                } | null;
+                            };
+                            revision: number;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        } | null;
+                        devices?: {
+                            device: {
+                                /** Format: uuid */
+                                installationId: string;
+                                userAgent: string;
+                                platform: string;
+                                language: string;
+                                mobile?: boolean;
+                                model?: string;
+                                screenWidth: number;
+                                screenHeight: number;
+                                viewportWidth: number;
+                                viewportHeight: number;
+                                pixelRatio: number;
+                                cpuThreads?: number;
+                                memoryGiB?: number;
+                                touchPoints: number;
+                            };
+                            networkPeer: string;
+                            /** Format: date-time */
+                            lastSeen: string;
+                        }[];
                         events: {
+                            /** Format: date-time */
+                            occurredAt?: string;
                             /** @enum {string} */
-                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed" | "online_flow";
+                            name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed" | "online_flow" | "ui_interaction" | "app_visibility";
                             build: string;
                             /** Format: date-time */
                             receivedAt: string;
                             data: {
+                                /** @enum {string} */
+                                interaction?: "open" | "hub" | "account" | "account-login" | "online" | "ranked" | "play" | "tutorial" | "resume-match" | "restart-match" | "confirm-new-match" | "confirm-player-name" | "enter-match" | "close-sheet" | "resume-game" | "new-game" | "primary" | "roll-dice" | "build" | "construction-focus" | "cancel-placement" | "preview-target" | "inspect" | "player" | "port" | "trade" | "trade-rate" | "trade-port" | "trade-for" | "confirm-trade" | "confirm-end-turn" | "buy-development" | "development-select" | "development-resource" | "play-development" | "declare-victory" | "discard-adjust" | "confirm-discard" | "steal" | "deal-adjust" | "deal-target" | "deal-send" | "deal-new" | "deal-counter" | "deal-accept" | "deal-reject" | "deal-review" | "deal-withdraw" | "deal-finish" | "pin-build" | "experience" | "rival-next" | "rival-reply" | "rival-mute" | "rival-toggle" | "rival-replay" | "tutorial-next" | "tutorial-pause" | "tutorial-resume" | "lesson" | "bot-pause" | "bot-step" | "hub-edit-name" | "hub-save-name" | "hub-equip" | "hub-online" | "online-refresh" | "online-retry" | "online-seal" | "apply-referral" | "copy-referral" | "open-app" | "app-install" | "app-retry" | "app-update" | "account-submit" | "account-close" | "board-target" | "analytics-settings" | "room-account" | "room-quick" | "room-ranked" | "room-cancel-search" | "room-exit" | "room-screen" | "room-create" | "room-join" | "room-open" | "room-back" | "room-ready" | "room-bot" | "room-start" | "room-invite" | "account-register" | "account-recover" | "account-done" | "account-logout" | "account-previous" | "account-copy" | "account-analytics";
+                                visible?: boolean;
+                                /** Format: uuid */
+                                matchId?: string;
+                                /** @enum {string} */
+                                building?: "road" | "settlement" | "city";
+                                won?: boolean;
+                                turn?: number;
                                 /** @enum {string} */
                                 mode?: "hub" | "offline" | "online" | "practice";
                                 /** @enum {string} */
@@ -3286,7 +3487,7 @@ export interface operations {
                                 /** @enum {string} */
                                 action?: "buy-development" | "declare-victory" | "play-development" | "discard" | "steal" | "roll" | "end-turn" | "setup-roll" | "setup" | "build" | "robber" | "domestic-trade" | "trade";
                                 /** @enum {string} */
-                                screen?: "hub" | "board" | "construction" | "trade" | "development" | "tutorial" | "results" | "other";
+                                screen?: "hub" | "board" | "construction" | "trade" | "development" | "tutorial" | "results" | "other" | "profile" | "achievements" | "cosmetics" | "settings" | "characters" | "account";
                                 lesson?: number;
                                 activeMs?: number;
                                 connected?: boolean;
@@ -3396,6 +3597,10 @@ export interface operations {
                             /** Format: date-time */
                             createdAt: string;
                             isAdmin: boolean;
+                            offlineMatches?: number;
+                            offlineWins?: number;
+                            offlineXP?: number;
+                            offlineCoins?: number;
                             xp: number;
                             coins: number;
                             matches: number;
@@ -3492,15 +3697,43 @@ export interface operations {
                 "application/json": {
                     /** Format: uuid */
                     accountId: string;
+                    device?: {
+                        /** Format: uuid */
+                        installationId: string;
+                        userAgent: string;
+                        platform: string;
+                        language: string;
+                        mobile?: boolean;
+                        model?: string;
+                        screenWidth: number;
+                        screenHeight: number;
+                        viewportWidth: number;
+                        viewportHeight: number;
+                        pixelRatio: number;
+                        cpuThreads?: number;
+                        memoryGiB?: number;
+                        touchPoints: number;
+                    };
                     events: {
+                        /** Format: date-time */
+                        occurredAt?: string;
                         /** Format: uuid */
                         id: string;
                         /** Format: uuid */
                         sessionId: string;
                         /** @enum {string} */
-                        name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed" | "online_flow";
+                        name: "app_open" | "heartbeat" | "screen_view" | "match_entered" | "match_left" | "match_finished" | "phase_changed" | "tutorial_shown" | "tutorial_closed" | "tutorial_acknowledged" | "action_confirmed" | "action_rejected" | "connection_changed" | "online_flow" | "ui_interaction" | "app_visibility";
                         build: string;
                         data: {
+                            /** @enum {string} */
+                            interaction?: "open" | "hub" | "account" | "account-login" | "online" | "ranked" | "play" | "tutorial" | "resume-match" | "restart-match" | "confirm-new-match" | "confirm-player-name" | "enter-match" | "close-sheet" | "resume-game" | "new-game" | "primary" | "roll-dice" | "build" | "construction-focus" | "cancel-placement" | "preview-target" | "inspect" | "player" | "port" | "trade" | "trade-rate" | "trade-port" | "trade-for" | "confirm-trade" | "confirm-end-turn" | "buy-development" | "development-select" | "development-resource" | "play-development" | "declare-victory" | "discard-adjust" | "confirm-discard" | "steal" | "deal-adjust" | "deal-target" | "deal-send" | "deal-new" | "deal-counter" | "deal-accept" | "deal-reject" | "deal-review" | "deal-withdraw" | "deal-finish" | "pin-build" | "experience" | "rival-next" | "rival-reply" | "rival-mute" | "rival-toggle" | "rival-replay" | "tutorial-next" | "tutorial-pause" | "tutorial-resume" | "lesson" | "bot-pause" | "bot-step" | "hub-edit-name" | "hub-save-name" | "hub-equip" | "hub-online" | "online-refresh" | "online-retry" | "online-seal" | "apply-referral" | "copy-referral" | "open-app" | "app-install" | "app-retry" | "app-update" | "account-submit" | "account-close" | "board-target" | "analytics-settings" | "room-account" | "room-quick" | "room-ranked" | "room-cancel-search" | "room-exit" | "room-screen" | "room-create" | "room-join" | "room-open" | "room-back" | "room-ready" | "room-bot" | "room-start" | "room-invite" | "account-register" | "account-recover" | "account-done" | "account-logout" | "account-previous" | "account-copy" | "account-analytics";
+                            visible?: boolean;
+                            /** Format: uuid */
+                            matchId?: string;
+                            /** @enum {string} */
+                            building?: "road" | "settlement" | "city";
+                            won?: boolean;
+                            turn?: number;
                             /** @enum {string} */
                             mode?: "hub" | "offline" | "online" | "practice";
                             /** @enum {string} */
@@ -3508,7 +3741,7 @@ export interface operations {
                             /** @enum {string} */
                             action?: "buy-development" | "declare-victory" | "play-development" | "discard" | "steal" | "roll" | "end-turn" | "setup-roll" | "setup" | "build" | "robber" | "domestic-trade" | "trade";
                             /** @enum {string} */
-                            screen?: "hub" | "board" | "construction" | "trade" | "development" | "tutorial" | "results" | "other";
+                            screen?: "hub" | "board" | "construction" | "trade" | "development" | "tutorial" | "results" | "other" | "profile" | "achievements" | "cosmetics" | "settings" | "characters" | "account";
                             lesson?: number;
                             activeMs?: number;
                             connected?: boolean;

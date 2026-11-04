@@ -9625,6 +9625,524 @@
         ]
       }
     },
+    "/api/v1/online/progression/offline/sync": {
+      "post": {
+        "operationId": "syncOfflineProgression",
+        "parameters": [
+          {
+            "name": "X-Sunmark-Player",
+            "in": "header",
+            "description": "Optional expected account; rejects a stale tab after switching sign-in.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "accountId",
+                  "commands"
+                ],
+                "properties": {
+                  "accountId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "baseline": {
+                    "type": "object",
+                    "required": [
+                      "version",
+                      "name",
+                      "xp",
+                      "coins",
+                      "matches",
+                      "wins",
+                      "practice",
+                      "matchIds",
+                      "badges",
+                      "owned",
+                      "equipped",
+                      "lastReward"
+                    ],
+                    "properties": {
+                      "version": {
+                        "type": "number",
+                        "enum": [
+                          1
+                        ]
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 48
+                      },
+                      "xp": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      "coins": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      "matches": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      "wins": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100000000
+                      },
+                      "practice": {
+                        "type": "boolean"
+                      },
+                      "matchIds": {
+                        "type": "array",
+                        "maxItems": 20000,
+                        "items": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                      },
+                      "badges": {
+                        "type": "array",
+                        "maxItems": 5,
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "practice",
+                            "first-match",
+                            "first-win",
+                            "explorer",
+                            "champion"
+                          ]
+                        }
+                      },
+                      "owned": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 3,
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "sun",
+                            "turquoise",
+                            "amethyst"
+                          ]
+                        }
+                      },
+                      "equipped": {
+                        "type": "string",
+                        "enum": [
+                          "sun",
+                          "turquoise",
+                          "amethyst"
+                        ]
+                      },
+                      "lastReward": {
+                        "type": "object",
+                        "nullable": true,
+                        "required": [
+                          "source",
+                          "matchId",
+                          "won",
+                          "xp",
+                          "coins",
+                          "badges",
+                          "previousLevel"
+                        ],
+                        "properties": {
+                          "source": {
+                            "type": "string",
+                            "enum": [
+                              "match",
+                              "practice"
+                            ]
+                          },
+                          "matchId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                            "nullable": true
+                          },
+                          "won": {
+                            "type": "boolean"
+                          },
+                          "xp": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100000000
+                          },
+                          "coins": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100000000
+                          },
+                          "badges": {
+                            "type": "array",
+                            "maxItems": 5,
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "practice",
+                                "first-match",
+                                "first-win",
+                                "explorer",
+                                "champion"
+                              ]
+                            }
+                          },
+                          "previousLevel": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "commands": {
+                    "type": "array",
+                    "maxItems": 25,
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "kind",
+                            "matchId",
+                            "won"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "match"
+                              ]
+                            },
+                            "matchId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "won": {
+                              "type": "boolean"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "kind"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "practice"
+                              ]
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "kind",
+                            "seal"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "equip"
+                              ]
+                            },
+                            "seal": {
+                              "type": "string",
+                              "enum": [
+                                "sun",
+                                "turquoise",
+                                "amethyst"
+                              ]
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "kind",
+                            "name"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "rename"
+                              ]
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "accountId",
+                    "revision",
+                    "profile",
+                    "acknowledged"
+                  ],
+                  "properties": {
+                    "accountId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "revision": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "profile": {
+                      "type": "object",
+                      "required": [
+                        "version",
+                        "name",
+                        "xp",
+                        "coins",
+                        "matches",
+                        "wins",
+                        "practice",
+                        "matchIds",
+                        "badges",
+                        "owned",
+                        "equipped",
+                        "lastReward"
+                      ],
+                      "properties": {
+                        "version": {
+                          "type": "number",
+                          "enum": [
+                            1
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 48
+                        },
+                        "xp": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 100000000
+                        },
+                        "coins": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 100000000
+                        },
+                        "matches": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 100000000
+                        },
+                        "wins": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 100000000
+                        },
+                        "practice": {
+                          "type": "boolean"
+                        },
+                        "matchIds": {
+                          "type": "array",
+                          "maxItems": 20000,
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        },
+                        "badges": {
+                          "type": "array",
+                          "maxItems": 5,
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "practice",
+                              "first-match",
+                              "first-win",
+                              "explorer",
+                              "champion"
+                            ]
+                          }
+                        },
+                        "owned": {
+                          "type": "array",
+                          "minItems": 1,
+                          "maxItems": 3,
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "sun",
+                              "turquoise",
+                              "amethyst"
+                            ]
+                          }
+                        },
+                        "equipped": {
+                          "type": "string",
+                          "enum": [
+                            "sun",
+                            "turquoise",
+                            "amethyst"
+                          ]
+                        },
+                        "lastReward": {
+                          "type": "object",
+                          "nullable": true,
+                          "required": [
+                            "source",
+                            "matchId",
+                            "won",
+                            "xp",
+                            "coins",
+                            "badges",
+                            "previousLevel"
+                          ],
+                          "properties": {
+                            "source": {
+                              "type": "string",
+                              "enum": [
+                                "match",
+                                "practice"
+                              ]
+                            },
+                            "matchId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                              "nullable": true
+                            },
+                            "won": {
+                              "type": "boolean"
+                            },
+                            "xp": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 100000000
+                            },
+                            "coins": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 100000000
+                            },
+                            "badges": {
+                              "type": "array",
+                              "maxItems": 5,
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "practice",
+                                  "first-match",
+                                  "first-win",
+                                  "explorer",
+                                  "champion"
+                                ]
+                              }
+                            },
+                            "previousLevel": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "acknowledged": {
+                      "type": "array",
+                      "maxItems": 25,
+                      "items": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "progression"
+        ]
+      }
+    },
     "/api/v1/online/progression": {
       "get": {
         "operationId": "getPlayerProgression",
@@ -12076,6 +12594,50 @@
                       },
                       "additionalProperties": false
                     },
+                    "guests": {
+                      "type": "object",
+                      "required": [
+                        "players",
+                        "sessions",
+                        "activeSeconds",
+                        "offlineEntrants",
+                        "offlineFinishers",
+                        "actions"
+                      ],
+                      "properties": {
+                        "players": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "sessions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "activeSeconds": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "offlineEntrants": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "offlineFinishers": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "actions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "additionalProperties": false
+                    },
                     "activity": {
                       "type": "object",
                       "required": [
@@ -12833,7 +13395,9 @@
                               "action_confirmed",
                               "action_rejected",
                               "connection_changed",
-                              "online_flow"
+                              "online_flow",
+                              "ui_interaction",
+                              "app_visibility"
                             ]
                           },
                           "events": {
@@ -12963,6 +13527,292 @@
                       "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
                       "nullable": true
                     },
+                    "offlineProgression": {
+                      "type": "object",
+                      "nullable": true,
+                      "required": [
+                        "profile",
+                        "revision",
+                        "updatedAt"
+                      ],
+                      "properties": {
+                        "profile": {
+                          "type": "object",
+                          "required": [
+                            "version",
+                            "name",
+                            "xp",
+                            "coins",
+                            "matches",
+                            "wins",
+                            "practice",
+                            "matchIds",
+                            "badges",
+                            "owned",
+                            "equipped",
+                            "lastReward"
+                          ],
+                          "properties": {
+                            "version": {
+                              "type": "number",
+                              "enum": [
+                                1
+                              ]
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 48
+                            },
+                            "xp": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 100000000
+                            },
+                            "coins": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 100000000
+                            },
+                            "matches": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 100000000
+                            },
+                            "wins": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 100000000
+                            },
+                            "practice": {
+                              "type": "boolean"
+                            },
+                            "matchIds": {
+                              "type": "array",
+                              "maxItems": 20000,
+                              "items": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              }
+                            },
+                            "badges": {
+                              "type": "array",
+                              "maxItems": 5,
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "practice",
+                                  "first-match",
+                                  "first-win",
+                                  "explorer",
+                                  "champion"
+                                ]
+                              }
+                            },
+                            "owned": {
+                              "type": "array",
+                              "minItems": 1,
+                              "maxItems": 3,
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "sun",
+                                  "turquoise",
+                                  "amethyst"
+                                ]
+                              }
+                            },
+                            "equipped": {
+                              "type": "string",
+                              "enum": [
+                                "sun",
+                                "turquoise",
+                                "amethyst"
+                              ]
+                            },
+                            "lastReward": {
+                              "type": "object",
+                              "nullable": true,
+                              "required": [
+                                "source",
+                                "matchId",
+                                "won",
+                                "xp",
+                                "coins",
+                                "badges",
+                                "previousLevel"
+                              ],
+                              "properties": {
+                                "source": {
+                                  "type": "string",
+                                  "enum": [
+                                    "match",
+                                    "practice"
+                                  ]
+                                },
+                                "matchId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                                  "nullable": true
+                                },
+                                "won": {
+                                  "type": "boolean"
+                                },
+                                "xp": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 100000000
+                                },
+                                "coins": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 100000000
+                                },
+                                "badges": {
+                                  "type": "array",
+                                  "maxItems": 5,
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "practice",
+                                      "first-match",
+                                      "first-win",
+                                      "explorer",
+                                      "champion"
+                                    ]
+                                  }
+                                },
+                                "previousLevel": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 9007199254740991
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "revision": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "devices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "device",
+                          "networkPeer",
+                          "lastSeen"
+                        ],
+                        "properties": {
+                          "device": {
+                            "type": "object",
+                            "required": [
+                              "installationId",
+                              "userAgent",
+                              "platform",
+                              "language",
+                              "screenWidth",
+                              "screenHeight",
+                              "viewportWidth",
+                              "viewportHeight",
+                              "pixelRatio",
+                              "touchPoints"
+                            ],
+                            "properties": {
+                              "installationId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "userAgent": {
+                                "type": "string",
+                                "maxLength": 512
+                              },
+                              "platform": {
+                                "type": "string",
+                                "maxLength": 80
+                              },
+                              "language": {
+                                "type": "string",
+                                "maxLength": 35
+                              },
+                              "mobile": {
+                                "type": "boolean"
+                              },
+                              "model": {
+                                "type": "string",
+                                "maxLength": 80
+                              },
+                              "screenWidth": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 32768
+                              },
+                              "screenHeight": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 32768
+                              },
+                              "viewportWidth": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 32768
+                              },
+                              "viewportHeight": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 32768
+                              },
+                              "pixelRatio": {
+                                "type": "number",
+                                "minimum": 0.1,
+                                "maximum": 16
+                              },
+                              "cpuThreads": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 512
+                              },
+                              "memoryGiB": {
+                                "type": "number",
+                                "minimum": 0.1,
+                                "maximum": 1024
+                              },
+                              "touchPoints": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 100
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "networkPeer": {
+                            "type": "string",
+                            "maxLength": 64
+                          },
+                          "lastSeen": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
                     "events": {
                       "type": "array",
                       "items": {
@@ -12974,6 +13824,11 @@
                           "data"
                         ],
                         "properties": {
+                          "occurredAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                          },
                           "name": {
                             "type": "string",
                             "enum": [
@@ -12990,7 +13845,9 @@
                               "action_confirmed",
                               "action_rejected",
                               "connection_changed",
-                              "online_flow"
+                              "online_flow",
+                              "ui_interaction",
+                              "app_visibility"
                             ]
                           },
                           "build": {
@@ -13004,6 +13861,135 @@
                           "data": {
                             "type": "object",
                             "properties": {
+                              "interaction": {
+                                "type": "string",
+                                "enum": [
+                                  "open",
+                                  "hub",
+                                  "account",
+                                  "account-login",
+                                  "online",
+                                  "ranked",
+                                  "play",
+                                  "tutorial",
+                                  "resume-match",
+                                  "restart-match",
+                                  "confirm-new-match",
+                                  "confirm-player-name",
+                                  "enter-match",
+                                  "close-sheet",
+                                  "resume-game",
+                                  "new-game",
+                                  "primary",
+                                  "roll-dice",
+                                  "build",
+                                  "construction-focus",
+                                  "cancel-placement",
+                                  "preview-target",
+                                  "inspect",
+                                  "player",
+                                  "port",
+                                  "trade",
+                                  "trade-rate",
+                                  "trade-port",
+                                  "trade-for",
+                                  "confirm-trade",
+                                  "confirm-end-turn",
+                                  "buy-development",
+                                  "development-select",
+                                  "development-resource",
+                                  "play-development",
+                                  "declare-victory",
+                                  "discard-adjust",
+                                  "confirm-discard",
+                                  "steal",
+                                  "deal-adjust",
+                                  "deal-target",
+                                  "deal-send",
+                                  "deal-new",
+                                  "deal-counter",
+                                  "deal-accept",
+                                  "deal-reject",
+                                  "deal-review",
+                                  "deal-withdraw",
+                                  "deal-finish",
+                                  "pin-build",
+                                  "experience",
+                                  "rival-next",
+                                  "rival-reply",
+                                  "rival-mute",
+                                  "rival-toggle",
+                                  "rival-replay",
+                                  "tutorial-next",
+                                  "tutorial-pause",
+                                  "tutorial-resume",
+                                  "lesson",
+                                  "bot-pause",
+                                  "bot-step",
+                                  "hub-edit-name",
+                                  "hub-save-name",
+                                  "hub-equip",
+                                  "hub-online",
+                                  "online-refresh",
+                                  "online-retry",
+                                  "online-seal",
+                                  "apply-referral",
+                                  "copy-referral",
+                                  "open-app",
+                                  "app-install",
+                                  "app-retry",
+                                  "app-update",
+                                  "account-submit",
+                                  "account-close",
+                                  "board-target",
+                                  "analytics-settings",
+                                  "room-account",
+                                  "room-quick",
+                                  "room-ranked",
+                                  "room-cancel-search",
+                                  "room-exit",
+                                  "room-screen",
+                                  "room-create",
+                                  "room-join",
+                                  "room-open",
+                                  "room-back",
+                                  "room-ready",
+                                  "room-bot",
+                                  "room-start",
+                                  "room-invite",
+                                  "account-register",
+                                  "account-recover",
+                                  "account-done",
+                                  "account-logout",
+                                  "account-previous",
+                                  "account-copy",
+                                  "account-analytics"
+                                ]
+                              },
+                              "visible": {
+                                "type": "boolean"
+                              },
+                              "matchId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "building": {
+                                "type": "string",
+                                "enum": [
+                                  "road",
+                                  "settlement",
+                                  "city"
+                                ]
+                              },
+                              "won": {
+                                "type": "boolean"
+                              },
+                              "turn": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1000000
+                              },
                               "mode": {
                                 "type": "string",
                                 "enum": [
@@ -13056,7 +14042,13 @@
                                   "development",
                                   "tutorial",
                                   "results",
-                                  "other"
+                                  "other",
+                                  "profile",
+                                  "achievements",
+                                  "cosmetics",
+                                  "settings",
+                                  "characters",
+                                  "account"
                                 ]
                               },
                               "lesson": {
@@ -13335,6 +14327,26 @@
                           "isAdmin": {
                             "type": "boolean"
                           },
+                          "offlineMatches": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "offlineWins": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "offlineXP": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "offlineCoins": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
                           "xp": {
                             "type": "number"
                           },
@@ -13513,6 +14525,88 @@
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   },
+                  "device": {
+                    "type": "object",
+                    "required": [
+                      "installationId",
+                      "userAgent",
+                      "platform",
+                      "language",
+                      "screenWidth",
+                      "screenHeight",
+                      "viewportWidth",
+                      "viewportHeight",
+                      "pixelRatio",
+                      "touchPoints"
+                    ],
+                    "properties": {
+                      "installationId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "userAgent": {
+                        "type": "string",
+                        "maxLength": 512
+                      },
+                      "platform": {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      "language": {
+                        "type": "string",
+                        "maxLength": 35
+                      },
+                      "mobile": {
+                        "type": "boolean"
+                      },
+                      "model": {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      "screenWidth": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 32768
+                      },
+                      "screenHeight": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 32768
+                      },
+                      "viewportWidth": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 32768
+                      },
+                      "viewportHeight": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 32768
+                      },
+                      "pixelRatio": {
+                        "type": "number",
+                        "minimum": 0.1,
+                        "maximum": 16
+                      },
+                      "cpuThreads": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 512
+                      },
+                      "memoryGiB": {
+                        "type": "number",
+                        "minimum": 0.1,
+                        "maximum": 1024
+                      },
+                      "touchPoints": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      }
+                    },
+                    "additionalProperties": false
+                  },
                   "events": {
                     "type": "array",
                     "minItems": 1,
@@ -13527,6 +14621,11 @@
                         "data"
                       ],
                       "properties": {
+                        "occurredAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                        },
                         "id": {
                           "type": "string",
                           "format": "uuid",
@@ -13553,7 +14652,9 @@
                             "action_confirmed",
                             "action_rejected",
                             "connection_changed",
-                            "online_flow"
+                            "online_flow",
+                            "ui_interaction",
+                            "app_visibility"
                           ]
                         },
                         "build": {
@@ -13563,6 +14664,135 @@
                         "data": {
                           "type": "object",
                           "properties": {
+                            "interaction": {
+                              "type": "string",
+                              "enum": [
+                                "open",
+                                "hub",
+                                "account",
+                                "account-login",
+                                "online",
+                                "ranked",
+                                "play",
+                                "tutorial",
+                                "resume-match",
+                                "restart-match",
+                                "confirm-new-match",
+                                "confirm-player-name",
+                                "enter-match",
+                                "close-sheet",
+                                "resume-game",
+                                "new-game",
+                                "primary",
+                                "roll-dice",
+                                "build",
+                                "construction-focus",
+                                "cancel-placement",
+                                "preview-target",
+                                "inspect",
+                                "player",
+                                "port",
+                                "trade",
+                                "trade-rate",
+                                "trade-port",
+                                "trade-for",
+                                "confirm-trade",
+                                "confirm-end-turn",
+                                "buy-development",
+                                "development-select",
+                                "development-resource",
+                                "play-development",
+                                "declare-victory",
+                                "discard-adjust",
+                                "confirm-discard",
+                                "steal",
+                                "deal-adjust",
+                                "deal-target",
+                                "deal-send",
+                                "deal-new",
+                                "deal-counter",
+                                "deal-accept",
+                                "deal-reject",
+                                "deal-review",
+                                "deal-withdraw",
+                                "deal-finish",
+                                "pin-build",
+                                "experience",
+                                "rival-next",
+                                "rival-reply",
+                                "rival-mute",
+                                "rival-toggle",
+                                "rival-replay",
+                                "tutorial-next",
+                                "tutorial-pause",
+                                "tutorial-resume",
+                                "lesson",
+                                "bot-pause",
+                                "bot-step",
+                                "hub-edit-name",
+                                "hub-save-name",
+                                "hub-equip",
+                                "hub-online",
+                                "online-refresh",
+                                "online-retry",
+                                "online-seal",
+                                "apply-referral",
+                                "copy-referral",
+                                "open-app",
+                                "app-install",
+                                "app-retry",
+                                "app-update",
+                                "account-submit",
+                                "account-close",
+                                "board-target",
+                                "analytics-settings",
+                                "room-account",
+                                "room-quick",
+                                "room-ranked",
+                                "room-cancel-search",
+                                "room-exit",
+                                "room-screen",
+                                "room-create",
+                                "room-join",
+                                "room-open",
+                                "room-back",
+                                "room-ready",
+                                "room-bot",
+                                "room-start",
+                                "room-invite",
+                                "account-register",
+                                "account-recover",
+                                "account-done",
+                                "account-logout",
+                                "account-previous",
+                                "account-copy",
+                                "account-analytics"
+                              ]
+                            },
+                            "visible": {
+                              "type": "boolean"
+                            },
+                            "matchId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "building": {
+                              "type": "string",
+                              "enum": [
+                                "road",
+                                "settlement",
+                                "city"
+                              ]
+                            },
+                            "won": {
+                              "type": "boolean"
+                            },
+                            "turn": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 1000000
+                            },
                             "mode": {
                               "type": "string",
                               "enum": [
@@ -13615,7 +14845,13 @@
                                 "development",
                                 "tutorial",
                                 "results",
-                                "other"
+                                "other",
+                                "profile",
+                                "achievements",
+                                "cosmetics",
+                                "settings",
+                                "characters",
+                                "account"
                               ]
                             },
                             "lesson": {

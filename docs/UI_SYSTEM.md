@@ -259,3 +259,12 @@ phone toolbar cutout. Rivals retain standings portraits and intentional dialogue
 Desktop uses board/inventory plus a right command rail. Automated turns offer one
 secondary Events action. The modal parent paints its complete rounded outline;
 headers paint only an inset separator. Mobile home centers the cast's intrinsic box.
+
+## Offline-first profile and diagnostic settings (2026-11-04)
+
+The home highlights offline XP, coins, achievements and cosmetic ownership, with
+quiet synchronization status. Ranked/online wealth remains separately reachable.
+The existing native privacy settings are accessible to guests from a home button;
+there is no automatic permission dialog. Admin user rows distinguish offline and
+online completions, and details show protected device diagnostics and offline
+progression without changing the established dashboard layout. See OFFLINE_SYNC.md.
