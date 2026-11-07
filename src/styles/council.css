@@ -2133,3 +2133,512 @@ p {
     grid-column: 1 / -1;
     min-height: 48px;
 }
+
+/* Arrival: one installation invitation, four mode/account choices. */
+.entry-install {
+    padding: 16px;
+    border-inline-start: 2px solid #d9b66f;
+}
+.entry-install h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    color: #d9b66f;
+}
+.entry-install p {
+    margin: 0 0 12px;
+    font-size: 13px;
+    line-height: 24px;
+}
+.entry-install small {
+    display: block;
+    text-align: center;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #adbfbb;
+}
+.install-steps {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 20px;
+}
+.install-steps li {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+.install-steps p {
+    margin: 0;
+    flex: 1;
+}
+.install-step-symbol {
+    flex: 0 0 52px;
+    min-height: 52px;
+    text-align: center;
+    font-size: 25px;
+    line-height: 52px;
+    color: #d9b66f;
+}
+.council-home > .button {
+    grid-column: 1/-1;
+}
+@media (max-width: 759px) {
+    .council-home {
+        gap: 12px;
+    }
+    .council-hero-copy {
+        padding-top: 6px;
+    }
+    .council-hero-copy h2 {
+        font-size: 22px;
+        line-height: 30px;
+    }
+    .council-hero-copy p {
+        display: none;
+    }
+    .council-cast {
+        height: 105px;
+        width: 150px;
+    }
+    .council-hero .button {
+        min-height: 36px;
+        font-size: 12px;
+    }
+    .council-play {
+        gap: 10px;
+    }
+    .council-start,
+    .council-practice {
+        min-height: 58px;
+        padding: 8px 14px;
+    }
+    .council-navigation {
+        gap: 6px;
+    }
+    .council-navigation .button {
+        min-height: 40px;
+        font-size: 12px;
+    }
+}
+
+/* Title screen: one illustrated ensemble, direct typographic navigation. */
+.menu-panel:has(.title-screen) {
+    max-width: 1280px;
+    padding: 16px 24px;
+}
+.title-screen {
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+    gap: 20px 60px;
+}
+.title-screen .council-brand {
+    grid-column: 1/-1;
+}
+.title-screen .council-hero {
+    grid-column: 1;
+    grid-row: 2/4;
+    align-self: end;
+    overflow: hidden;
+}
+.title-screen .council-cast {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.35;
+    margin: 0;
+    overflow: hidden;
+}
+.title-screen .council-play {
+    grid-column: 2;
+    grid-row: 2/4;
+    gap: 6px;
+    align-self: center;
+}
+.title-screen .council-figure {
+    bottom: 0;
+    max-width: none;
+    transform: translateX(-50%);
+    right: auto;
+}
+.title-screen .council-figure--ahriman {
+    left: 13%;
+    width: 31% !important;
+    z-index: 1;
+}
+.title-screen .council-figure--anahita {
+    left: 31%;
+    width: 33% !important;
+    z-index: 2;
+}
+.title-screen .council-figure--mithra {
+    left: 50%;
+    width: 38% !important;
+    z-index: 3;
+}
+.title-screen .council-figure--ashi {
+    left: 70%;
+    width: 33% !important;
+    z-index: 2;
+}
+.title-screen .council-figure--spenta-armaiti {
+    left: 88%;
+    width: 31% !important;
+    z-index: 1;
+}
+.title-screen .button {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    color: #f4ebd6;
+    border-radius: 0;
+}
+.title-screen .council-start {
+    color: #e8ca83;
+    min-height: 72px;
+    font-size: 28px;
+    padding: 8px 12px;
+}
+.title-screen .council-start small {
+    font-size: 12px;
+    color: #adbfbb;
+}
+.title-screen .council-practice {
+    min-height: 54px;
+    padding: 8px 12px;
+    text-align: center;
+    justify-content: center;
+    font-size: 20px;
+}
+.title-screen .council-practice small {
+    display: block;
+    font-size: 12px;
+    color: #adbfbb;
+}
+.title-screen .button:disabled {
+    color: #7d918f;
+}
+.title-screen .entry-install {
+    border: 0;
+    padding: 0 12px 16px;
+}
+.title-screen .entry-install h3 {
+    font-size: 16px;
+}
+.title-screen .entry-install p,
+.title-screen .entry-install small {
+    display: none;
+}
+.title-screen .entry-install .button {
+    font-size: 13px;
+    min-height: 40px;
+    color: #e8ca83;
+}
+.title-screen .council-navigation {
+    grid-column: 1/-1;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+.title-screen .council-navigation .button {
+    font-size: 12px;
+    min-height: 44px;
+}
+.title-screen .council-meta {
+    grid-column: 1/-1;
+    justify-content: center;
+    gap: 16px;
+}
+.title-screen .council-meta p,
+.title-screen > .footnote {
+    display: none;
+}
+.title-screen .council-meta .button {
+    min-height: 44px;
+    font-size: 12px;
+}
+@media (max-width: 759px) {
+    .main-menu:has(.title-screen) {
+        padding: 16px 12px;
+    }
+    .menu-panel:has(.title-screen) {
+        padding: 0;
+    }
+    .title-screen {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .title-screen .council-brand {
+        order: 0;
+        padding: 0 8px;
+    }
+    .title-screen .council-hero {
+        order: 1;
+        width: 100%;
+    }
+    .title-screen .council-cast {
+        height: 220px;
+        aspect-ratio: auto;
+    }
+    .title-screen .council-play {
+        order: 2;
+        width: 100%;
+        gap: 0;
+    }
+    .title-screen .entry-install {
+        padding: 8px 16px;
+    }
+    .title-screen .entry-install h3 {
+        display: none;
+    }
+    .title-screen .entry-install .button {
+        min-height: 36px;
+    }
+    .title-screen .council-start {
+        font-size: 25px;
+        min-height: 60px;
+    }
+    .title-screen .council-practice {
+        min-height: 48px;
+        font-size: 19px;
+    }
+    .title-screen .council-navigation {
+        order: 3;
+        gap: 12px;
+    }
+    .title-screen .council-meta {
+        order: 4;
+        gap: 8px;
+    }
+}
+@media (min-width: 760px) and (max-width: 1099px) and (orientation: portrait) {
+    .main-menu:has(.title-screen) {
+        padding: 24px;
+    }
+    .menu-panel:has(.title-screen) {
+        padding: 0;
+    }
+    .title-screen {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .title-screen .council-brand {
+        order: 0;
+        width: 100%;
+    }
+    .title-screen .council-hero {
+        order: 1;
+        width: min(100%, 600px);
+        align-self: center;
+    }
+    .title-screen .council-cast {
+        height: 360px;
+        aspect-ratio: auto;
+    }
+    .title-screen .council-play {
+        order: 2;
+        width: min(100%, 480px);
+        align-self: center;
+    }
+    .title-screen .council-navigation {
+        order: 3;
+    }
+    .title-screen .council-meta {
+        order: 4;
+    }
+}
+
+/* Compact command menu: recognizable controls, secondary tools on demand. */
+.title-screen .council-play {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.title-screen .entry-install,
+.title-screen .council-start,
+.title-screen .council-account,
+.title-screen .council-play > .footnote {
+    grid-column: 1/-1;
+}
+.title-screen .council-start {
+    color: #292c25;
+    font-size: 23px;
+    border-radius: 8px;
+    min-height: 60px;
+}
+.title-screen .council-start small {
+    color: #414333;
+}
+.title-screen .council-practice {
+    font-size: 17px;
+    border-radius: 8px;
+    min-height: 52px;
+}
+.title-utilities {
+    grid-column: 1/-1;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    gap: 24px;
+    order: 3;
+}
+.title-more {
+    min-width: 100px;
+    text-align: center;
+}
+.title-more > summary {
+    min-height: 44px;
+    line-height: 44px;
+    cursor: pointer;
+    color: #d3dfd8;
+    list-style: none;
+}
+.title-more[open] {
+    max-width: 520px;
+}
+.title-screen .title-more .council-navigation {
+    gap: 8px;
+}
+.title-screen .title-more .council-meta {
+    gap: 8px;
+}
+@media (max-width: 759px) {
+    .main-menu:has(.title-screen) {
+        padding: max(8px, env(safe-area-inset-top)) 16px max(8px, env(safe-area-inset-bottom));
+    }
+    .title-screen {
+        gap: 8px;
+        --title-art-height: clamp(125px, 28dvh, 250px);
+    }
+    .title-screen .council-brand {
+        min-height: 52px;
+    }
+    .title-screen .council-wordmark h1 {
+        font-size: 27px;
+        line-height: 34px;
+    }
+    .title-screen .council-cast {
+        height: var(--title-art-height);
+        width: min(100%, calc(var(--title-art-height) * 1.65));
+        margin-inline: auto;
+    }
+    .title-screen .council-play {
+        display: grid;
+        gap: 8px;
+    }
+    .title-screen .entry-install {
+        padding: 0;
+    }
+    .title-screen .entry-install .button {
+        min-height: 40px;
+    }
+    .title-screen .council-start {
+        min-height: 56px;
+        font-size: 22px;
+    }
+    .title-screen .council-practice {
+        min-height: 48px;
+        font-size: 16px;
+    }
+    .title-screen .council-account small {
+        display: none;
+    }
+    .title-screen .title-utilities {
+        order: 3;
+        gap: 24px;
+    }
+}
+
+/* Supplied wordmark keeps its full silhouette and source proportions. */
+.title-screen .council-wordmark h1 {
+    line-height: 0;
+    font-size: 0;
+    margin: 0;
+}
+.title-screen .title-logo {
+    width: 300px !important;
+    height: auto !important;
+    aspect-ratio: var(--art-ratio);
+}
+.title-screen .council-wordmark small {
+    display: none;
+}
+@media (max-width: 759px) {
+    .title-screen .title-logo {
+        width: clamp(160px, 56vw, 230px) !important;
+    }
+}
+.title-screen .council-brand {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) 48px;
+}
+.title-screen .council-wordmark {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+}
+.title-screen .council-brand > .icon-button {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+/* Foreground wordmark anchors the cast and conceals the source waist crops. */
+.title-screen .title-foreground {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    margin: 0;
+    text-align: center;
+    line-height: 0;
+    font-size: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+.title-screen .title-foreground .title-logo {
+    width: 94% !important;
+    max-width: 650px;
+}
+.title-screen .council-figure {
+    bottom: 30px;
+}
+.title-screen .council-brand {
+    min-height: 48px;
+}
+@media (max-width: 759px) {
+    .title-screen .council-cast {
+        height: calc(var(--title-art-height) + 30px);
+    }
+    .title-screen .council-hero {
+        padding-bottom: 0;
+    }
+}
+
+/* Anahita leads the ensemble; all waist crops stay behind the opaque wordmark. */
+.title-screen .title-foreground .title-logo {
+    max-width: none;
+}
+.title-screen .council-figure--ahriman {
+    left: 21%;
+    width: 22% !important;
+    bottom: 65px;
+}
+.title-screen .council-figure--mithra {
+    left: 30%;
+    width: 28% !important;
+    bottom: 75px;
+}
+.title-screen .council-figure--anahita {
+    left: 50%;
+    width: 34% !important;
+    bottom: 45px;
+}
+.title-screen .council-figure--ashi {
+    left: 69%;
+    width: 26% !important;
+    bottom: 75px;
+}
+.title-screen .council-figure--spenta-armaiti {
+    left: 78%;
+    width: 22% !important;
+    bottom: 65px;
+}

@@ -444,6 +444,31 @@ export class GameHud {
             if (input) this.session.playerNameDraft = input.value;
             this.session.confirmPlayerName();
         }
+        if (action === 'copy-game-link' || action === 'share-game') {
+            const base = new URL(import.meta.env.BASE_URL, location.origin);
+            const code = action === 'share-game' ? onlineProgression()?.referral.code : undefined;
+            const url =
+                action === 'copy-game-link' ? location.href : code ? referralLink(code) : base.href;
+            void (async () => {
+                try {
+                    if (action === 'share-game' && navigator.share) {
+                        await navigator.share({
+                            title: 'سان‌مارک',
+                            text: 'بیا با هم جزیره بسازیم!',
+                            url,
+                        });
+                    } else if (navigator.clipboard) {
+                        await navigator.clipboard.writeText(url);
+                        this.app.linkCopied = true;
+                        this.app.changed();
+                        if (action === 'share-game') this.session.openSheet({ kind: 'app' });
+                    } else this.session.openSheet({ kind: 'app' });
+                } catch (error) {
+                    if (!(error instanceof DOMException && error.name === 'AbortError'))
+                        this.session.openSheet({ kind: 'app' });
+                }
+            })();
+        }
         if (action === 'open-app') this.session.openSheet({ kind: 'app' });
         if (action === 'app-install') void this.app.install();
         if (action === 'app-retry') this.app.retry();

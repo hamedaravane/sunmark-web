@@ -140,7 +140,7 @@ test('a bot victory gives the human participation rewards and records a loss', (
     expect(sheetContent(session).body).toContain('پاداش پایان بازی');
     expect(sheetContent(session).body).not.toContain('پاداش پیروزی');
     session.returnToMenu();
-    expect(menuContent(new AppPlatform(), session)).toContain('ورود برای دیدن رتبه');
+    expect(menuContent(new AppPlatform(), session)).toContain('ورود / ساخت حساب');
 });
 
 test('unfinished matches and rejected victory declarations earn no rewards; legacy saves get a stable reward ID', () => {
@@ -228,15 +228,15 @@ test('the hub exposes all modes and profile panels, escapes names, and keeps ski
         'online',
         'play',
         'tutorial',
-        'hub:competitive',
+        'account',
         'hub:profile',
         'hub:achievements',
         'hub:cosmetics',
     ])
         expect(markup).toContain(`data-action="${action}"`);
     expect(markup).not.toContain('<img');
-    expect(markup).toContain('ورود برای دیدن رتبه');
-    expect(markup).toContain('role="progressbar"');
+    expect(markup).toContain('ورود / ساخت حساب');
+    expect(markup).toContain('data-action="share-game"');
     for (const kind of ['profile', 'achievements', 'cosmetics', 'competitive'] as const) {
         session.openSheet({ kind });
         const sheet = sheetContent(session);

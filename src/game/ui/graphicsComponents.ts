@@ -33,6 +33,30 @@ export function drawComponent(
     const owner = Number.isFinite(ownerValue) ? ownerValue : UI_INK.gold;
     const disabled = el instanceof HTMLButtonElement && el.disabled;
     const selected = el.getAttribute('aria-pressed') === 'true' && !has('setting-option');
+    if (el.closest('.title-screen') && el instanceof HTMLButtonElement) {
+        if (el.closest('.council-play') && !el.closest('.entry-install')) {
+            drawSurface(g, box, has('council-start') ? 'honey' : 'inset', {
+                radius: 8,
+                flat: true,
+                quiet: true,
+                disabled,
+                pressed: pressed === el,
+                accent: el.matches(':focus-visible') ? UI_INK.gold : undefined,
+            });
+        } else if (pressed === el || el.matches(':focus-visible')) {
+            g.lineStyle(1, UI_INK.gold, 0.8).lineBetween(
+                box.x + 8,
+                box.y + box.height - 2,
+                box.x + box.width - 8,
+                box.y + box.height - 2,
+            );
+        }
+        return;
+    }
+    if (has('main-menu') && el.querySelector('.title-screen')) {
+        g.fillStyle(0x06191f, 0.72).fillRect(box.x, box.y, box.width, box.height);
+        return;
+    }
     if (has('setting-switch')) {
         const on = el.dataset.enabled === 'true';
         g.fillStyle(on ? 0x337365 : 0x345052).fillRoundedRect(
@@ -288,6 +312,15 @@ export function drawComponent(
             flat: true,
         });
     } else if (has('council-hero')) {
+        if (el.closest('.title-screen')) {
+            g.lineStyle(1, UI_INK.gold, 0.22).lineBetween(
+                box.x + 8,
+                box.y + box.height,
+                box.x + box.width - 8,
+                box.y + box.height,
+            );
+            return;
+        }
         drawSurface(g, box, 'inset', { quiet: true, flat: true, radius: 14 });
         g.lineStyle(1, UI_INK.gold, 0.25).strokeCircle(
             box.x + box.width / 2,
@@ -297,6 +330,7 @@ export function drawComponent(
     } else if (has('council-route')) {
         drawSurface(g, box, 'inset', { quiet: true, flat: true, radius: 10 });
     } else if (has('menu-panel')) {
+        if (el.querySelector('.title-screen')) return;
         drawSurface(g, box, 'inset', { radius: 18, quiet: true, flat: true });
     } else if (has('menu-crown')) {
         drawMenuCrown(g, box);

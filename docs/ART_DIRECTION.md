@@ -73,3 +73,7 @@ belongs in narrative encounters, identity seals and galleries. Mobile home casts
 are centered as a group. Sheets use one uninterrupted restrained perimeter rather
 than separately outlined header rectangles. New supplied Anahita/Ahriman artwork
 is integrated without repainting, stretching, or synthesizing expressions.
+
+The title ensemble centers Anahita as the game's main character. She is the largest
+central portrait and sits in front of the supporting cast but behind the Sunmark
+wordmark. Keep all faces clear; conceal source lower-body cuts behind the logo.

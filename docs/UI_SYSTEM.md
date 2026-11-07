@@ -268,3 +268,36 @@ The existing native privacy settings are accessible to guests from a home button
 there is no automatic permission dialog. Admin user rows distinguish offline and
 online completions, and details show protected device diagnostics and offline
 progression without changing the established dashboard layout. See OFFLINE_SYNC.md.
+
+## Arrival and installation
+
+The home groups four choices: bot play/resume, tutorial, online, and account/profile.
+A contextual installation card appears before these choices until standalone mode
+is detected. Embedded social browsers get manual handoff instructions and a copy
+fallback; websites cannot force a device's default browser to launch. iOS has a
+visual Safari/Share/Add-to-Home-Screen/Add guide. Android invokes the native prompt
+only when beforeinstallprompt is available; otherwise it provides menu instructions.
+Installation and account creation never block offline play or the tutorial.
+Progression collections and privacy controls remain secondary. Guest sharing uses
+the Web Share API or clipboard; signed-in sharing uses the existing referral link.
+Referral reward conditions remain in the existing referral panel. No new rewards,
+tracking or forced redirects are introduced. In-app-browser detection is heuristic.
+
+The title screen now presents all five supplied characters as a single ensemble,
+with no dedicated character-introduction button. Title navigation uses text and
+focus/hover rules instead of framed cards. Phaser paints a full-scene scrim, not a
+menu-panel rectangle. Mobile and portrait tablet stack the ensemble over navigation;
+wide screens place navigation beside the ensemble. Existing menu actions, secondary
+progression/account/privacy paths and contextual installation guidance remain.
+
+Compact-menu refinement replaces plain underlined primary navigation with modest
+single-surface buttons: gold Play, paired Tutorial/Online and full-width account.
+Secondary tools expand under native More, with sharing directly visible. Viewport-
+relative ensemble dimensions preserve the first-screen action area on short phones.
+Do not lock overflow: expanded tools, zoom and rewards must remain reachable.
+
+Title-ensemble portraits are explicitly ordered back-to-front in the menu markup.
+Their supporting figures are raised to expose faces and bounded within the full-width
+wordmark backing. InterfaceScene clips only these title portraits below the logo's
+measured midpoint, hiding waist crops without editing original image files or affecting
+full narrative portraits.

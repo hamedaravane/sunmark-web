@@ -134,3 +134,93 @@ Hypothesis: stable commands and fewer passive surfaces
 reduce scanning and missed actions. Assess existing rejection/completion signals plus
 player feedback; screenshots alone establish no engagement improvement. No analytics
 changes. Changes remain local for this follow-up.
+
+## Arrival redesign
+
+Synced main 4842e0f. Replaced competing profile/online/dashboard elements with four
+mode/account choices, a capability-aware install card, and secondary collection,
+sharing and privacy paths. Updated install sheet with separate embedded/iOS guides
+and collapsed technical status. Browser handoff preserves inbound links.
+
+Hypothesis: prioritizing install and clarifying the four choices improves successful
+entry and first-match completion; assess existing permitted signals and player
+feedback. No new analytics or reward rules. Seven Playwright contexts cover desktop,
+tablet, mobile, iPhone Safari, Instagram, installed mode and Android install prompt
+including dismissal. Screenshots visually reviewed in output/playwright/onboarding.
+Physical iOS/Android installation and actual host-app handoff remain device checks.
+
+Final arrival verification: 418 tests passed, typecheck/lint/format/build/PWA passed.
+Seven entry contexts passed in both offline and online-enabled local builds; online
+identity responses were mocked as signed out. Native Android prompt availability and
+dismissal, installed-mode suppression and iOS/social guidance verified. No page errors.
+No production deployment. Browser handoff and installation require real-device checks.
+
+## Five-character title screen
+
+Replaced the menu dashboard with a cinematic five-character ensemble over the
+palace, restrained dark scrim, and typographic navigation. Removed the dedicated
+character-introduction action and all title-screen button/panel frames in the Phaser
+renderer. Only the primary play action and interaction feedback receive a gold rule.
+Installation remains a contextual text entry; modes and account access stay direct.
+Portrait tablet now uses a larger stacked ensemble rather than a cramped two-column
+composition. Gameplay dialogs and their surfaces are unaffected. Existing companion
+dialogue/gallery access inside gameplay remains intact.
+
+Title-screen verification: visually reviewed fresh phone, tablet and desktop views
+including a second portrait-tablet composition pass. Playwright entry checks cover
+five portraits, four main actions, no companion-introduction button, installed mode,
+iOS/social guides and Android prompt/dismissal. All 418 tests and lint/format/build/
+PWA checks pass. Changes remain local; no device-installation claims.
+
+## Compact menu correction
+
+User rejected underlined text controls and requested minimal scrolling. Replaced
+these with a single gold Play button, paired Tutorial/Online controls, and full-width
+account control. Secondary collection/account/privacy tools are in native More;
+Invite stays directly visible. Art scales with viewport height and width together so
+short phones retain visible faces and 44px minimum main targets. Native scrolling
+remains available for expanded tools, rewards, zoom and larger text.
+
+Fresh filenames: output/playwright/menu-compact-v3 (previous screenshot filenames
+were reused). Geometry assertions verify zero collapsed-menu overflow and all four
+actions entirely inside 320x568, 360x640, 390x844, 820x1180 and 1440x900 viewports.
+Screenshots visually inspected. More expansion and privacy access tested.
+
+## Supplied wordmark integration
+
+Synced latest main c6f1b18 and inspected the uploaded gold/red Sunmark logo. Preserved
+its original PNG under art/reference/branding and exported a full-frame lossless
+WebP (23% smaller; alpha exact). Menu heading now uses the supplied logo, removing
+the former plain wordmark/extra rosette. Accessible h1 name is retained. Logo sizing
+respects short-phone navigation space; square PWA icons remain legible emblems.
+Fresh captures: output/playwright/menu-logo-final.
+Verified all four actions fit without menu scrolling at all five review sizes.
+26 focused tests, typecheck, lint, formatting, build and PWA checks passed.
+
+## Foreground logo composition
+
+Moved the logo from the header into an absolute foreground layer at the cast's
+base, painted after the portraits. Characters sit 30px above the stage edge so the
+wordmark conceals lower-body crops while faces remain exposed. Header retains the
+settings control. Main actions still fit without scrolling at all five review sizes.
+Fresh preview folder: output/playwright/menu-foreground-logo-v5.
+
+## Balanced ensemble refinement
+
+Brought outer figures within the wordmark's opaque backing, raised supporting
+characters above adjacent shoulders, and moved Ahriman in front of Anahita's arm.
+The renderer clips only title-screen portraits below the measured midpoint of the
+foreground logo, preventing source waist edges from leaking beneath/around it.
+Source artwork and narrative portraits are unchanged. Initial tighter pass obscured
+Anahita; corrected after visual inspection. Final captures:
+output/playwright/menu-balanced-cast-final. Main navigation remains scroll-free
+at all five tested sizes.
+
+## Anahita-centered final ensemble
+
+User clarified Anahita is the main character. She now occupies the largest central
+portrait and is painted last among the cast, immediately behind the logo. Mithra
+sits left and slightly higher to clear her hair/shoulder; supporting figures retain
+separate readable faces. The wordmark-backed waist clipping remains unchanged.
+Ashi sits slightly farther right to clear Anahita’s water effect.
+Final preview: output/playwright/menu-anahita-final-v9.

@@ -178,3 +178,13 @@ replaces the older visual style for all narrator expression keys; it is one supp
 pose, while original expression masters remain reference-only. Ahriman's full art
 appears in occupied-tile information, where it can be read comfortably; the small
 procedural map marker remains unchanged. Export/check group: `council-characters`.
+
+## Supplied Sunmark wordmark
+
+The uploaded gold/red wordmark is preserved byte-for-byte at
+`art/reference/branding/sunmark-logo.png` (2172 × 724, RGBA). Its full-frame runtime
+export is `branding/sunmark-logo.webp`, registered in ART and the image-export
+manifest. The menu uses it in the accessible product heading in place of generic
+text plus rosette; the full logo silhouette and aspect ratio are preserved.
+The supplied English brand lettering is an intentional logo exception; Persian
+interface copy remains runtime text. App icons retain their readable square emblem.

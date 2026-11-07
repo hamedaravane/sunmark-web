@@ -5,6 +5,8 @@ export class AppPlatform {
     offline: OfflineStatus = 'preparing';
     online = true;
     installed = false;
+    embedded = false;
+    linkCopied = false;
     ios = false;
     android = false;
     chrome = false;
