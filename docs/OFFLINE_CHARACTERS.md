@@ -156,7 +156,7 @@ placement/bank drafts, other sheets and Anahita's active lessons take priority.
 The large existing narrator stage switches to each speaker's complete supplied
 portrait and name as the player continues. The ending returns to the results and can speak after a manually stepped victory even if bot play remains paused.
 
-The last speaker can answer **چالش را می‌پذیرم** or **از روشت بگو**. These optional
+The last speaker can answer **پایه‌ام، بزن بریم!** or **از روشت بگو**. These optional
 fictional responses change only the conversation, never strategy, costs, resources,
 random results or rewards. Continue advances dialogue; closing skips just the
 current conversation. **خاموش‌کردن گفت‌وگوی رقبا** is a separate per-match opt-out
@@ -190,3 +190,28 @@ player replies without game mutation/randomness, timed/hidden-page presentation,
 save/reload/mute/replay, mandatory-choice/draft priority, event diversity and
 frequency, private-information independence, corrupt story metadata, and circular
 texture clipping/cache reuse. Device review remains with the user.
+
+## Dialogue voice (2026-11-08)
+
+Write spoken lines in short, natural, contemporary colloquial Persian. Use familiar
+spoken forms (رو، یه، می‌خوام), direct observations and light back-and-forth; avoid
+ceremonial speeches, forced internet slang, English filler and repeated metaphors.
+Mithra is competitive and fair; Ashi witty and commercially sharp; Spenta relaxed
+and quietly confident; Anahita warm, clear and encouraging. Ahriman is a cheeky
+uninvited troublemaker, never abusive or a source of privileged game information.
+Replies, gallery quotes and move-review exchanges follow the same voice. Preserve
+clear resource names, costs and consent instructions when shortening teaching text.
+
+Ahriman now speaks in the theft aftermath, army-title and closing-race stories.
+He uses the supplied portrait and his own history attribution, independently of
+Anahita's guide toggle. He is a narrative speaker, not a fourth AI opponent;
+seat assignment, strategy and reply choices still belong to the three rivals.
+The existing story toggle, checkpoint frequency, manual continuation, save shape
+and game-state boundaries remain intact. No new interruption triggers are added.
+
+Player problem: formal, lengthy exchanges are easy to skip. Hypothesis: concise,
+distinct voices make conversations more worth reading without slowing matches.
+Review existing lesson acknowledgements and first-match progress alongside direct
+player feedback; these are proxies, not proof of enjoyment. There is no player
+sample or measured engagement gain for this rewrite and no new analytics. Guardrails:
+accurate teaching, public-only reactions, unchanged pacing, opt-outs and rules.

@@ -456,7 +456,9 @@ export class GameSession {
     private recordRivalLine(): void {
         const view = this.rivals.view(this.tutorial.enabled, this.rivalCharacters);
         if (!view) return;
-        const speaker = characterById(view.beat.speaker)?.name ?? 'آناهیتا';
+        const speaker =
+            characterById(view.beat.speaker)?.name ??
+            (view.beat.speaker === 'ahriman' ? 'اهریمن' : 'آناهیتا');
         const text = `${speaker}: «${view.beat.text}»`;
         if (this.history[this.history.length - 1]?.text !== text) this.record(text, speaker);
     }

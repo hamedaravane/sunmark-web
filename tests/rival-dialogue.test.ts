@@ -113,6 +113,49 @@ test('player replies show a personality-specific response and preserve all game 
     expect(session.sheet).toBeNull();
 });
 
+test.each(['ahriman-hit', 'army-title', 'near-victory'] as const)(
+    '%s presents Ahriman with his own art and history name without making him a player',
+    (id) => {
+        const session = fresh();
+        session.state!.phase = 'actions';
+        session.rivals.restore({
+            enabled: true,
+            seen: [id],
+            queue: [{ id, step: 0, reply: null }],
+            lastRound: -1,
+        });
+        const state = structuredClone(session.state);
+        const random = vi.spyOn(Math, 'random');
+        random.mockClear();
+        session.presentRival();
+        let appeared = false;
+        while (session.sheet?.kind === 'rival-dialogue') {
+            const view = session.rivals.view(false, characters)!;
+            const content = sheetContent(session);
+            if (view.beat.speaker === 'ahriman') {
+                appeared = true;
+                expect(content.title).toBe('اهریمن');
+                expect(content.narrator?.portrait).toBe('ahriman-portrait');
+                expect(session.history.at(-1)?.text).toBe(`اهریمن: «${view.beat.text}»`);
+                expect(validRivalMemory(session.rivals.snapshot())).toBe(true);
+                const restored = new RivalDirector();
+                restored.restore(session.rivals.snapshot());
+                expect(restored.view(false, characters)?.beat.speaker).toBe('ahriman');
+            }
+            if (view.canReply) {
+                session.replyRival('curious');
+                expect(session.rivals.view(false, characters)?.beat.speaker).not.toBe('ahriman');
+                expect(sheetContent(session).body).not.toContain('rival-reply:');
+            }
+            session.continueRival();
+        }
+        expect(appeared).toBe(true);
+        expect(session.rivalCharacters).toEqual(characters);
+        expect(session.state).toEqual(state);
+        expect(random).not.toHaveBeenCalled();
+    },
+);
+
 test('confirmed human building queues a full conversation; bot play waits for it, including hidden-page guards', () => {
     vi.useFakeTimers();
     const { session } = match();

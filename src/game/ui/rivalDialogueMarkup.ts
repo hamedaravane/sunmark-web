@@ -9,17 +9,22 @@ export function rivalDialogueContent(session: MatchSession): SheetContent {
     if (!view)
         return { title: 'هم‌نشینان جزیره', body: '', footer: button('بازگشت', 'close-sheet') };
     const speaker = characterById(view.beat.speaker);
-    const name = speaker?.name ?? 'آناهیتا';
+    const ahriman = view.beat.speaker === 'ahriman';
+    const name = speaker?.name ?? (ahriman ? 'اهریمن' : 'آناهیتا');
     return {
         title: name,
         key: `rival-${view.id}-${view.position}`,
         narrator: {
-            portrait: speaker ? `${speaker.id}-portrait` : 'anahita-explaining',
+            portrait: speaker
+                ? `${speaker.id}-portrait`
+                : ahriman
+                  ? 'ahriman-portrait'
+                  : 'anahita-explaining',
             key: `rival-${view.id}-${view.position}`,
-            role: speaker?.title ?? 'همراه سفر',
+            role: speaker?.title ?? (ahriman ? 'مهمون ناخوندهٔ جزیره' : 'همراه سفر'),
         },
         focusAction: 'rival-next',
-        body: `<article class="narrator-dialogue" aria-label="گفت‌وگو با ${escape(name)}"><div class="narrator-copy"><p class="eyebrow">${escape(view.title)} · ${number(view.position)} از ${number(view.total)}</p><p>${escape(view.beat.text)}</p></div>${view.canReply ? `<p class="footnote">پاسخ تو (اختیاری)</p><div class="rival-replies">${button('چالش را می‌پذیرم', 'rival-reply:bold', { className: 'button' })}${button('از روشت بگو', 'rival-reply:curious', { className: 'button' })}</div>` : ''}</article>`,
+        body: `<article class="narrator-dialogue" aria-label="گفت‌وگو با ${escape(name)}"><div class="narrator-copy"><p class="eyebrow">${escape(view.title)} · ${number(view.position)} از ${number(view.total)}</p><p>${escape(view.beat.text)}</p></div>${view.canReply ? `<p class="footnote">جواب تو (اختیاری)</p><div class="rival-replies">${button('پایه‌ام، بزن بریم!', 'rival-reply:bold', { className: 'button' })}${button('از روشت بگو', 'rival-reply:curious', { className: 'button' })}</div>` : ''}</article>`,
         footer: `${button(view.last ? 'برگردیم به جزیره' : 'ادامهٔ گفت‌وگو', 'rival-next', { className: 'button button--primary full-width' })}`,
     };
 }

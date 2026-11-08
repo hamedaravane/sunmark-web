@@ -12,9 +12,9 @@ Anahita invites the human into an island story built from their actual decisions
 
 There are contextual Persian conversations plus five practice conversations across five chapters. Each has an expression, a title, one explanatory paragraph, and an actionable next step. Runtime text lives in `src/game/tutorial/lessons.fa.ts`. Examples:
 
-- Greeting: «بالاخره رسیدی... من آناهیتام. این جزیره هنوز کلی قصهٔ نگفته داره.»
-- Trading: «انبارت پر از یه چیزه و درست همونی رو که می‌خوای نداری؟ بیا یه معامله کنیم.»
-- Building feedback: «نگاه کن... یه گوشهٔ دیگهٔ جزیره زنده شد.»
+- Greeting: «سلام! به سان‌مارک خوش اومدی، من آناهیتام.»
+- Trading: «یه منبع زیادی داری، یه منبع کم؟»
+- Building feedback: «آبادی تازه، یه امتیاز تازه!»
 
 These are fictional character lines, not historical claims about the supplied design.
 
@@ -107,3 +107,12 @@ The `domestic` conversation introduces player-to-player trading when its workspa
 `tests/practice.test.ts` executes the complete command sequence, immutable previews, actual production/payment/score changes, bot/extra-action guards, exit, and save preservation. `tests/build-feedback.test.ts` checks exact shortages, topology/phase reasons, human-only inventories during opponent turns, and trades that either fix a wool shortage or introduce a wood shortage. `tests/board-generation.test.ts` checks the independent spiral fixture, token order, terrain counts, deterministic generation, and red-token separation for all 19 desert positions. Device rendering, reading length, and completion by first-time players remain user review tasks.
 
 `tests/pause-menu.test.ts` verifies the five-action pause menu, tutorial recovery path, separate rules/review screens, default-enabled new matches, preserved saved opt-outs, restart confirmation, practice isolation and available-update labeling. Gameplay-only fixtures pass an explicit `false` guidance flag so their commands are not interrupted by the now-default companion.
+
+## Spoken Persian copy (2026-11-08)
+
+Anahita's lessons and adjacent prompts use the same short, modern colloquial Persian
+as the cast. The welcome introduces the goal without front-loading the rulebook;
+contextual lessons explain the next decision with accurate costs and restrictions.
+Longer development/title lessons retain the rule exceptions players need. Lessons,
+IDs, expressions, triggers, replay and practice actions are unchanged. Player-trade
+guidance explains the broadcast audience on-turn and active-player-only off-turn.

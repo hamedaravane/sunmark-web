@@ -29,7 +29,7 @@ export function journalContent(session: MatchSession): SheetContent {
         title: 'آموزش و آناهیتا',
         key: 'tutorial-hub',
         footer: pauseMenuBack(),
-        body: `<div class="journal-intro">${artSprite('anahita-calm', 76, 'narrator-portrait')}<div><h3>آناهیتا ${director.enabled ? 'روشن' : 'خاموش'} است</h3><p class="sheet-intro">${director.enabled ? 'در طول بازی، قدم‌به‌قدم همراهت هستم.' : 'برای برگشتن راهنمایی‌های من، «روشن‌کردن آناهیتا» رو بزن.'}</p></div></div>
+        body: `<div class="journal-intro">${artSprite('anahita-calm', 76, 'narrator-portrait')}<div><h3>آناهیتا ${director.enabled ? 'روشن' : 'خاموش'} است</h3><p class="sheet-intro">${director.enabled ? 'سر راه با هم یاد می‌گیریم؛ هرجا لازم شد، من هستم.' : 'اگه خواستی دوباره با هم پیش بریم، «روشن‌کردن آناهیتا» رو بزن.'}</p></div></div>
         ${button(director.enabled ? 'خاموش‌کردن آناهیتا' : 'روشن‌کردن آناهیتا', director.enabled ? 'tutorial-pause' : 'tutorial-resume', { className: `button${director.enabled ? '' : ' button--primary'} full-width` })}
         ${button('قوانین بازی', 'open:rules', { className: 'button full-width' })}
         <h3>دفتر درس‌ها</h3><p class="footnote">${number(director.seen.size)} گفت‌وگو مرور شد • ${number(director.practiced.size)} مفهوم تمرین شد. برای مرور، یک درس رو انتخاب کن.</p>

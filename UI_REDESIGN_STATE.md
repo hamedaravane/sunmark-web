@@ -278,3 +278,15 @@ final-exchange interactions at 390×844, 820×1180 and 1440×900 with no page er
 Trade editor screenshots visually inspected at all three sizes; captures and report:
 output/playwright/redesign/broadcast-final. Online delivery uses mocked-transport
 tests; live multiplayer was not exercised. Changes remain local.
+
+## Casual Persian character dialogue
+
+Rewrote all story beats, optional replies, character quotes, move-review dialogue
+and Anahita lessons/tasks in concise spoken Persian, with distinct cast voices.
+Ahriman joins three existing checkpoints with correct art/history attribution;
+he remains separate from opponent seats and reply personalities. Existing triggers,
+pacing, saves, opt-outs, rules and private-information boundaries are preserved.
+Verification: npm run check passed (429 tests, API contract, lint, formatting,
+typecheck/build and PWA). Focused dialogue/tutorial/character tests pass (39),
+including Ahriman art, history, saved-line restoration and unchanged rule state.
+No browser review for this copy-focused change; changes remain local.
