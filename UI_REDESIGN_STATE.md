@@ -241,3 +241,40 @@ Verification completed: 419 tests plus typecheck/lint/format/build/PWA passed. A
 returning-player browser contexts passed without page errors or main-menu scrolling;
 profile reward access was verified in each. Updated desktop/mobile screenshots were
 visually inspected against the annotated issues. Changes remain local.
+
+## Gameplay spacing and task workspace correction
+
+Annotated issues reproduced in actual board, bot, construction, player-trade and
+accepted-trade fixtures. Header menu is now a separate edge control outside the
+standings. Sidebar is content-sized; receipts no longer inherit 100% height or
+auto width, and shortcuts each span the workspace. The apparent strip was unused
+space beside a stretched button rather than a functional scrollbar.
+
+A shared 8/12/16px spacing rhythm reduces body/footer margins. Non-narrative dialogs
+use fit-content height with bounded scrolling; initial auto-height experiment
+stretched dialogs and was corrected after screenshot inspection. Construction cards
+stretch uniformly with shared action/detail rows. Trade editor uses bounded columns,
+44px stepper targets with gaps and labeled mobile Give/Receive groups. Optional rules follow the editor. Scroll indicators use subdued slate
+instead of a high-contrast gold track. Confirmation omits irrelevant paused-bot
+controls and keeps actions directly below the summary. No game rules changed.
+
+Before: output/playwright/redesign/spacing-before. Refined captures: spacing-compact.
+Targeted geometry/action captures and reports: spacing-verified. Final checks passed:
+419 tests, typecheck, lint, format, build and PWA. All three viewport categories
+passed geometry checks, proposal submission and final exchange with no page errors.
+Screenshots visually reviewed after each pass. Changes remain local.
+
+## Broadcast-first player trading
+
+Removed recipient cards from the editor. New UI offers reach all eligible opponents
+on the player's turn, only the active player off-turn; incoming counteroffers keep
+the original partner. Fresh local editing clears a previous partner selection.
+Online delivery uses sequential acknowledged existing offer commands, stops on
+context/transport failure, reports partial delivery, and blocks double taps/edits.
+No resource transfer or consent rule changed. Focused tests cover broadcast, off-turn,
+counter, turn-change, failure and partial-delivery cases. Verification: 426 tests,
+lint, format, typecheck/build and PWA checks passed. Playwright passed proposal and
+final-exchange interactions at 390×844, 820×1180 and 1440×900 with no page errors.
+Trade editor screenshots visually inspected at all three sizes; captures and report:
+output/playwright/redesign/broadcast-final. Online delivery uses mocked-transport
+tests; live multiplayer was not exercised. Changes remain local.

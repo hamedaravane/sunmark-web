@@ -56,7 +56,7 @@ export function humanHeader(session: MatchSession): string {
             ),
         )
         .join('');
-    return `<div class="header-personal">${heading}${dice}${button('<span class="menu-gear" aria-hidden="true"></span><small>منو</small>', 'open:help', { className: 'header-menu', label: 'منوی توقف بازی' })}</div><div class="header-seats" style="--seat-count:${opponents.length}" role="group" aria-label="حریفان؛ ${escape(phase)}${isSetup(state) ? '' : ` · دور ${number(state.turn)}`}؛ هدف ${number(state.victoryTarget)} امتیاز">${chips}</div>`;
+    return `<div class="header-personal">${heading}${dice}</div><div class="header-seats" style="--seat-count:${opponents.length}" role="group" aria-label="حریفان؛ ${escape(phase)}${isSetup(state) ? '' : ` · دور ${number(state.turn)}`}؛ هدف ${number(state.victoryTarget)} امتیاز">${chips}</div>${button('<span class="menu-gear" aria-hidden="true"></span><small>منو</small>', 'open:help', { className: 'header-menu', label: 'منوی توقف بازی' })}`;
 }
 
 /** Passive production changes this inventory even on an opponent's roll. */

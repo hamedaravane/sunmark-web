@@ -790,8 +790,8 @@ export class InterfaceScene extends Scene {
             8 +
             (body.scrollTop / (body.scrollHeight - body.clientHeight)) * (box.height - 16 - height);
         graphics
-            .fillStyle(0x151b1d, 0.7)
+            .fillStyle(0x345052, 0.2)
             .fillRoundedRect(box.x + 3, box.y + 8, 3, box.height - 16, 2);
-        graphics.fillStyle(UI_INK.gold, 0.8).fillRoundedRect(box.x + 3, y, 3, height, 2);
+        graphics.fillStyle(0x7f9b96, 0.55).fillRoundedRect(box.x + 3, y, 3, height, 2);
     }
 }

@@ -12,6 +12,7 @@ import { AppPlatform } from '../src/pwa/app';
 import { describe, it, expect, vi } from 'vitest';
 import { io } from 'socket.io-client';
 import { createGame } from '../src/game/core/game';
+import { OnlineTrading } from '../src/online/trading';
 import { OnlineClient } from '../src/online/client';
 import { onlineMarkup, newDrafts } from '../src/online/markup';
 import { matchSnapshotSchema } from '../src/online/shared/src/online/wire';
@@ -254,6 +255,74 @@ describe('online frontend', () => {
         online.destroy();
         client.destroy();
     });
+    it.each(['broadcast', 'off-turn', 'counter', 'turn-change', 'failure', 'partial'] as const)(
+        'sends online %s offers with safe recipient scope',
+        async (mode) => {
+            const client = new OnlineClient('http://unused', null);
+            client.snapshot = snapshot();
+            const game = client.snapshot.game!;
+            game.phase = 'actions';
+            game.self.resources.wood = 4;
+            game.self.resources.brick = 4;
+            if (mode === 'off-turn') game.activePlayerId = 'player-2';
+            const market = new OnlineTrading(client, () => {});
+            market.adjust('give', 'wood', 1);
+            market.adjust('want', 'brick', 1);
+            if (mode === 'counter') {
+                client.snapshot.offers = [
+                    {
+                        id: 10,
+                        from: 'player-2',
+                        to: game.self.id,
+                        give: { wood: 0, brick: 1, wheat: 0, wool: 0, stone: 0 },
+                        want: { wood: 1, brick: 0, wheat: 0, wool: 0, stone: 0 },
+                        status: 'open',
+                    },
+                ];
+                market.edit(10);
+            }
+            const resources = { ...game.self.resources };
+            const recipients: string[] = [];
+            vi.spyOn(client, 'command').mockImplementation(async (intent) => {
+                expect(client.busy).toBe(false);
+                client.busy = true;
+                await Promise.resolve();
+                if (intent.kind !== 'offer') throw new Error('unexpected command');
+                recipients.push(intent.to);
+                if (mode === 'failure' || (mode === 'partial' && recipients.length === 2))
+                    client.error = 'offline';
+                else {
+                    client.snapshot!.revision++;
+                    client.receipt = {
+                        commandId: String(recipients.length),
+                        revision: client.snapshot!.revision,
+                        expectedRevision: client.snapshot!.revision - 1,
+                        intent,
+                    };
+                }
+                if (mode === 'turn-change') game.turn++;
+                client.busy = false;
+            });
+            expect(market.draftError).toBeNull();
+            market.send();
+            market.send(); // A repeated tap must not launch another fan-out.
+            await vi.waitFor(() => expect(market.message).not.toBe('در حال ارسال پیشنهاد…'));
+            expect(recipients).toEqual(
+                mode === 'broadcast'
+                    ? ['player-2', 'player-3', 'player-4']
+                    : mode === 'partial'
+                      ? ['player-2', 'player-3']
+                      : ['player-2'],
+            );
+            expect(game.self.resources).toEqual(resources);
+            if (mode === 'counter')
+                expect(client.receipt?.intent).toMatchObject({ parentId: 10, to: 'player-2' });
+            if (mode === 'failure') expect(market.composing).toBe(true);
+            if (mode === 'partial') expect(market.message).toContain('فقط به ۱ از ۳');
+            if (mode === 'turn-change') expect(market.message).toContain('فقط');
+            client.destroy();
+        },
+    );
     it('validates remote trades using only this seat and never guesses opponent balances', () => {
         const client = new OnlineClient('http://unused', null);
         client.snapshot = snapshot();

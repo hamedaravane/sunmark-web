@@ -536,3 +536,20 @@ test('a final bot rejection of an outgoing offer closes the panel and a stale re
     expect(proposal.status).toBe('rejected');
     expect(session.sheet).toBeNull();
 });
+
+test('new editor broadcasts without recipient controls and clears prior partner selection', () => {
+    const { session } = fixture();
+    session.trading.selectTarget('player-2');
+    session.trading.edit();
+    expect(session.trading.target).toBeNull();
+    expect(sheetContent(session).body).not.toContain('deal-target:');
+    expect(sheetContent(session).body).toContain('همهٔ رقیب‌ها');
+    session.trading.adjust('give', 'wheat', 1);
+    session.trading.adjust('want', 'wood', 1);
+    session.trading.send();
+    expect(session.trading.table.offers.map((o) => o.to)).toEqual([
+        'player-2',
+        'player-3',
+        'player-4',
+    ]);
+});

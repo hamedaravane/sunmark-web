@@ -14,7 +14,7 @@ Official rules allow proposals and counteroffers and keep resource hands private
 
 The existing dock has Build and **معامله**. Trading opens a two-tab workspace: **بازیکن‌ها** and **بانک و بندر**. Domestic trading is enabled during the action phase, even on a bot's turn; in that case, the only possible recipient is the acting bot. Bank trading is unavailable off-turn. No additional persistent HUD row is added.
 
-On the human's turn, announce a bundle to a selected bot or all three. Five resource rows contain independent give/receive counters with 48-pixel touch regions and compact stone faces. The give side cannot exceed the human's current inventory; opposite-side increment buttons prevent matching resource types. Requested quantities are never clamped to an opponent's private hand. Public opponent card totals, avatars, names, and explicit robot labels accompany recipient selection.
+On the human's turn, the normal editor announces a new bundle to all eligible opponents without recipient selection. Outside that turn, it addresses only the active player. Counteroffers remain tied to their original partner. Five resource rows contain independent give/receive counters with 48-pixel touch regions and compact stone faces. The give side cannot exceed the human's current inventory; opposite-side increment buttons prevent matching resource types. Requested quantities are never clamped to an opponent's private hand. A short read-only audience note explains who receives the offer; partner names remain on responses and final confirmation.
 
 Every offer and counteroffer uses the human's orientation: **تو می‌دی** and **تو می‌گیری**, including incoming offers during bot turns. Offer status, counterpart, quantities, and concise bot rationale appear together. Open, accepted, rejected, countered, withdrawn, expired, and completed states have distinct Persian text. Countering starts a new immutable offer revision; old terms become nonactionable. Editing a fresh proposal withdraws earlier human promises. Closing the workspace or changing to the bank withdraws/rejects outstanding human negotiations without moving resources.
 
@@ -26,8 +26,8 @@ Body content scrolls independently. The give/receive summary and send/final conf
 
 - `core/domesticTrade.ts`: bundle validation, active-party/phase rules, safe integer/payment checks, atomic immutable exchange, and a provisional consent ledger with monotonic IDs. Proposal, acceptance, rejection, counter, withdrawal, and snapshot operations never mutate resource state. Only accepted, current, participant-authorized offers can confirm. Both payment and receipt happen together; repeated confirmation fails.
 - `core/commands.ts`: the `domestic-trade` command dispatches the validated exchange and supplies serializable transition terms.
-- `ui/playerTrading.ts`: human drafts, recipient selection, conversation/review state, actor guards, bot proposals/responses, and public history descriptions. `GameSession` publishes confirmed changes through its existing transition pipeline; hand deltas derive from actual state differences.
-- `ui/domesticSheet.ts`: human-oriented bundles, recipient cards, responsive counters, per-offer decisions, review, receipt, and compact in-game rule reference.
+- `ui/playerTrading.ts`: human drafts, eligible audience scope, conversation/review state, actor guards, bot proposals/responses, and public history descriptions. `GameSession` publishes confirmed changes through its existing transition pipeline; hand deltas derive from actual state differences.
+- `ui/domesticSheet.ts`: human-oriented bundles, audience notes, responsive counters, per-offer decisions, review, receipt, and compact in-game rule reference.
 - `ui/botTurns.ts`: the existing 650 ms runner paces bot replies as well as normal actions. While a domestic sheet is open, only replies to human proposals may advance. Other dialogs, hidden pages, and app updates pause all bot work. Bot-to-bot negotiation cannot close or interrupt a human editor. An incoming human decision waits indefinitely, without an acceptance timer.
 
 The table is scoped to the active seat and round. A turn/phase change expires old offers and resets draft/automatic-offer policy memory. Replacing or leaving the match cancels scheduled work using existing session/runner guards. The consent ledger is separate from authoritative card state: an announcement reserves nothing and creates no debt.
@@ -57,3 +57,14 @@ The user performs interactive/device testing, production builds, and CI. Node ch
 ## Returning to the board after a final outcome
 
 A successful human rejection closes the panel without transferring resources. Completed final confirmation closes it after one atomic transfer; the public receipt remains in history/table. A human broadcast stays open while responses are still pending and closes after its final rejection. Stale/invalid responses do not dismiss an active workspace. Acceptance awaiting final confirmation is not yet a completed exchange. Tutorial credit no longer opens a completion modal over the returned main screen.
+
+## Online audience delivery
+
+The online editor sends one existing server-validated offer command per eligible
+recipient, sequentially using the client’s latest confirmed revision. No protocol or
+server authority changes are required. Repeated sends/edits are blocked while sending.
+Delivery stops on failed/uncertain acknowledgement, changed match/turn/actor, expired
+eligibility or insufficient outgoing resources. Partial delivery is reported explicitly;
+uncertain commands remain in the existing idempotent retry path. Offers never transfer
+resources; acceptance and final confirmation remain per partner. Live broadcast is
+not atomic across the network.

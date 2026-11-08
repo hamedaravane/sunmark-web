@@ -307,3 +307,13 @@ Settings includes its text label. Invite and More belong within the mode workspa
 not below the character composition. Historical reward receipts remain in profile;
 never render the last reward as a permanent full-width home banner. Returning-user
 visual checks must include a stored reward so fresh profiles do not conceal clutter.
+
+### Gameplay workspace spacing
+
+Header menu is an independent edge control outside personal/seat groups. Desktop
+sidebar panels follow content height, receipts use auto height and full width, and
+shortcuts stack at full width. Dialog groups use 8/12/16px spacing; content-sized
+height must use fit-content when both vertical insets are set (auto stretches).
+Construction comparison cards share action rows. Trading steppers have 44px targets
+with explicit gaps; resource/quantity columns remain bounded, with Give/Receive
+labels repeated on phone rows. Technical scroll indicators are subdued slate.
