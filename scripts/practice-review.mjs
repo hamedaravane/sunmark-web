@@ -78,9 +78,12 @@ try {
         if (await page.locator('.dock-primary[data-action=primary]').isVisible())
             await click('primary');
         await page.locator('.council-home').waitFor();
-        assert.match(await page.locator('.council-home .hub-reward').innerText(), /تمرین کامل شد/);
-        await page.locator('.council-home .hub-reward').scrollIntoViewIfNeeded();
+        assert.equal(await page.locator('.council-home .hub-reward').count(), 0);
         await shot('practice-complete');
+        await page.locator('.title-more > summary').click();
+        await page.locator('.title-more [data-action="hub:profile"]').click();
+        assert.match(await page.locator('dialog[open] .hub-reward').innerText(), /تمرین کامل شد/);
+        await shot('practice-reward-profile');
         assert.deepEqual(errors, []);
         report.push({ device, errors, completedPractice: true, homeSettings: true });
         console.log(`${device}: real practice completed and rewarded`);

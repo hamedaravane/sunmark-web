@@ -54,7 +54,7 @@ export function installInstructions(app: AppPlatform): string {
 
 export function entryInstall(app: AppPlatform): string {
     if (app.installed) return '';
-    return `<section class="entry-install"><h3>${app.embedded ? 'اول در مرورگر گوشی باز کن' : 'سان‌مارک، همیشه دم دست'}</h3><p>${app.embedded ? 'برای نصب و اجرای بهتر، از مرورگر داخل شبکهٔ اجتماعی خارج شو.' : 'به صفحهٔ اصلی اضافه کن؛ دفعهٔ بعد با یک لمس به جزیره برگرد.'}</p>${button(app.embedded ? 'راهنمای بازکردن در مرورگر' : app.installPrompt ? 'نصب برنامه' : 'افزودن به صفحهٔ اصلی', app.installPrompt && !app.embedded ? 'app-install' : 'open-app', { className: 'button button--primary full-width', disabled: app.updating })}<small>بدون نصب هم می‌توانی بازی کنی.</small></section>`;
+    return `<section class="entry-install">${button(app.embedded ? 'بازکردن در مرورگر گوشی' : app.installPrompt ? 'نصب سان‌مارک' : app.ios ? 'نصب روی آیفون' : 'راهنمای نصب سان‌مارک', app.installPrompt && !app.embedded ? 'app-install' : 'open-app', { className: 'button full-width', disabled: app.updating })}</section>`;
 }
 
 export function installGuide(app: AppPlatform): string {

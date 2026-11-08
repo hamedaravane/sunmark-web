@@ -34,15 +34,27 @@ export function drawComponent(
     const disabled = el instanceof HTMLButtonElement && el.disabled;
     const selected = el.getAttribute('aria-pressed') === 'true' && !has('setting-option');
     if (el.closest('.title-screen') && el instanceof HTMLButtonElement) {
-        if (el.closest('.council-play') && !el.closest('.entry-install')) {
-            drawSurface(g, box, has('council-start') ? 'honey' : 'inset', {
-                radius: 8,
-                flat: true,
-                quiet: true,
-                disabled,
-                pressed: pressed === el,
-                accent: el.matches(':focus-visible') ? UI_INK.gold : undefined,
-            });
+        if ((el.closest('.council-play') && !el.closest('.title-more')) || has('title-settings')) {
+            drawSurface(
+                g,
+                box,
+                has('council-start')
+                    ? 'honey'
+                    : el.closest('.entry-install')
+                      ? 'turquoise'
+                      : 'inset',
+                {
+                    radius: 8,
+                    flat: true,
+                    quiet: true,
+                    disabled,
+                    pressed: pressed === el,
+                    accent:
+                        el.matches(':focus-visible') || has('title-settings')
+                            ? UI_INK.gold
+                            : undefined,
+                },
+            );
         } else if (pressed === el || el.matches(':focus-visible')) {
             g.lineStyle(1, UI_INK.gold, 0.8).lineBetween(
                 box.x + 8,

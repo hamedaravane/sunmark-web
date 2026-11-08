@@ -224,3 +224,20 @@ sits left and slightly higher to clear her hair/shoulder; supporting figures ret
 separate readable faces. The wordmark-backed waist clipping remains unchanged.
 Ashi sits slightly farther right to clear Anahita’s water effect.
 Final preview: output/playwright/menu-anahita-final-v9.
+
+## Annotated menu feedback — visible controls and returning users
+
+User screenshot exposed a persistent reward banner, ghost install/share controls
+and an easily missed settings icon. Install guidance is now one surfaced teal button;
+settings has a text label, bounded target and gold outline. Invite and More live inside
+the decision workspace, aligned with play modes. Removed redundant installation
+heading. Past rewards are shown only in profile, with stored rewards unaffected.
+Practice verification now checks the reward through profile rather than expecting
+a permanent home banner. A regression test exercises a returning profile with reward.
+Browser captures seed a real saved practice reward and verify no menu scrolling.
+Fresh folder: output/playwright/menu-visible-controls-final.
+
+Verification completed: 419 tests plus typecheck/lint/format/build/PWA passed. All five
+returning-player browser contexts passed without page errors or main-menu scrolling;
+profile reward access was verified in each. Updated desktop/mobile screenshots were
+visually inspected against the annotated issues. Changes remain local.

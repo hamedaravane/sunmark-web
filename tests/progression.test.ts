@@ -308,3 +308,15 @@ test('offline match IDs work when a local HTTP preview has no crypto.randomUUID'
         vi.unstubAllGlobals();
     }
 });
+
+test('past rewards stay in the profile without crowding the returning-player menu', () => {
+    const { session, progression } = fixture();
+    progression.completePractice();
+    expect(progression.snapshot.lastReward).toBeTruthy();
+    const menu = menuContent(new AppPlatform(), session);
+    expect(menu).not.toContain('class="hub-reward');
+    expect(menu).toContain('title-settings');
+    expect(menu).toContain('title-invite');
+    session.openSheet({ kind: 'profile' });
+    expect(sheetContent(session).body).toContain('تمرین کامل شد');
+});

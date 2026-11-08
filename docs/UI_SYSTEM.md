@@ -301,3 +301,9 @@ Their supporting figures are raised to expose faces and bounded within the full-
 wordmark backing. InterfaceScene clips only these title portraits below the logo's
 measured midpoint, hiding waist crops without editing original image files or affecting
 full narrative portraits.
+
+Installation and Settings on the title screen require visibly surfaced controls;
+Settings includes its text label. Invite and More belong within the mode workspace,
+not below the character composition. Historical reward receipts remain in profile;
+never render the last reward as a permanent full-width home banner. Returning-user
+visual checks must include a stored reward so fresh profiles do not conceal clutter.

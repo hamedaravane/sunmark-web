@@ -2642,3 +2642,49 @@ p {
     width: 22% !important;
     bottom: 65px;
 }
+
+/* Action visibility: bounded install/settings controls, utilities within the workspace. */
+.title-screen .council-brand {
+    display: flex;
+    justify-content: flex-start;
+}
+.title-screen .title-settings {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 100px;
+    min-height: 44px;
+    font-size: 14px;
+    padding: 8px 12px;
+}
+.title-screen .entry-install {
+    padding: 0 0 4px;
+}
+.title-screen .entry-install .button {
+    color: #f4ebd6;
+    min-height: 44px;
+    font-size: 14px;
+}
+.title-screen .title-utilities {
+    width: 100%;
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: start;
+}
+.title-screen .title-invite {
+    min-height: 44px;
+    font-size: 14px;
+}
+.title-screen .title-more {
+    min-width: 0;
+}
+.title-screen .title-more > summary {
+    min-height: 44px;
+    font-size: 14px;
+}
+.title-screen .title-more[open] {
+    grid-column: 1/-1;
+}

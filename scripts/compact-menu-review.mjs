@@ -29,6 +29,20 @@ try {
         await page.goto('http://127.0.0.1:4174', { waitUntil: 'networkidle' });
         await page.locator('.graphics-ui').waitFor();
         await page.waitForTimeout(1000);
+        if (process.argv.includes('--reward')) {
+            await page.evaluate(async () => {
+                const { ProgressionStore } = await import('/src/game/progression/progression.ts');
+                new ProgressionStore(globalThis.localStorage).completePractice();
+            });
+            await page.reload({ waitUntil: 'networkidle' });
+            await page.locator('.graphics-ui').waitFor();
+            assert.equal(await page.locator('.title-screen .hub-reward').count(), 0);
+        }
+        const shareBox = await page
+            .locator('.council-play [data-action="share-game"]')
+            .boundingBox();
+        assert(shareBox && shareBox.height >= 44);
+
         const geometry = await page.locator('.main-menu').evaluate((n) => ({
             height: n.clientHeight,
             content: n.scrollHeight,
@@ -51,6 +65,14 @@ try {
         await page.locator('.title-more > summary').click();
         assert(await page.locator('.title-more [data-action="analytics-settings"]').isVisible());
         await page.screenshot({ path: `${out}/${name}-more.png` });
+        if (process.argv.includes('--reward')) {
+            await page.locator('.title-more [data-action="hub:profile"]').click();
+            assert.match(
+                await page.locator('dialog[open] .hub-reward').innerText(),
+                /تمرین کامل شد/,
+            );
+            await page.screenshot({ path: `${out}/${name}-reward-profile.png` });
+        }
         assert.deepEqual(errors, []);
         report.push({ name, width, height, geometry, errors });
         console.log(`${name}: four actions visible, no menu scroll`);
