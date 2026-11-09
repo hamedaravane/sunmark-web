@@ -1,0 +1,495 @@
+/* Cinematic entrance: native, responsive art planes beneath the existing Phaser dialogs. */
+:root {
+    --sm-radius: 12px;
+    --sm-space: 8px;
+    --sm-shadow: 0 6px 20px #071e2c66;
+    --sm-fast: 160ms;
+}
+.main-menu:has(.cinematic-home) {
+    position: relative;
+    isolation: isolate;
+    padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    display: block;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sm-gold-dark) var(--sm-deep-teal);
+    background: #c09b83;
+}
+.menu-panel:has(.cinematic-home) {
+    width: min(100%, 1480px);
+    max-width: none;
+    min-height: 100%;
+    padding: 0;
+    margin: auto;
+    text-align: start;
+}
+.cinematic-world {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background: linear-gradient(#e9b77d, #6a869b 60%, #497e80);
+}
+.cinematic-world img {
+    position: absolute;
+    display: block;
+    height: auto;
+    max-width: none;
+}
+.world-horizon {
+    width: max(100vw, 177.69dvh);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+.world-palace {
+    width: min(1760px, 112vw);
+    left: 56%;
+    bottom: -9dvh;
+    transform: translateX(-50%);
+}
+.world-garden {
+    width: max(104vw, 184dvh);
+    left: 50%;
+    bottom: -2dvh;
+    transform: translateX(-50%);
+}
+.world-light {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, #092e3b70, transparent 65%),
+        linear-gradient(0deg, #092e3b9c, transparent 45%);
+}
+.cinematic-home {
+    min-height: calc(
+        var(--app-height) - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+    );
+    display: grid;
+    grid-template-columns: minmax(300px, 0.82fr) minmax(0, 1.5fr);
+    align-items: center;
+    gap: clamp(24px, 5vw, 80px);
+    direction: ltr;
+}
+.cinematic-home .council-brand {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 3;
+}
+.cinematic-home .title-settings {
+    min-height: 44px;
+    padding: 8px 16px;
+    direction: rtl;
+}
+.cinematic-home .menu-gear::before {
+    content: '⚙';
+    font-size: 22px;
+}
+.cinematic-hero {
+    position: relative;
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    aspect-ratio: 1.22;
+    align-self: center;
+    margin: 50px 0 0;
+    pointer-events: none;
+}
+.cinematic-cast {
+    position: absolute;
+    inset: 0 3% 13%;
+    overflow: hidden;
+    mask-image: linear-gradient(#000 78%, transparent 100%);
+}
+.cinematic-ensemble {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.cinematic-wordmark {
+    position: absolute;
+    width: 104%;
+    bottom: 0;
+    left: -2%;
+    line-height: 0;
+    margin: 0;
+}
+.cinematic-wordmark img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.cinematic-home .council-play {
+    direction: rtl;
+    grid-column: 1;
+    grid-row: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 420px;
+    margin: 70px auto 0;
+    align-content: center;
+    align-self: center;
+    position: relative;
+}
+.cinematic-home .council-play::before {
+    content: '';
+    position: absolute;
+    inset: -42px 0;
+    background: radial-gradient(ellipse, #0d303be0, #0d303b70 48%, transparent 72%);
+    pointer-events: none;
+    z-index: -1;
+}
+.cinematic-home .button,
+.cinematic-home summary {
+    border: 1px solid #b1a47c;
+    border-radius: var(--sm-radius);
+    background: linear-gradient(180deg, #28575b, var(--sm-deep-teal));
+    color: var(--sm-ivory);
+    box-shadow:
+        inset 0 1px #e6e1b926,
+        0 3px 0 #11282e80,
+        var(--sm-shadow);
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 400;
+    text-align: center;
+    transition:
+        transform var(--sm-fast),
+        border-color var(--sm-fast),
+        background-color var(--sm-fast);
+    touch-action: manipulation;
+}
+.cinematic-home .button strong {
+    font-weight: 400;
+    font-size: inherit;
+}
+.cinematic-home .button span {
+    min-width: 0;
+}
+.cinematic-home .button small {
+    display: block;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    margin-top: 4px;
+    color: var(--sm-muted);
+}
+.cinematic-home .button--primary {
+    background: linear-gradient(180deg, #f5dda6, var(--sm-gold) 55%, #c59952);
+    border: 1px solid #ffedbe;
+    color: var(--sm-ink);
+    box-shadow:
+        inset 0 0 0 3px #a87a3642,
+        inset 0 1px #fff3d4,
+        0 4px 0 #654821,
+        0 9px 28px #10282e66;
+    font-size: 1.25rem;
+    min-height: 80px;
+    padding: 14px 24px;
+    position: relative;
+}
+.cinematic-home .button--primary::before,
+.cinematic-home .button--primary::after {
+    content: '◆';
+    position: absolute;
+    font-size: 10px;
+    color: #795825;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.cinematic-home .button--primary::before {
+    left: 12px;
+}
+.cinematic-home .button--primary::after {
+    right: 12px;
+}
+.cinematic-home .button--primary small {
+    color: #3d442d;
+}
+.cinematic-home .council-start,
+.cinematic-home .council-account,
+.cinematic-home .entry-install,
+.cinematic-home .title-utilities,
+.cinematic-home .council-play > p {
+    grid-column: 1 / -1;
+}
+.cinematic-home .council-account {
+    min-height: 62px;
+    background: #123638ed;
+}
+.cinematic-home .entry-install {
+    order: 5;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+.cinematic-home .entry-install .button {
+    min-height: 44px;
+    padding: 7px 16px;
+    font-size: 0.8rem;
+    background: #163e44db;
+    border-color: #8a9d90;
+}
+.cinematic-home .title-utilities {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    order: 6;
+    align-items: start;
+}
+.cinematic-home .title-utilities > .button,
+.cinematic-home .title-more > summary {
+    width: 100%;
+    min-height: 44px;
+    font-size: 0.875rem;
+    background: #173c40eb;
+    border-color: #8a9d90;
+    padding: 8px 12px;
+    cursor: pointer;
+    text-align: center;
+}
+.cinematic-home .title-more {
+    min-width: 0;
+}
+.cinematic-home .title-more[open] {
+    grid-column: 1/-1;
+}
+.cinematic-home .title-more[open] > summary {
+    width: auto;
+    min-width: 120px;
+    margin-inline-start: auto;
+}
+.cinematic-home .council-navigation,
+.cinematic-home .council-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 12px;
+    background: var(--sm-deep-teal);
+    border: 1px solid var(--sm-gold-dark);
+    border-radius: var(--sm-radius);
+}
+.cinematic-home .council-meta p {
+    grid-column: 1/-1;
+}
+.cinematic-home .council-navigation .button,
+.cinematic-home .council-meta .button {
+    font-size: 0.8rem;
+    padding: 8px;
+}
+.cinematic-home .council-play > .footnote {
+    order: 7;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--sm-ivory);
+    text-shadow: 0 1px 4px #11282e;
+    line-height: 1.7;
+}
+.cinematic-home .council-play > .footnote[role='status'] {
+    display: none;
+}
+.cinematic-home .button:disabled {
+    opacity: 0.65;
+    color: #d9ded6;
+}
+.cinematic-home :is(button, summary):focus-visible {
+    outline: 3px solid var(--sm-focus);
+    outline-offset: 4px;
+}
+@media (hover: hover) {
+    .cinematic-home :is(button, summary):not(:disabled):hover {
+        border-color: #fff0c2;
+        transform: translateY(-2px);
+    }
+}
+.cinematic-home :is(button, summary):not(:disabled):active {
+    transform: translateY(1px);
+}
+@media (max-width: 1099px) and (min-height: 701px) and (orientation: portrait) {
+    .cinematic-home {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        justify-content: center;
+        padding-top: 40px;
+    }
+    .cinematic-hero {
+        width: min(70vw, 640px, 50dvh);
+        margin: 0;
+        flex: none;
+    }
+    .cinematic-home .council-play {
+        max-width: 400px;
+        margin: 0 auto;
+        flex: none;
+        gap: 10px;
+    }
+    .world-palace {
+        width: max(120vw, 105dvh);
+        bottom: -4dvh;
+        left: 58%;
+    }
+    .world-garden {
+        width: max(120vw, 184dvh);
+    }
+    .world-horizon {
+        left: 38%;
+    }
+    .world-light {
+        background: linear-gradient(0deg, #0b3543a6, transparent 80%);
+    }
+}
+@media (max-width: 599px) and (orientation: portrait) {
+    .main-menu:has(.cinematic-home) {
+        padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+            max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    }
+    .cinematic-home {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        min-height: calc(
+            var(--app-height) - 30px - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+        );
+        padding-top: 40px;
+    }
+    .cinematic-hero {
+        width: min(100%, 43dvh);
+        margin: 0;
+        flex: none;
+    }
+    .cinematic-home .council-play {
+        max-width: 380px;
+        margin: 0 auto;
+        gap: 10px;
+    }
+    .cinematic-home .button--primary {
+        min-height: 74px;
+        font-size: 1.125rem;
+    }
+    .cinematic-home .council-account {
+        min-height: 56px;
+    }
+    .cinematic-home .council-account small {
+        font-size: 0.7rem;
+    }
+    .cinematic-home .title-settings {
+        min-height: 44px;
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+    .world-palace {
+        width: 1040px;
+        left: 53%;
+        bottom: -4dvh;
+    }
+    .world-garden {
+        width: 1160px;
+        bottom: 0;
+    }
+    .world-horizon {
+        left: 38%;
+    }
+    .world-light {
+        background: linear-gradient(0deg, #0a303ddd, #0a303d40 65%, transparent);
+    }
+    .cinematic-home .council-play::before {
+        inset: -20px 0;
+    }
+}
+@media (orientation: landscape) and (max-height: 700px) {
+    .main-menu:has(.cinematic-home) {
+        padding: max(12px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-right))
+            max(16px, env(safe-area-inset-bottom)) max(28px, env(safe-area-inset-left));
+    }
+    .cinematic-home {
+        min-height: calc(var(--app-height) - 28px);
+        grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.2fr);
+        gap: 28px;
+    }
+    .cinematic-hero {
+        margin: 40px 0 0;
+        width: min(100%, 96dvh);
+        justify-self: center;
+    }
+    .cinematic-home .council-play {
+        margin-top: 40px;
+        gap: 8px;
+    }
+    .cinematic-home .button {
+        font-size: 0.875rem;
+        padding: 7px 12px;
+        min-height: 44px;
+    }
+    .cinematic-home .button--primary {
+        min-height: 66px;
+        font-size: 1rem;
+    }
+    .cinematic-home .button small {
+        font-size: 0.68rem;
+        margin-top: 0;
+    }
+    .cinematic-home .council-play > .footnote {
+        display: none;
+    }
+    .world-palace {
+        width: 100vw;
+        bottom: -24dvh;
+    }
+}
+@media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
+    .game-app:not(.reduced-motion) .world-light {
+        animation: sunmark-dawn 1800ms ease-out both;
+    }
+}
+@keyframes sunmark-dawn {
+    from {
+        opacity: 0.3;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .cinematic-home :is(button, summary) {
+        transition: none;
+    }
+}
+.reduced-motion .cinematic-home :is(button, summary) {
+    transition: none;
+}
+
+@media (max-height: 700px) and (orientation: portrait) {
+    .cinematic-home .council-play > [role='status'] {
+        display: none;
+    }
+}
+
+.cinematic-world img[data-failed],
+.cinematic-hero img[data-failed] {
+    opacity: 0;
+}
+.cinematic-wordmark:has(img[data-failed])::after {
+    content: 'Sunmark';
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--sm-gold);
+    font:
+        bold clamp(36px, 8vw, 100px) / 1 Georgia,
+        serif;
+    text-shadow: 0 2px 4px var(--sm-ink);
+}
+.cinematic-home .title-utilities:has(.title-more[open]) {
+    grid-template-columns: 1fr;
+}

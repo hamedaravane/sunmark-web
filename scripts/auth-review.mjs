@@ -81,7 +81,9 @@ try {
                 body: JSON.stringify(data),
             });
         });
-        await page.goto('http://127.0.0.1:4174/?review', { waitUntil: 'networkidle' });
+        await page.goto(`${process.env.REVIEW_BASE_URL || 'http://127.0.0.1:4174'}/?review`, {
+            waitUntil: 'networkidle',
+        });
         await page.waitForFunction(() => !!globalThis.sunmarkReview);
         await page.evaluate(() => globalThis.sunmarkReview.pause());
         const shot = async (name) => {

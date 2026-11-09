@@ -36,7 +36,7 @@ try {
             });
             await page.reload({ waitUntil: 'networkidle' });
             await page.locator('.graphics-ui').waitFor();
-            assert.equal(await page.locator('.title-screen .hub-reward').count(), 0);
+            assert.equal(await page.locator('.cinematic-home .hub-reward').count(), 0);
         }
         const shareBox = await page
             .locator('.council-play [data-action="share-game"]')

@@ -23,7 +23,8 @@ interface PaintLayer {
 }
 
 /**
- * Draws every visible UI surface with Graphics and every label with Phaser Text.
+ * Draws match/dialog surfaces with Graphics and labels with Phaser Text.
+ * The cinematic menu is native HTML/CSS beneath the transparent canvas.
  * The transparent DOM is a responsive layout/semantic input adapter, never a
  * screenshot or texture. It preserves browser Persian shaping, line breaks,
  * native modal focus, scrolling, and exact CSS-pixel hit areas.
@@ -83,7 +84,6 @@ export class InterfaceScene extends Scene {
     }
     preload(): void {
         for (const name of [
-            'sunmark-logo',
             'corner',
             'divider',
             'rosette',
@@ -98,7 +98,6 @@ export class InterfaceScene extends Scene {
     }
     create(): void {
         for (const name of [
-            'sunmark-logo',
             'corner',
             'divider',
             'rosette',
@@ -341,9 +340,8 @@ export class InterfaceScene extends Scene {
             this.content,
         ])
             this.begin(layer);
-        const menu = this.parent.querySelector<HTMLElement>('.main-menu')!;
         const match = this.parent.querySelector<HTMLElement>('.match-screen')!;
-        this.paintTree(this.session.state ? match : menu, this.hud);
+        if (this.session.state) this.paintTree(match, this.hud);
         const compactRail =
             match.classList.contains('is-wide') && !match.classList.contains('is-desktop');
         const controls = match.querySelector<HTMLElement>(

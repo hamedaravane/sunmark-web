@@ -71,10 +71,10 @@ try {
                 e.userChoice = Promise.resolve({ outcome: 'dismissed' });
                 globalThis.window.dispatchEvent(e);
             });
-        for (const id of ['ahriman', 'anahita', 'mithra', 'ashi', 'spenta-armaiti'])
-            assert.equal(await page.locator(`.council-figure--${id}`).count(), 1);
+        assert.equal(await page.locator('.cinematic-ensemble').count(), 1);
+        await page.locator('.cinematic-ensemble').evaluate((img) => img.decode());
         assert.equal(
-            await page.locator('.title-screen [data-action="open:characters"]').count(),
+            await page.locator('.cinematic-home [data-action="open:characters"]').count(),
             0,
         );
         for (const action of ['play', 'tutorial', 'online', 'account'])

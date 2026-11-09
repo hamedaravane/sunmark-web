@@ -290,3 +290,48 @@ Verification: npm run check passed (429 tests, API contract, lint, formatting,
 typecheck/build and PWA). Focused dialogue/tutorial/character tests pass (39),
 including Ahriman art, history, saved-line restoration and unchanged rule state.
 No browser review for this copy-focused change; changes remain local.
+
+## Cinematic entrance — 2026-11-09
+
+Base dc96f23 (latest main with four supplied layers). Verified PNG dimensions and
+alpha, visually inspected every source. Preserved PNG masters under art/reference/menu;
+responsive, alpha-preserving WebP exports under public/assets/menu. No new dependencies.
+
+Direction: bright golden-hour Persian world with separately positioned landscape,
+palace, garden and ensemble. Native CSS menu for independent art direction and immediate
+usable controls; existing transparent Phaser canvas still renders gameplay and dialogs.
+Desktop: controls left, cast/logo right; portrait: cast above centered menu; short
+landscape: compact split layout; unusually small views may scroll safely. Anahita stays
+central. Wordmark occludes the ensemble's source crop. No illustration repainting.
+
+Pass 1: replaced single dim background, individual cutouts and install-first ordering.
+Pass 2: corrected garden's hard top edge and bounded control glow overflow.
+Pass 3: verified 12 viewport compositions; detected palace/foreground gap in portrait,
+corrected palace bottom overscan and reduced redundant short-phone text.
+Shared Sunmark palette feeds native CSS and Phaser material/HUD colors; account
+surfaces use the same colors. Pass 4 refined portrait base overlap and tablet-landscape
+split composition. Pass 5 added a graceful missing-art fallback, reduced repeated
+menu copy while preserving availability warnings, and aligned expanded More actions.
+
+Inventory for shared review: home/more/settings/install/name/intro/practice,
+board/build/bank/domestic/development/discard/robber/steal/players/inspection,
+profile/badges/cosmetics/pause/help/history/results, account and online entry/room.
+Complete: 12 final viewports (all ten requested + 2560×1080 + 320×568), screenshots
+visually inspected individually/contact sheets. Normal phone/tablet/desktop actions
+fit; the 320px phone scrolls safely. 43 fixture states captured and visually reviewed
+at mobile/tablet/desktop; real practice through paid road, bank trade, settlement,
+score/reward and return passed at all three. Account/online entry/room fixtures and
+seven platform-install contexts passed. Keyboard focus/settings/profile, actual new
+match + reload/resume, image failure, 200% text, rotation and reduced motion passed.
+
+Checks: npm run check (430 tests, API contract, lint, format, typechecked build, PWA)
+and npm run assets:check passed. All four PNG source hashes match latest main exactly.
+No dependencies, rules, save schemas or API contracts changed. Browser coverage uses
+Chromium with isolated contexts/fixtures; physical iOS/Android installation and live
+multiplayer were not exercised. Only a short opacity reveal runs on desktop.
+
+Artifacts: output/playwright/redesign/cinematic-before (baseline), cinematic-final
+(12 final captures, report and contact sheet), cinematic-system (43×3 screen captures
+and visual review sheets), cinematic-interactions, cinematic-practice, cinematic-entry;
+platform guides in output/playwright/onboarding. No unresolved major design issues.
+Changes remain local; no publishing/deployment performed.

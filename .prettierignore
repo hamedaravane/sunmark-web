@@ -10,3 +10,6 @@ contracts/openapi.json
 
 .agents/skills/
 output/playwright/
+
+# Generated responsive image provenance
+scripts/menu-exports.json

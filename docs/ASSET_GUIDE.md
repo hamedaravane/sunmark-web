@@ -188,3 +188,18 @@ manifest. The menu uses it in the accessible product heading in place of generic
 text plus rosette; the full logo silhouette and aspect ratio are preserved.
 The supplied English brand lettering is an intentional logo exception; Persian
 interface copy remains runtime text. App icons retain their readable square emblem.
+
+## Cinematic menu layers (2026-11-09)
+
+The four PNG uploads from dc96f23 are preserved byte-for-byte in `art/reference/menu/`:
+Golden Dawn (1672×941 RGB), Golden Persian Palace (1672×941 RGBA), Persian Garden
+(1672×941 RGBA) and Sunmark Ensemble (1536×1024 RGBA). The ensemble's maximum alpha
+is 254 in the supplied master; this is intentional source data, not a black matte.
+`python3 scripts/optimize-menu.py` creates 640px, 1024px and original-width WebP
+variants under `public/assets/menu/`, verifying dimensions and exact resized alpha. `scripts/menu-exports.json` records master/output hashes; `npm run assets:check` verifies them alongside the existing asset inventory.
+Resampling uses premultiplied color to avoid edge fringes. The existing branding
+master stays intact; responsive wordmark variants reduce its mobile download.
+Original PNGs are outside public so offline precaching includes delivery files only.
+Native images use intrinsic dimensions, srcset and contextual sizes; critical planes
+are eager and the distant-world request is prioritized. Failed images leave usable
+native controls against a palette fallback. Keep each plane independently positioned.

@@ -1,3 +1,4 @@
+import { hideFailedMenuArt } from './cinematicMenu';
 import { dialogueId } from '../narrative/dialogues.fa';
 import { DEVELOPMENT_LABELS, cardAvailability } from './developmentMarkup';
 import { heroDice, actionDock, turnStatus } from './turnMarkup';
@@ -71,6 +72,7 @@ export class GameHud {
         this.sheet = new BottomSheet(parent, () => session.closeSheet());
         parent.addEventListener('click', this.onClick);
         parent.addEventListener('input', this.onInput);
+        parent.addEventListener('error', hideFailedMenuArt, true);
         document.addEventListener('selectionchange', this.syncNameInput);
         document.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('storage', this.onProgressionStorage);
@@ -155,6 +157,7 @@ export class GameHud {
         const state = this.session.state;
         const focusAction = (document.activeElement as HTMLElement | null)?.dataset.action;
         this.parent.classList.toggle('is-menu', !state);
+        this.parent.classList.toggle('reduced-motion', this.session.preferences.snapshot.reduced);
         this.part('.main-menu').hidden = state !== null;
         this.part('.match-screen').hidden = state === null;
         this.updatePart('.menu-panel', menuContent(this.app, this.session));
@@ -697,6 +700,7 @@ export class GameHud {
         this.sheet.destroy();
         this.parent.removeEventListener('click', this.onClick);
         this.parent.removeEventListener('input', this.onInput);
+        this.parent.removeEventListener('error', hideFailedMenuArt, true);
         document.removeEventListener('selectionchange', this.syncNameInput);
         document.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('storage', this.onProgressionStorage);

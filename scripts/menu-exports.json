@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "quality": 90,
+  "assets": [
+    {
+      "file": "menu/distant-world-1024.webp",
+      "size": [1024, 576],
+      "master": "art/reference/menu/Golden Dawn Over Misty Mountains (1).png",
+      "source_sha256": "a7ef25c7e110ce1a7cc97c459eef422073e300bef3999d5a268cc0f389b014d4",
+      "sha256": "601ac2a8390ab73699831d89dda472d692c305764e69d1d62e1e6a7e7af02deb"
+    },
+    {
+      "file": "menu/distant-world-1672.webp",
+      "size": [1672, 941],
+      "master": "art/reference/menu/Golden Dawn Over Misty Mountains (1).png",
+      "source_sha256": "a7ef25c7e110ce1a7cc97c459eef422073e300bef3999d5a268cc0f389b014d4",
+      "sha256": "11f58ae8a9b810e6325e4c26dbce4b02a3c574dd26ea33861c3325b365a1bc59"
+    },
+    {
+      "file": "menu/distant-world-640.webp",
+      "size": [640, 360],
+      "master": "art/reference/menu/Golden Dawn Over Misty Mountains (1).png",
+      "source_sha256": "a7ef25c7e110ce1a7cc97c459eef422073e300bef3999d5a268cc0f389b014d4",
+      "sha256": "317f307399e4e3de74bfa2ad3e83fac90b0f62e326640dc4503ad69c12a351cb"
+    },
+    {
+      "file": "menu/royal-palace-1024.webp",
+      "size": [1024, 576],
+      "master": "art/reference/menu/Golden Persian Palace with Reflecting Pool.png",
+      "source_sha256": "2fafc2c84bbd02293bd684b58c3363cff24a45aedd7570a7a70b94440385ae6a",
+      "sha256": "b8aa1d70f562a568b62ea0ef19abb01aa8e2f5ddaa61f06554fde4e5a115b640"
+    },
+    {
+      "file": "menu/royal-palace-1672.webp",
+      "size": [1672, 941],
+      "master": "art/reference/menu/Golden Persian Palace with Reflecting Pool.png",
+      "source_sha256": "2fafc2c84bbd02293bd684b58c3363cff24a45aedd7570a7a70b94440385ae6a",
+      "sha256": "78d390a29ef546d4eeef59f7056de1166fe32e2793ddb3e663f5dd62eca61783"
+    },
+    {
+      "file": "menu/royal-palace-640.webp",
+      "size": [640, 360],
+      "master": "art/reference/menu/Golden Persian Palace with Reflecting Pool.png",
+      "source_sha256": "2fafc2c84bbd02293bd684b58c3363cff24a45aedd7570a7a70b94440385ae6a",
+      "sha256": "9b9367ea90004e99f80869de038b78c8eb7189a30e3e2084870a9654dcb1ecca"
+    },
+    {
+      "file": "menu/garden-frame-1024.webp",
+      "size": [1024, 576],
+      "master": "art/reference/menu/Persian Garden Ornamental Frame.png",
+      "source_sha256": "6f61d04db07ec1374759330a0996357c958ef70847a9079d68bfc9b97eee97ee",
+      "sha256": "4e6567c68bf60433e6231708c4d1fc0d59d2a9969d4361c2bf03edde849dd441"
+    },
+    {
+      "file": "menu/garden-frame-1672.webp",
+      "size": [1672, 941],
+      "master": "art/reference/menu/Persian Garden Ornamental Frame.png",
+      "source_sha256": "6f61d04db07ec1374759330a0996357c958ef70847a9079d68bfc9b97eee97ee",
+      "sha256": "80efa61875210a3706b4e321e407010e0d0052f45fd7942aee5c29e11adcb17e"
+    },
+    {
+      "file": "menu/garden-frame-640.webp",
+      "size": [640, 360],
+      "master": "art/reference/menu/Persian Garden Ornamental Frame.png",
+      "source_sha256": "6f61d04db07ec1374759330a0996357c958ef70847a9079d68bfc9b97eee97ee",
+      "sha256": "924d5857a68121aa32773c654102bd59febf7472a7d36cef05e5e4c4912bf80a"
+    },
+    {
+      "file": "menu/character-ensemble-1024.webp",
+      "size": [1024, 683],
+      "master": "art/reference/menu/Sunmark Ensemble_ Golden Magic Unleashed.png",
+      "source_sha256": "3635c09b573223e7aeb45356e7456a2353c9adb61537642756bf7a10680dd624",
+      "sha256": "2772ddefdf04d98a34165f242756d9e66e1df44d5d8c3041a0cf956af603fdc8"
+    },
+    {
+      "file": "menu/character-ensemble-1536.webp",
+      "size": [1536, 1024],
+      "master": "art/reference/menu/Sunmark Ensemble_ Golden Magic Unleashed.png",
+      "source_sha256": "3635c09b573223e7aeb45356e7456a2353c9adb61537642756bf7a10680dd624",
+      "sha256": "517c71d4c315693a5f1ad9efe75094ed833709bc05ab4431a156530183f43394"
+    },
+    {
+      "file": "menu/character-ensemble-640.webp",
+      "size": [640, 427],
+      "master": "art/reference/menu/Sunmark Ensemble_ Golden Magic Unleashed.png",
+      "source_sha256": "3635c09b573223e7aeb45356e7456a2353c9adb61537642756bf7a10680dd624",
+      "sha256": "736718a53eb85e9373b1159e193c330e6457dd4f790caa04e74cd9b2e85b3ca8"
+    },
+    {
+      "file": "menu/wordmark-1024.webp",
+      "size": [1024, 341],
+      "master": "public/assets/branding/sunmark-logo.webp",
+      "source_sha256": "1f9daeaf790a3b203db21f8f4ce9e66e880f4086dc489549c6c709fcaf05e168",
+      "sha256": "725035cb8b87f83aa35a4906049f0f8a9d731d74c751de1b8df7551a436817cb"
+    },
+    {
+      "file": "menu/wordmark-2172.webp",
+      "size": [2172, 724],
+      "master": "public/assets/branding/sunmark-logo.webp",
+      "source_sha256": "1f9daeaf790a3b203db21f8f4ce9e66e880f4086dc489549c6c709fcaf05e168",
+      "sha256": "b5c80160d10d0485663c2d892b6578d8640118154148477c0169b5ab828c67ad"
+    },
+    {
+      "file": "menu/wordmark-640.webp",
+      "size": [640, 213],
+      "master": "public/assets/branding/sunmark-logo.webp",
+      "source_sha256": "1f9daeaf790a3b203db21f8f4ce9e66e880f4086dc489549c6c709fcaf05e168",
+      "sha256": "54750427f15dac709f31cffe87701d822c6cd4743e644f65eef141b19592826e"
+    }
+  ]
+}

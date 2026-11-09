@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Sunmark \u2014 a mobile-first Persian-language strategy board game built with Phaser 4 and TypeScript.",
   "scripts": {
-    "assets:optimize": "python3 scripts/optimize-images.py",
-    "assets:check": "python3 scripts/optimize-images.py --check",
+    "assets:optimize": "python3 scripts/optimize-menu.py && python3 scripts/optimize-images.py",
+    "assets:check": "python3 scripts/optimize-menu.py --check && python3 scripts/optimize-images.py --check",
     "assets:anahita": "python3 scripts/optimize-anahita.py",
     "assets:anahita:check": "python3 scripts/optimize-anahita.py --check",
     "dev": "vite",
