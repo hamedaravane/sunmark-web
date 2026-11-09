@@ -332,19 +332,30 @@
         flex: none;
         gap: 10px;
     }
+}
+/* Keep the palace grounded. Portrait views frame the entrance/stairs rather than
+   the geometric image center, with a wider crop on phones than on tablets. */
+@media (max-width: 1099px) and (orientation: portrait) {
+    .cinematic-world {
+        --palace-scene-width: clamp(760px, 98dvh, 1400px);
+        --palace-scene-focal: -60%;
+    }
     .world-palace {
-        width: max(120vw, 105dvh);
-        bottom: -4dvh;
-        left: 58%;
+        width: var(--palace-scene-width);
+        left: 50%;
+        bottom: 0;
+        transform: translateX(var(--palace-scene-focal));
+    }
+    .world-horizon {
+        left: 46%;
+        top: 44%;
     }
     .world-garden {
         width: max(120vw, 184dvh);
-    }
-    .world-horizon {
-        left: 38%;
+        bottom: -2dvh;
     }
     .world-light {
-        background: linear-gradient(0deg, #0b3543a6, transparent 80%);
+        background: linear-gradient(0deg, #0a303d80, transparent 65%);
     }
 }
 @media (max-width: 599px) and (orientation: portrait) {
@@ -387,20 +398,19 @@
         font-size: 0.8rem;
         padding: 6px 12px;
     }
-    .world-palace {
-        width: 1040px;
-        left: 53%;
-        bottom: -4dvh;
+    .cinematic-world {
+        --palace-scene-width: clamp(880px, 125dvh, 1600px);
+        --palace-scene-focal: -58%;
+        background: linear-gradient(#e9b77d, #abaabe 32%, #8d9fb0 50%, #497e80);
     }
-    .world-garden {
-        width: 1160px;
-        bottom: 0;
-    }
+    /* Frame the panorama by width, not phone height: keep the sun and ridge in view.
+       The lower mist blends into the scene without stretching or repeating the art. */
     .world-horizon {
-        left: 38%;
-    }
-    .world-light {
-        background: linear-gradient(0deg, #0a303ddd, #0a303d40 65%, transparent);
+        width: 145vw;
+        left: 58%;
+        top: 0;
+        transform: translateX(-50%);
+        mask-image: linear-gradient(#000 72%, transparent);
     }
     .cinematic-home .council-play::before {
         inset: -20px 0;

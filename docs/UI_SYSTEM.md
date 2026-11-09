@@ -342,3 +342,21 @@ in cinematic CSS tokens. Existing gameplay cards keep their denser geometry.
 The sole automatic effect is an under-two-second desktop lighting reveal; reduced
 motion (system or game preference) disables it. No continuous parallax/filters,
 waterfall distortion or new animation dependency is introduced.
+
+### Portrait scene framing (2026-11-09)
+
+Portrait backgrounds remain independent of the approved cast, logo and controls.
+The palace stays bottom-anchored, with its entrance/stairs used as the horizontal
+focal point. Portrait tablets use a smaller palace to expose a coherent facade;
+phones use a closer crop so architecture remains visible around the wider controls.
+The horizon shifts independently, the garden overscans the viewport without a hard
+upper edge, and lighter localized shading keeps the sunset/pool colors visible.
+Scene scale/focal variables live on `.cinematic-world` inside portrait-only queries.
+Desktop and landscape composition, UI geometry and component styling are unchanged.
+No asset changes, duplicated palace planes, additional requests or gameplay changes.
+
+On portrait phones, the distant-world image is framed by width (145vw) instead of
+covering the viewport height. This exposes the low sun and a wider mountain ridge
+without changing the image's aspect ratio. A soft lower mist mask meets a sampled
+atmospheric gradient behind the palace; no stretched/repeated sky, duplicated scene
+or new artwork is used. The approved tablet/desktop horizon framing stays intact.

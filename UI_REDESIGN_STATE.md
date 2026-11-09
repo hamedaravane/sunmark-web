@@ -335,3 +335,38 @@ Artifacts: output/playwright/redesign/cinematic-before (baseline), cinematic-fin
 and visual review sheets), cinematic-interactions, cinematic-practice, cinematic-entry;
 platform guides in output/playwright/onboarding. No unresolved major design issues.
 Changes remain local; no publishing/deployment performed.
+
+## Portrait background composition refinement — 2026-11-09
+
+Preserved approved typography, controls, cast/logo and desktop. Compared elevated,
+blended-courtyard and bottom-anchored options in actual Playwright screenshots.
+Following the owner's preference, kept the simpler bottom anchor and open sky.
+Owner approved the tablet's scale/depth. Retained its wider architectural view;
+phone comparisons favored a closer palace crop to keep it visible around controls.
+No extra terrace plane, new art, assets, dependencies or multiplayer changes.
+
+Implementation: portrait-only palace width/focal variables; bottom:0, independently
+reframed horizon/garden and lighter local lighting. Verification: 12 viewport captures
+visually inspected, no overflow/art distortion/page errors. Desktop 1440×900 is
+pixel-identical to baseline. Browser comparisons confirm unchanged cast/control
+bounds and typography/colors/borders; bottom anchor, hit testing, settings, profile,
+install guide, play entry and phone rotation passed. Build/PWA, lint, formatting and
+47 focused responsive/profile/account tests passed. No unresolved major issues.
+
+Artifacts: output/playwright/redesign/portrait-scene-experiments (baseline/initial
+options), portrait-bottom-experiments, portrait-phone-reference, portrait-scene-final
+(12 captures, contact sheet, viewport report and interactions.json).
+Changes local; no publication/deployment performed.
+
+Phone sky follow-up: compared 200vw, 170vw and 145vw panoramas at 390×844,
+375×667 and 430×932. Selected 145vw: roughly 69% of the source's horizontal
+panorama is visible, including the low sun and mountain ridge, versus the previous
+height-cover crop. Lower mist softly meets a matching atmospheric gradient.
+Tablet composition remains owner-approved; desktop/tablet framing and the
+bottom-anchored palace, cast, logo and controls are unchanged by this sky refinement.
+Final captures/checks: output/playwright/redesign/portrait-panorama-final; comparison
+captures in portrait-sky-experiments. Final verification passed: all 12 viewports
+captured/visually inspected; all eight non-phone-portrait views pixel-identical to
+the approved palace pass. UI geometry/styles, bottom anchor, hit testing, menus,
+play entry and rotation passed again. Build/PWA and scoped format checks passed;
+47 focused tests/lint passed for this scene-only change. No new artwork required.

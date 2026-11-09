@@ -33,7 +33,12 @@ try {
         });
         const errors = [];
         page.on('pageerror', (e) => errors.push(e.message));
-        await page.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
+        await page.route('**/api/**', (route) =>
+            route.fulfill({ status: 401, contentType: 'application/json', body: '{}' }),
+        );
+        await page.goto(process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:4173', {
+            waitUntil: 'networkidle',
+        });
         await page.locator('.graphics-ui').waitFor();
         await page.waitForTimeout(400);
         const geometry = await page.locator('.main-menu').evaluate((n) => ({
