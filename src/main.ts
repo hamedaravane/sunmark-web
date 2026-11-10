@@ -1,3 +1,4 @@
+import { applySunmarkPalette } from './ui/palette';
 import { configureAnalytics, analytics } from './analytics/browser';
 import { showAccount } from './account/account';
 import { playerIdentity, restoreIdentity } from './account/identity';
@@ -6,7 +7,10 @@ import { StartGame } from './game/main';
 import { loadUiFont } from './game/ui/typography';
 import './styles/global.css';
 import './styles/council.css';
+import './styles/cinematic.css';
 import './ui/icons.css';
+
+applySunmarkPalette();
 
 const parent = document.querySelector<HTMLElement>('#game-container');
 

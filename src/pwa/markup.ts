@@ -52,19 +52,43 @@ export function installInstructions(app: AppPlatform): string {
     return 'اگه مرورگرت نصب برنامه رو پشتیبانی می‌کنه، از گزینه نصب کنار نوار آدرس یا منوی مرورگر استفاده کن. برای نصب روی گوشی، همین لینک رو توی Chrome اندروید یا Safari آیفون باز کن.';
 }
 
+export function entryInstall(app: AppPlatform): string {
+    if (app.installed) return '';
+    return `<section class="entry-install">${button(app.embedded ? 'بازکردن در مرورگر گوشی' : app.installPrompt ? 'نصب سان‌مارک' : app.ios ? 'نصب روی آیفون' : 'راهنمای نصب سان‌مارک', app.installPrompt && !app.embedded ? 'app-install' : 'open-app', { className: 'button full-width', disabled: app.updating })}</section>`;
+}
+
+export function installGuide(app: AppPlatform): string {
+    const steps = app.embedded
+        ? [
+              'منوی ⋮ یا … بالای همین مرورگر را باز کن.',
+              app.ios
+                  ? 'گزینهٔ Open in Safari یا بازکردن در مرورگر را انتخاب کن.'
+                  : 'گزینهٔ Open in browser یا بازکردن در مرورگر را انتخاب کن.',
+              'اگر این گزینه نبود، پیوند را کپی و در مرورگر گوشی جای‌گذاری کن.',
+          ]
+        : app.ios
+          ? [
+                'سایت را در Safari باز کن.',
+                'دکمهٔ اشتراک‌گذاری (Share؛ مربع با پیکان رو به بالا) را بزن. جای آن ممکن است بالا یا پایین صفحه باشد.',
+                'در فهرست، Add to Home Screen را پیدا کن؛ ممکن است لازم باشد پایین بروی یا More را بزنی.',
+                'اگر Open as Web App نمایش داده شد، روشنش کن؛ سپس Add را بزن.',
+            ]
+          : [installInstructions(app)];
+    return `<ol class="install-steps">${steps.map((text, index) => `<li><span class="install-step-symbol" aria-hidden="true">${app.ios && !app.embedded ? ['Safari', '↑', '＋', '✓'][index] : (['⋮', '↗', '⧉'][index] ?? '＋')}</span><p>${escape(text)}</p></li>`).join('')}</ol>${button(app.linkCopied ? 'پیوند کپی شد' : 'کپی پیوند بازی', 'copy-game-link', { className: 'button full-width' })}<p class="footnote" dir="ltr">${escape(typeof location !== 'undefined' ? location.href : 'https://sunmarkgame.top/')}</p>`;
+}
+
 export function appContent(app: AppPlatform, session: MatchSession): SheetContent {
-    const instruction = installInstructions(app);
     return {
-        title: `${BRAND.persianName}، همیشه همراهت`,
-        body: `<h3>${app.installed ? 'بازی نصب شده' : 'نصب روی گوشی'}</h3><p>${app.installed ? 'از آیکون بازی روی صفحه اصلی، مستقیم وارد جزیره شو.' : instruction}</p>${!app.installed ? '<p class="footnote">نصب اختیاریه؛ می‌تونی همین‌جا هم بازی کنی.</p>' : ''}
-            ${app.installPrompt && !app.installed ? button(`نصب ${BRAND.persianName}`, 'app-install', { className: 'button button--primary full-width' }) : ''}
+        title: app.embedded ? 'بازکردن در مرورگر گوشی' : `${BRAND.persianName}، همیشه همراهت`,
+        body: `<h3>${app.installed ? 'بازی نصب شده' : 'نصب روی گوشی'}</h3><p>${app.installed ? 'از آیکون بازی روی صفحه اصلی، مستقیم وارد جزیره شو.' : ''}</p>${!app.installed ? installGuide(app) : ''}${!app.installed ? '<p class="footnote">نصب اختیاریه؛ می‌تونی همین‌جا هم بازی کنی.</p>' : ''}
+            ${app.installPrompt && !app.installed && !app.embedded ? button(`نصب ${BRAND.persianName}`, 'app-install', { className: 'button button--primary full-width' }) : ''}
             ${!app.installed ? button('فعلاً ادامه بده', 'close-sheet', { className: 'button full-width' }) : ''}
-            <h3>${icon('offline', 22)} بازی بدون اینترنت</h3><p role="status">${offlineLabel(app)}</p><p class="footnote">تمام جزیره و شش تصویر آناهیتا آماده می‌شن. بار اول اینترنت لازمه؛ بعد از آماده‌شدن، می‌تونی بدون اینترنت بازی کنی.</p>
+            <details><summary>وضعیت برنامه و ذخیره</summary><h3>${icon('offline', 22)} بازی بدون اینترنت</h3><p role="status">${offlineLabel(app)}</p><p class="footnote">جزیره و تصویرهای بازی آماده می‌شن. بار اول اینترنت لازمه؛ بعد از آماده‌شدن، می‌تونی بدون اینترنت بازی کنی.</p>
             ${app.offline === 'error' ? button('دوباره آماده کن', 'app-retry', { className: 'button full-width' }) : ''}
             <h3>${icon('save', 22)} ادامه سفر</h3><p>${escape(saveLabel(session))}</p><p class="footnote">ذخیره روی همین دستگاهه؛ با پاک‌کردن داده‌های سایت ممکنه حذف بشه.</p>
             <h3>${icon('refresh', 22)} نسخه بازی</h3><p>${app.updating ? 'در حال به‌روزرسانی…' : app.updateReady ? 'نسخه تازه آماده‌ست؛ قبل از بازشدن دوبارهٔ بازی، سفرت رو ذخیره می‌کنیم.' : 'وقتی نسخه تازه‌ای آماده بشه، بهت خبر می‌دیم.'}</p>
             ${app.updateReady ? button('به‌روزرسانی و بازکردن نسخه تازه', 'app-update', { className: 'button button--primary full-width', disabled: app.updating }) : ''}
             ${app.error ? `<p class="availability" role="alert">${escape(app.error)}</p>` : ''}
-            ${session.state ? button('ذخیره و بازگشت به منو', 'new-game', { className: 'button full-width' }) : ''}<p class="footnote" dir="ltr">Icons: Fluent Emoji Flat · Microsoft · MIT</p>`,
+            ${session.state ? button('ذخیره و بازگشت به منو', 'new-game', { className: 'button full-width' }) : ''}</details><p class="footnote" dir="ltr">Icons: Fluent Emoji Flat · Microsoft · MIT</p>`,
     };
 }

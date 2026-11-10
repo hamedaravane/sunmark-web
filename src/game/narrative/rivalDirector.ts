@@ -66,10 +66,12 @@ export class RivalDirector {
         if (!entry) return null;
         const script = DIALOGUES[entry.id];
         const beats = script.beats.filter((beat) =>
-            beat.speaker === 'anahita' ? guide : !available || available.includes(beat.speaker),
+            beat.speaker === 'anahita'
+                ? guide
+                : beat.speaker === 'ahriman' || !available || available.includes(beat.speaker),
         );
         const remaining = script.beats.slice(entry.step).filter((beat) => beats.includes(beat));
-        const speaker = [...beats].reverse().find((beat) => beat.speaker !== 'anahita')?.speaker as
+        const speaker = [...beats].reverse().find((beat) => beat.speaker in REPLIES)?.speaker as
             CharacterId | undefined;
         const beat: DialogueBeat | undefined =
             entry.reply && speaker

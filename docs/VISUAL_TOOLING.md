@@ -134,3 +134,14 @@ state are removed by Vite's production build. Native input, keyboard and canvas
 pixels still require visual inspection; no automatic screenshot approval is implied.
 The `ready()` fixture waits for visible character textures before capture, so an
 asset-loading placeholder is not mistaken for the final artwork.
+
+## Cinematic menu review
+
+`node scripts/cinematic-review.mjs cinematic-final` captures all ten requested
+viewport sizes plus ultrawide and a 320px phone. It verifies undistorted loaded
+layers, touch-target bounds and horizontal overflow. An optional third argument
+selects a viewport name. `node scripts/cinematic-interactions.mjs` checks keyboard
+focus/settings, profile, real match save/resume, missing-art fallback, enlarged
+text, rotation and reduced motion. Both use existing Chromium/Playwright with fresh
+local contexts and write under `output/playwright/redesign/`. The existing
+practice, onboarding, entry and 43-screen design fixtures remain usable.

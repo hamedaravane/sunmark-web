@@ -73,3 +73,18 @@ belongs in narrative encounters, identity seals and galleries. Mobile home casts
 are centered as a group. Sheets use one uninterrupted restrained perimeter rather
 than separately outlined header rectangles. New supplied Anahita/Ahriman artwork
 is integrated without repainting, stretching, or synthesizing expressions.
+
+The title ensemble centers Anahita as the game's main character. She is the largest
+central portrait and sits in front of the supporting cast but behind the Sunmark
+wordmark. Keep all faces clear; conceal source lower-body cuts behind the logo.
+
+## Golden-hour entrance (2026-11-09)
+
+The supplied mountain sunset, ivory palace, garden frame and complete five-character
+ensemble now define the main-menu composition. Keep the sunset luminous; localize
+contrast under controls instead of dimming the whole world. Show Anahita central,
+preserve all faces/accessories and conceal the ensemble's lower source crop behind
+the supplied wordmark. Art planes may crop environmental edges, never character
+faces, and must preserve aspect ratios and alpha. Desktop favors a left control
+column/right cast; portrait uses cast above controls. Gameplay shares the teal,
+ivory and gold materials but stays compact and decoration-light.

@@ -14,6 +14,11 @@ export const TEXTURE_FILES = {
 } as const satisfies { menuBackground: string };
 
 export const ART = {
+    'sunmark-logo': {
+        file: 'branding/sunmark-logo.webp',
+        source: [2172, 724],
+        frame: [0, 0, 2172, 724],
+    },
     'mithra-avatar': {
         file: 'characters/mithra/avatar-384.webp',
         source: [384, 384],

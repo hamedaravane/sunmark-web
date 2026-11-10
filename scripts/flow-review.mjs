@@ -93,7 +93,6 @@ try {
             '۹',
         );
         await show('domestic');
-        await click('deal-target:all');
         await click('deal-adjust:give:wood:1');
         await click('deal-adjust:want:brick:1');
         await shot('negotiation');

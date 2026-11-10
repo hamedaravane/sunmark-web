@@ -1,12 +1,18 @@
+import { SUNMARK } from '../../ui/palette';
 import type { GameObjects } from 'phaser';
 import { drawSurface, type Material, type UiBox } from './graphicsTheme';
 
-export const MATCH_INK = { base: 0x102a30, raised: 0x24464a, edge: 0x58726e, gold: 0xd9b66f };
+export const MATCH_INK = {
+    base: SUNMARK['deep-teal'],
+    raised: SUNMARK.surface,
+    edge: SUNMARK.edge,
+    gold: SUNMARK.gold,
+};
 
 export function matchFace(
     g: GameObjects.Graphics,
     b: UiBox,
-    fill = MATCH_INK.base,
+    fill: number = MATCH_INK.base,
     rim?: number,
     radius = 12,
 ): void {

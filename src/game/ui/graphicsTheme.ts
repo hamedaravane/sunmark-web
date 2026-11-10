@@ -1,3 +1,4 @@
+import { SUNMARK } from '../../ui/palette';
 import type { GameObjects } from 'phaser';
 
 export interface UiBox {
@@ -19,19 +20,19 @@ export type Material =
     | 'coral';
 
 /** Shared enamel, gold and parchment palette. Text colors live in semantic CSS. */
-export const UI_INK = {
-    ivory: 0xf4ebd6,
-    gold: 0xd9b66f,
-    muted: 0xadbfbb,
-    shadow: 0x081b20,
-    navy: 0x193a40,
+export const UI_INK: Record<'ivory' | 'gold' | 'muted' | 'shadow' | 'navy', number> = {
+    ivory: SUNMARK.ivory,
+    gold: SUNMARK.gold,
+    muted: SUNMARK.muted,
+    shadow: SUNMARK.ink,
+    navy: SUNMARK['deep-teal'],
 };
 const MATERIALS: Record<Material, readonly [number, number, number, number]> = {
     limestone: [0xf4ebd6, 0xeee3cb, 0xfff9e9, 0x9e967f],
-    honey: [0xe1c486, 0xd5b06a, 0xf2dda9, 0xa18248],
+    honey: [0xf0d69e, SUNMARK.gold, 0xffedbe, SUNMARK['gold-dark']],
     ivory: [0xfff9ec, 0xf4ebd6, 0xffffff, 0xa9a18d],
-    lapis: [0x24464a, 0x203e43, 0x58726e, 0x34575a],
-    inset: [0x17333a, 0x142e34, 0x4d6864, 0x29494c],
+    lapis: [SUNMARK.surface, SUNMARK['deep-teal'], 0x77968a, 0x426a67],
+    inset: [0x193e41, 0x112e32, SUNMARK.edge, 0x385b59],
     card: [0xf4ebd6, 0xeee3cb, 0xfff9e9, 0xb4a88b],
     turquoise: [0x295a5c, 0x244d51, 0x779c90, 0x365f5b],
     emerald: [0x35695a, 0x2c5b4f, 0x8aad8a, 0x416b56],
@@ -143,7 +144,7 @@ export function drawRosette(
     x: number,
     y: number,
     radius: number,
-    color = UI_INK.gold,
+    color: number = UI_INK.gold,
 ): void {
     const points = Array.from({ length: 16 }, (_, i) => {
         const angle = (i * Math.PI) / 8;

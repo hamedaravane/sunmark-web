@@ -119,6 +119,13 @@
       "size": [1122, 1402],
       "source_sha256": "e6c9ffa8d76200222f6f540cbdb1d26c63f6b6045fc5ddb7d8c3accfe3105e3f",
       "frames": {}
+    },
+    {
+      "file": "branding/sunmark-logo.webp",
+      "group": "branding",
+      "size": [2172, 724],
+      "source_sha256": "08b258255703f361bc6fcd6d875b3a5ff8897870fc6468f92e0de8fb12cca560",
+      "frames": {}
     }
   ],
   "references": [

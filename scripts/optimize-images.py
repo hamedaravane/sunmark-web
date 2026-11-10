@@ -168,7 +168,8 @@ def main():
                 if list(source.size) != asset["size"]:
                     raise ValueError(f"Preserved master dimensions changed: {master}")
         actual = {p.relative_to(RUNTIME).as_posix() for p in RUNTIME.rglob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp", ".avif")}
-        expected = {a["file"] for a in manifest["assets"]}
+        menu = json.loads((ROOT / "scripts/menu-exports.json").read_text())
+        expected = {a["file"] for a in manifest["assets"] + menu["assets"]}
         if actual != expected:
             raise ValueError(f"Runtime image inventory differs from manifest: {actual ^ expected}")
     print(f"Total: {before_total:,} -> {after_total:,} bytes ({100 * (1 - after_total / before_total):.1f}% smaller)")

@@ -94,3 +94,13 @@ success, with direct player feedback. Small samples still cannot establish causa
 engagement gains. Guardrails: no repeated prompts, preserve opt-outs/local saves,
 no typed text/private hands, bounded device diagnostics, occurrence-time reports,
 idempotent coins/XP and a separate competitive economy. See OFFLINE_SYNC.md.
+
+## 2026-11-09: cinematic entrance
+
+Problem: the dim single-background menu underplays the supplied world and gives
+installation equal weight to play. Hypothesis: a bright, layered entrance with a
+clear gold gameplay action and secondary install/invite controls improves first
+entry and perceived quality. Review existing first-match progress/completion and
+return signals alongside player feedback; screenshots do not establish engagement
+lift and no player sample is claimed. Guardrails: preserve all navigation, consent,
+authentication, saves, rules, opt-outs and readable gameplay; use no new analytics.

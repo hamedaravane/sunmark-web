@@ -18,7 +18,7 @@ For visual or interface work, also read:
 
 ## Architecture
 
-- Phaser draws the board and all visible UI in one full-shell canvas. Transparent DOM/CSS nodes measure responsive layout and provide semantic input, keyboard access, scrolling, and native modal focus. The board uses an inset camera; all presentation consumes the local session adapter and core state. See `docs/UI_SYSTEM.md`.
+- The cinematic main menu uses native HTML/CSS with independent responsive art layers. Phaser draws the board, match UI and game dialogs in one transparent full-shell canvas. Transparent DOM/CSS nodes measure responsive layout and provide semantic input, keyboard access, scrolling, and native modal focus. The board uses an inset camera; all presentation consumes the local session adapter and core state. See `docs/UI_SYSTEM.md`.
 - Put deterministic rules, game state, and rule calculations in `src/game/core/` as plain TypeScript. Keep Phaser imports out of core modules.
 - Scenes and game objects read state and send player actions to core APIs. Do not put rule calculations in scenes, sprites, or animation callbacks.
 - Game state is authoritative. Animation displays state changes and never creates or reverses them.

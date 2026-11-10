@@ -16,12 +16,24 @@ const manifest = JSON.parse(
     readFileSync(new URL('../scripts/image-exports.json', import.meta.url), 'utf8'),
 ) as { assets: ExportedAsset[]; references: ExportedAsset[] };
 
+const menu = JSON.parse(
+    readFileSync(new URL('../scripts/menu-exports.json', import.meta.url), 'utf8'),
+) as {
+    assets: {
+        file: string;
+        master: string;
+        size: [number, number];
+        source_sha256: string;
+        sha256: string;
+    }[];
+};
+
 test('runtime images retain verified masters and preserve supplied WebP bytes', () => {
     const runtime = new URL('../public/assets/', import.meta.url);
     const files = readdirSync(runtime, { recursive: true, encoding: 'utf8' })
         .filter((file) => /\.(png|jpe?g|webp|avif)$/i.test(file))
         .sort();
-    expect(files).toEqual(manifest.assets.map(({ file }) => file).sort());
+    expect(files).toEqual([...manifest.assets, ...menu.assets].map(({ file }) => file).sort());
     for (const asset of manifest.assets) {
         const output = readFileSync(new URL(asset.file, runtime));
         const master = readFileSync(
@@ -68,5 +80,17 @@ test('retired terrain, robber, bank, token, resource and Anahita paintings retai
         if (!asset.preserve_encoded && !asset.source_file?.endsWith('.webp'))
             expect([master.readUInt32BE(16), master.readUInt32BE(20)]).toEqual(asset.size);
         expect(manifest.assets.some((runtime) => runtime.file === asset.file)).toBe(false);
+    }
+});
+
+test('responsive cinematic assets retain verified sources and encoded delivery bytes', () => {
+    for (const asset of menu.assets) {
+        const source = readFileSync(new URL(`../${asset.master}`, import.meta.url));
+        const delivery = readFileSync(new URL(`../public/assets/${asset.file}`, import.meta.url));
+        expect(createHash('sha256').update(source).digest('hex')).toBe(asset.source_sha256);
+        expect(createHash('sha256').update(delivery).digest('hex')).toBe(asset.sha256);
+        expect(delivery.subarray(0, 4).toString()).toBe('RIFF');
+        expect(delivery.subarray(8, 12).toString()).toBe('WEBP');
+        expect(delivery.length).toBeLessThan(source.length);
     }
 });

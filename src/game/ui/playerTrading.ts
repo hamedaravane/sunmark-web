@@ -167,6 +167,7 @@ export class PlayerTrading {
             this.parentId = offer.from !== humanId ? offer.id : undefined;
         } else {
             this.parentId = undefined;
+            this.target = null;
         }
         if (humanId)
             for (const pending of this.table.pendingFor(humanId))

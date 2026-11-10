@@ -22,6 +22,11 @@ export function connectPlatform(app: AppPlatform, production = import.meta.env.P
     app.chrome =
         /Chrome\//.test(navigator.userAgent) &&
         !/EdgA|OPR|SamsungBrowser/.test(navigator.userAgent);
+    app.embedded =
+        /Instagram|FBAN|FBAV|Telegram|Line\//i.test(navigator.userAgent) ||
+        (app.ios &&
+            /AppleWebKit/.test(navigator.userAgent) &&
+            !/Safari|CriOS|FxiOS|EdgiOS/.test(navigator.userAgent));
     app.online = navigator.onLine;
     listen(standalone, 'change', () => {
         app.installed = standalone.matches || navigatorWithStandalone.standalone === true;

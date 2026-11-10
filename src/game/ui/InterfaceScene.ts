@@ -25,7 +25,8 @@ interface PaintLayer {
 }
 
 /**
- * Draws every visible UI surface with Graphics and every label with Phaser Text.
+ * Draws match/dialog surfaces with Graphics and labels with Phaser Text.
+ * The cinematic menu is native HTML/CSS beneath the transparent canvas.
  * The transparent DOM is a responsive layout/semantic input adapter, never a
  * screenshot or texture. It preserves browser Persian shaping, line breaks,
  * native modal focus, scrolling, and exact CSS-pixel hit areas.
@@ -101,6 +102,8 @@ export class InterfaceScene extends Scene {
             'divider',
             'rosette',
             'glint',
+            'anahita-calm',
+            'ahriman-portrait',
             'mithra-portrait',
             'ashi-portrait',
             'spenta-armaiti-portrait',
@@ -344,9 +347,8 @@ export class InterfaceScene extends Scene {
             this.content,
         ])
             this.begin(layer);
-        const menu = this.parent.querySelector<HTMLElement>('.main-menu')!;
         const match = this.parent.querySelector<HTMLElement>('.match-screen')!;
-        this.paintTree(this.session.state ? match : menu, this.hud);
+        if (this.session.state) this.paintTree(match, this.hud);
         const compactRail =
             match.classList.contains('is-wide') && !match.classList.contains('is-desktop');
         const controls = match.querySelector<HTMLElement>(
@@ -656,6 +658,19 @@ export class InterfaceScene extends Scene {
                 square ? Math.min(width, height) : height,
             )
             .setRotation(Math.atan2(matrix.b, matrix.a));
+        if (node.matches('.title-screen .council-figure')) {
+            const logo = node.closest('.council-hero')?.querySelector<HTMLElement>('.title-logo');
+            if (logo) {
+                const foreground = this.box(logo);
+                // The full-width red/gold backing is opaque at the middle of the wordmark.
+                // Keep the source crop behind that backing, including the outer figures.
+                const visible = Math.max(
+                    0,
+                    Math.min(height, foreground.y + foreground.height * 0.5 - box.y),
+                );
+                image.setCrop(0, 0, image.width, (visible / height) * image.height);
+            } else image.setCrop();
+        } else image.setCrop();
         image.setAlpha(node.closest('button:disabled') ? 0.45 : 1);
     }
     private paintText(node: Node, element: HTMLElement, layer: PaintLayer): void {
@@ -782,8 +797,8 @@ export class InterfaceScene extends Scene {
             8 +
             (body.scrollTop / (body.scrollHeight - body.clientHeight)) * (box.height - 16 - height);
         graphics
-            .fillStyle(0x151b1d, 0.7)
+            .fillStyle(0x345052, 0.2)
             .fillRoundedRect(box.x + 3, box.y + 8, 3, box.height - 16, 2);
-        graphics.fillStyle(UI_INK.gold, 0.8).fillRoundedRect(box.x + 3, y, 3, height, 2);
+        graphics.fillStyle(0x7f9b96, 0.55).fillRoundedRect(box.x + 3, y, 3, height, 2);
     }
 }

@@ -1,5 +1,4 @@
 import { tradeBuildFeedback } from './buildFeedback';
-import { getPlayerSummary } from './matchState';
 import { previewTrade } from '../core/tradePreview';
 import { bundleSize } from '../core/domesticTrade';
 import { RESOURCE_TYPES } from '../core/types';
@@ -13,7 +12,7 @@ import {
     resourceIcon,
     resourceValue,
 } from './components';
-import { matchAvatar, matchBot } from './headerModel';
+import { matchAvatar } from './headerModel';
 import { FA } from './messages.fa';
 import type { SheetContent } from './bottomSheet';
 import type { MatchSession } from './matchSession';
@@ -77,8 +76,8 @@ export function domesticContent(session: MatchSession): SheetContent {
     const market = session.trading;
     const tabs =
         tradeTabs(session, true) +
-        (!session.online && session.botPaused
-            ? `<p class="footnote">رقبا در مکث‌اند؛ برای دریافت پاسخ معامله، ادامهٔ خودکار را بزن.</p>${button('ادامهٔ خودکار رقبا', 'bot-pause', { className: 'button full-width' })}`
+        (!session.online && session.botPaused && market.reviewId === null
+            ? `<div class="deal-pause-notice"><span>رقبا در مکث‌اند.</span>${button('ادامهٔ خودکار رقبا', 'bot-pause', { className: 'button' })}</div>`
             : '');
     const context = inventory(session);
     const rules = `<details class="deal-rules"><summary>قانون‌های معامله</summary><p class="footnote">بعد از تاس و حل‌شدن اهریمن، هر معامله باید با صاحب نوبت باشه. هر دو طرف منابع موجود رو هم‌زمان عوض می‌کنن؛ هدیه، قرض، وعدهٔ پرداخت و مبادلهٔ یک نوع منبع در دو طرف مجاز نیست. نسبت و تعداد منابع توافقیه؛ تعداد معامله‌ها محدود نیست. کارت توسعه و خدمات قابل معامله نیستند. دست بازیکن‌ها پنهانه؛ پیشنهاد ممکنه قابل پرداخت نباشه، اما می‌شه مقدارها رو با پیشنهاد متقابل عوض کرد.</p></details>`;
@@ -106,36 +105,21 @@ export function domesticContent(session: MatchSession): SheetContent {
     }
     if (market.composing) {
         const active = state.players[state.activePlayerIndex];
-        const targets = market.targets
-            .map((id) => {
-                const p = state.players.find((p) => p.id === id)!;
-                return button(
-                    `${playerAvatar(
-                        matchAvatar(state, p.id, human.id),
-                    )}<span>${escape(p.name)} <span class="bot-label">${matchBot(state, p.id, human.id) ? 'ربات' : 'بازیکن'} • ${number(getPlayerSummary(state, p.id).resources)} کارت</span></span>`,
-                    `deal-target:${id}`,
-                    {
-                        className: 'deal-target',
-                        pressed: market.target === id,
-                        ownerColor: p.color,
-                    },
-                );
-            })
-            .join('');
-        const all = session.isHumanTurn
-            ? !session.online
-                ? button('همهٔ ربات‌ها', 'deal-target:all', {
-                      className: 'deal-target',
-                      pressed: market.target === null,
-                  })
-                : ''
-            : '';
+        const partner = market.target
+            ? state.players.find((p) => p.id === market.target)
+            : undefined;
+        const audience =
+            market.parentId !== undefined && partner
+                ? `پیشنهاد متقابل به ${escape(partner.name)}`
+                : session.isHumanTurn
+                  ? 'پیشنهاد برای همهٔ رقیب‌ها ارسال می‌شود؛ معامله فقط با تأیید نهایی تو انجام می‌شود.'
+                  : `نوبت ${escape(active.name)} است؛ پیشنهاد به او ارسال می‌شود.`;
         const editor = RESOURCE_TYPES.map((r) => {
             const control = (side: 'give' | 'want') => {
                 const label = side === 'give' ? 'می‌دی' : 'می‌گیری';
                 const opposite = side === 'give' ? market.want[r] : market.give[r];
                 const max = side === 'give' ? human.resources[r] : Number.MAX_SAFE_INTEGER;
-                return `<div class="deal-counter" role="group" aria-label="${FA.resources[r]} که ${label}">${button('−', `deal-adjust:${side}:${r}:-1`, { className: 'icon-button', disabled: !market[side][r], label: `کم‌کردن ${FA.resources[r]} که ${label}` })}<span aria-label="${number(market[side][r])} ${FA.resources[r]} که ${label}">${number(market[side][r])}</span>${button('+', `deal-adjust:${side}:${r}:1`, { className: 'icon-button', disabled: !!opposite || market[side][r] >= max, label: `اضافه‌کردن ${FA.resources[r]} که ${label}` })}</div>`;
+                return `<div class="deal-quantity"><small class="deal-column-label">تو ${label}</small><div class="deal-counter" role="group" aria-label="${FA.resources[r]} که ${label}">${button('−', `deal-adjust:${side}:${r}:-1`, { className: 'icon-button', disabled: !market[side][r], label: `کم‌کردن ${FA.resources[r]} که ${label}` })}<span aria-label="${number(market[side][r])} ${FA.resources[r]} که ${label}">${number(market[side][r])}</span>${button('+', `deal-adjust:${side}:${r}:1`, { className: 'icon-button', disabled: !!opposite || market[side][r] >= max, label: `اضافه‌کردن ${FA.resources[r]} که ${label}` })}</div></div>`;
             };
             return `<div class="deal-editor-row"><span class="deal-resource">${resourceIcon(r)}<span>${FA.resources[r]}</span><small>داری: ${number(human.resources[r])}</small></span>${control('give')}${control('want')}</div>`;
         }).join('');
@@ -143,7 +127,7 @@ export function domesticContent(session: MatchSession): SheetContent {
             context,
             key: 'trade-compose',
             title: market.parentId ? 'پیشنهاد متقابل تو' : 'معامله با بازیکن‌ها',
-            body: `${tabs}${rules}<p class="sheet-intro">${session.isHumanTurn ? (session.online ? 'طرف معامله را انتخاب کن؛ منابع فقط پس از تأیید نهایی جابه‌جا می‌شوند.' : 'پیشنهادت رو به یک ربات یا هر سه بفرست؛ انتخاب نهایی با توئه.') : `نوبت ${escape(active.name)} است؛ فقط با همین بازیکن می‌تونی معامله کنی.`}</p><div class="deal-targets" role="group" aria-label="طرف معامله">${all}${targets}</div><p class="footnote">منابع و تعدادها رو انتخاب کن. یک منبع نمی‌تونه در هر دو طرف معامله باشه؛ نسبت معامله توافقیه.</p><div class="deal-editor-head"><span>منبع</span><span>تو می‌دی</span><span>تو می‌گیری</span></div>${editor}${paymentWarning(session, market.give)}${tradeBuildFeedback(session, previewTrade(human.resources, market.give, market.want).after)}<p class="availability" role="status">${escape(market.draftError ?? 'پیشنهاد آمادهٔ ارساله؛ هنوز چیزی جابه‌جا نمی‌شه.')}</p>`,
+            body: `${tabs}<p class="sheet-intro">${audience}</p>${market.message ? `<p class="availability" role="status">${escape(market.message)}</p>` : ''}<div class="deal-editor-head"><span>منبع</span><span>تو می‌دی</span><span>تو می‌گیری</span></div>${editor}${rules}${paymentWarning(session, market.give)}${tradeBuildFeedback(session, previewTrade(human.resources, market.give, market.want).after)}<p class="availability" role="status">${escape(market.draftError ?? 'پیشنهاد آمادهٔ ارساله؛ هنوز چیزی جابه‌جا نمی‌شه.')}</p>`,
             footer: `${summary(market.give, market.want)}${button(market.parentId ? 'ارسال پیشنهاد متقابل' : 'ارسال پیشنهاد', 'deal-send', { className: 'button button--primary full-width', disabled: !!market.draftError })}`,
         };
     }

@@ -35,10 +35,10 @@ See [icon inventory, research, license and rendering](ICONOGRAPHY.md).
 
 ## Rendering and input ownership
 
-- `scenes/BackdropScene.ts` covers the menu with the preserved palace image and matches with a procedural ocean. `rendering/ProceduralOcean.ts` caches a bounded-resolution shader material at 30 Hz, with a generated Canvas/Graphics fallback; it pauses in menus, modal panels, hidden tabs, and reduced-motion mode. The original ocean PNG is a preserved reference, not a runtime download. See [GAME_BACKGROUND_PLAN.md](GAME_BACKGROUND_PLAN.md).
+- `scenes/BackdropScene.ts` supplies the procedural ocean during matches and stays transparent in the native cinematic menu. `rendering/ProceduralOcean.ts` caches a bounded-resolution shader material at 30 Hz, with a generated Canvas/Graphics fallback; it pauses in menus, modal panels, hidden tabs, and reduced-motion mode. The original ocean PNG is a preserved reference, not a runtime download. See [GAME_BACKGROUND_PLAN.md](GAME_BACKGROUND_PLAN.md).
 - `scenes/GameScene.ts` owns the inset board camera, terrain, coast, pieces, ports, previews, and board effects. Its camera size and semantic board surface share measurements. `rendering/boardInput.ts` listens to that surface and transforms client positions into camera-local coordinates.
-- `ui/GameHud.ts` assembles **transparent semantic controls** and responsive layout nodes. These are the input/accessibility adapter: real buttons, labels, a live region, and a native modal dialog preserve keyboard navigation, screen-reader content, focus trapping, and scrolling. Their labels and state come from the local session. CSS opacity hides their visual output without removing semantics or hit areas. Name entry uses a transparent native input for Persian IME, autofill, and the phone keyboard. Its value is mirrored into an aria-hidden layout span; Phaser paints that measured runtime text, focus border, caret, and selection using browser text ranges. Name-sheet input DOM is preserved across unrelated platform updates to keep composition and selection intact. No visible input layer is added above the canvas.
-- `ui/InterfaceScene.ts` paints the same layout as Graphics, Text, and preserved Image crops. The stage is pointer-transparent; semantic buttons dispatch through `GameHud` into the existing session. The canvas is decorative in the accessibility tree, preventing duplicate announcements.
+- `ui/GameHud.ts` assembles the visible native cinematic menu, plus **transparent semantic controls** and responsive layout nodes for matches/dialogs. These are the input/accessibility adapter: real buttons, labels, a live region, and a native modal dialog preserve keyboard navigation, screen-reader content, focus trapping, and scrolling. Their labels and state come from the local session. CSS opacity hides their visual output without removing semantics or hit areas. Name entry uses a transparent native input for Persian IME, autofill, and the phone keyboard. Its value is mirrored into an aria-hidden layout span; Phaser paints that measured runtime text, focus border, caret, and selection using browser text ranges. Name-sheet input DOM is preserved across unrelated platform updates to keep composition and selection intact. No visible input layer is added above the canvas.
+- `ui/InterfaceScene.ts` paints match/dialog layouts as Graphics, Text, and preserved Image crops; it skips the native main menu. The stage is pointer-transparent; semantic buttons dispatch through `GameHud` into the existing session. The canvas is decorative in the accessibility tree, preventing duplicate announcements.
 - `ui/graphicsTheme.ts` supplies reusable enamel/parchment/gold/ivory materials. Rounded faces use bounded gradient strips, a shaded foot, setting, and upper highlight, without masks, texture downloads or randomness. `ui/royalArt.ts` supplies resource/card palettes, stepped wings, card frames, the menu crest and gear. `styles/global.css` holds semantic foundations; `styles/council.css` owns the current composition and typography.
 - `ui/headerModel.ts` projects public standings and computes a full-width header backdrop from canvas y=0 through the measured header bottom, filling top/side safe insets with the same lapis material. Controls retain the match grid’s safe-area padding. `ui/playerIdentity.ts` supplies stable seat avatars, local rival names, and bounded/normalized player names; local rivals use supplied portrait Images while human/server bot identities retain shared icon glyphs and runtime owner-colored rims.
 - `ui/graphicsComponents.ts` applies the materials to every control/card/panel, including pressed, disabled, selected, active-player, and keyboard-focus states. Selected choices have a contrasting bronze outline/rosette on light stone and warm gold on dark panels; focus has a separate outer ring. Victory progress derives from the core player summary and match target.
@@ -270,3 +270,95 @@ online completions, and details show protected device diagnostics and offline
 progression without changing the established dashboard layout. See OFFLINE_SYNC.md.
 
 Rendering performance, shared art sources, panel reuse, idle home rendering and density fallback are documented in [PERFORMANCE.md](PERFORMANCE.md).
+
+## Arrival and installation
+
+The home groups four choices: bot play/resume, tutorial, online, and account/profile.
+A contextual installation card appears before these choices until standalone mode
+is detected. Embedded social browsers get manual handoff instructions and a copy
+fallback; websites cannot force a device's default browser to launch. iOS has a
+visual Safari/Share/Add-to-Home-Screen/Add guide. Android invokes the native prompt
+only when beforeinstallprompt is available; otherwise it provides menu instructions.
+Installation and account creation never block offline play or the tutorial.
+Progression collections and privacy controls remain secondary. Guest sharing uses
+the Web Share API or clipboard; signed-in sharing uses the existing referral link.
+Referral reward conditions remain in the existing referral panel. No new rewards,
+tracking or forced redirects are introduced. In-app-browser detection is heuristic.
+
+The title screen now presents all five supplied characters as a single ensemble,
+with no dedicated character-introduction button. Title navigation uses text and
+focus/hover rules instead of framed cards. Phaser paints a full-scene scrim, not a
+menu-panel rectangle. Mobile and portrait tablet stack the ensemble over navigation;
+wide screens place navigation beside the ensemble. Existing menu actions, secondary
+progression/account/privacy paths and contextual installation guidance remain.
+
+Compact-menu refinement replaces plain underlined primary navigation with modest
+single-surface buttons: gold Play, paired Tutorial/Online and full-width account.
+Secondary tools expand under native More, with sharing directly visible. Viewport-
+relative ensemble dimensions preserve the first-screen action area on short phones.
+Do not lock overflow: expanded tools, zoom and rewards must remain reachable.
+
+Title-ensemble portraits are explicitly ordered back-to-front in the menu markup.
+Their supporting figures are raised to expose faces and bounded within the full-width
+wordmark backing. InterfaceScene clips only these title portraits below the logo's
+measured midpoint, hiding waist crops without editing original image files or affecting
+full narrative portraits.
+
+Installation and Settings on the title screen require visibly surfaced controls;
+Settings includes its text label. Invite and More belong within the mode workspace,
+not below the character composition. Historical reward receipts remain in profile;
+never render the last reward as a permanent full-width home banner. Returning-user
+visual checks must include a stored reward so fresh profiles do not conceal clutter.
+
+### Gameplay workspace spacing
+
+Header menu is an independent edge control outside personal/seat groups. Desktop
+sidebar panels follow content height, receipts use auto height and full width, and
+shortcuts stack at full width. Dialog groups use 8/12/16px spacing; content-sized
+height must use fit-content when both vertical insets are set (auto stretches).
+Construction comparison cards share action rows. Trading steppers have 44px targets
+with explicit gaps; resource/quantity columns remain bounded, with Give/Receive
+labels repeated on phone rows. Technical scroll indicators are subdued slate.
+
+## Golden-hour cinematic entrance (2026-11-09)
+
+This supersedes the title-screen prototype. `ui/cinematicMenu.ts` supplies independent
+landscape, transparent palace/garden, ensemble and native wordmark images.
+`styles/cinematic.css` owns their art-directed scale/position and native menu controls;
+the old title-only CSS was removed. All original actions and session conditions remain.
+The pointer-transparent Phaser stage stays above the visible menu for existing native
+modal semantics plus painted game dialogs. The backdrop no longer downloads/draws
+a second opaque menu image. The game board and match input geometry are unchanged.
+
+Desktop controls occupy a constrained left column; the ensemble/logo fill the right.
+Portrait tablets/phones use an upper ensemble with centered actions. Compact landscape
+uses two columns and smaller art. Small heights and enlarged text may scroll instead
+of overlapping; safe areas protect controls. Installation is secondary to gameplay;
+More retains profile, badges, cosmetics, install/status and privacy. Warnings remain
+in the action column. Decorative images cannot intercept pointers or accessibility.
+
+`ui/palette.ts` is the shared source for teal, ivory, gold, muted and focus colors.
+It populates CSS variables at startup and is imported by Phaser material/HUD palettes.
+Account forms use those variables too. Menu spacing, radii, shadows and timing live
+in cinematic CSS tokens. Existing gameplay cards keep their denser geometry.
+The sole automatic effect is an under-two-second desktop lighting reveal; reduced
+motion (system or game preference) disables it. No continuous parallax/filters,
+waterfall distortion or new animation dependency is introduced.
+
+### Portrait scene framing (2026-11-09)
+
+Portrait backgrounds remain independent of the approved cast, logo and controls.
+The palace stays bottom-anchored, with its entrance/stairs used as the horizontal
+focal point. Portrait tablets use a smaller palace to expose a coherent facade;
+phones use a closer crop so architecture remains visible around the wider controls.
+The horizon shifts independently, the garden overscans the viewport without a hard
+upper edge, and lighter localized shading keeps the sunset/pool colors visible.
+Scene scale/focal variables live on `.cinematic-world` inside portrait-only queries.
+Desktop and landscape composition, UI geometry and component styling are unchanged.
+No asset changes, duplicated palace planes, additional requests or gameplay changes.
+
+On portrait phones, the distant-world image is framed by width (145vw) instead of
+covering the viewport height. This exposes the low sun and a wider mountain ridge
+without changing the image's aspect ratio. A soft lower mist mask meets a sampled
+atmospheric gradient behind the palace; no stretched/repeated sky, duplicated scene
+or new artwork is used. The approved tablet/desktop horizon framing stays intact.

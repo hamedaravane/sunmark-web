@@ -94,7 +94,7 @@ h3 {
 }
 /* Opacity preserves the accessibility tree, focus, hit testing and line measurement.
    Never use visibility:hidden or display:none for the semantic input adapter. */
-.graphics-ui > .main-menu,
+.graphics-ui > .main-menu:not(:has(.cinematic-home)),
 .graphics-ui .match-bar,
 .graphics-ui .player-strip,
 .graphics-ui .context-line,
