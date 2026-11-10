@@ -10,27 +10,6 @@
       "frames": {}
     },
     {
-      "file": "dice/dice.webp",
-      "group": "dice",
-      "size": [1254, 1254],
-      "source_sha256": "41022e92d38bd956a9ff5d392164bcde37547a56651adce8307f7ed04766b727",
-      "frames": {}
-    },
-    {
-      "file": "dice/faces.webp",
-      "group": "dice",
-      "size": [1536, 1024],
-      "source_sha256": "296575fecbeb4d48bad8e42932b669395a68398de7117ceb17659dfb658b0de8",
-      "frames": {
-        "1": [96, 80, 344, 346],
-        "2": [590, 80, 344, 346],
-        "3": [1084, 80, 344, 346],
-        "4": [96, 542, 344, 346],
-        "5": [590, 542, 344, 346],
-        "6": [1084, 542, 344, 346]
-      }
-    },
-    {
       "file": "effects/dust.webp",
       "group": "effects",
       "size": [1254, 1254],
@@ -54,15 +33,6 @@
       "frames": {}
     },
     {
-      "file": "ui/emblems/victory.webp",
-      "group": "ui",
-      "size": [1254, 1254],
-      "source_sha256": "8415f09690a532b5fb1a1c7fd75a04da5f8f1dd54c29ace0aac03677d990018a",
-      "frames": {
-        "victory": [40, 50, 1175, 1135]
-      }
-    },
-    {
       "file": "ui/ornaments/ornaments.webp",
       "group": "ui",
       "size": [1254, 1254],
@@ -83,13 +53,16 @@
       "frames": {}
     },
     {
-      "file": "characters/mithra/avatar.webp",
+      "file": "characters/mithra/avatar-384.webp",
       "source_file": "characters/mithra/avatar.webp",
-      "preserve_encoded": true,
       "group": "opponents",
       "size": [1254, 1254],
       "source_sha256": "b9487a3da4d6f5772aacf8759065e48b6ccbb2a2d522e5ba7104e09d15a647ff",
-      "frames": {}
+      "frames": {},
+      "output_size": [384, 384],
+      "lossless": true,
+      "display_size": [256, 256],
+      "minimum_display_psnr": 45
     },
     {
       "file": "characters/ashi/portrait.webp",
@@ -101,13 +74,16 @@
       "frames": {}
     },
     {
-      "file": "characters/ashi/avatar.webp",
+      "file": "characters/ashi/avatar-384.webp",
       "source_file": "characters/ashi/avatar.webp",
-      "preserve_encoded": true,
       "group": "opponents",
       "size": [1254, 1254],
       "source_sha256": "b643401155a62447cc05564749d517ccca238dddc9c4547e995639c6606daec4",
-      "frames": {}
+      "frames": {},
+      "output_size": [384, 384],
+      "lossless": true,
+      "display_size": [256, 256],
+      "minimum_display_psnr": 45
     },
     {
       "file": "characters/spenta-armaiti/portrait.webp",
@@ -119,13 +95,16 @@
       "frames": {}
     },
     {
-      "file": "characters/spenta-armaiti/avatar.webp",
+      "file": "characters/spenta-armaiti/avatar-384.webp",
       "source_file": "characters/spenta-armaiti/avatar.webp",
-      "preserve_encoded": true,
       "group": "opponents",
       "size": [1254, 1254],
       "source_sha256": "1a3c4ec68b29e78cfa183bf9b182f6aed84f33822d401447e37df9d79b304d94",
-      "frames": {}
+      "frames": {},
+      "output_size": [384, 384],
+      "lossless": true,
+      "display_size": [256, 256],
+      "minimum_display_psnr": 45
     },
     {
       "file": "characters/anahita/portrait.webp",
@@ -275,6 +254,36 @@
       "size": [1024, 1536],
       "source_sha256": "e5fba3bb9800ba2939ce545e1d04c4436e2d648f4b63aa853f60fae2ebd71c91",
       "frames": {}
+    },
+    {
+      "file": "dice/dice.webp",
+      "group": "dice",
+      "size": [1254, 1254],
+      "source_sha256": "41022e92d38bd956a9ff5d392164bcde37547a56651adce8307f7ed04766b727",
+      "frames": {}
+    },
+    {
+      "file": "ui/emblems/victory.webp",
+      "group": "ui",
+      "size": [1254, 1254],
+      "source_sha256": "8415f09690a532b5fb1a1c7fd75a04da5f8f1dd54c29ace0aac03677d990018a",
+      "frames": {
+        "victory": [40, 50, 1175, 1135]
+      }
+    },
+    {
+      "file": "dice/faces.webp",
+      "group": "dice",
+      "size": [1536, 1024],
+      "source_sha256": "296575fecbeb4d48bad8e42932b669395a68398de7117ceb17659dfb658b0de8",
+      "frames": {
+        "1": [96, 80, 344, 346],
+        "2": [590, 80, 344, 346],
+        "3": [1084, 80, 344, 346],
+        "4": [96, 542, 344, 346],
+        "5": [590, 542, 344, 346],
+        "6": [1084, 542, 344, 346]
+      }
     }
   ]
 }

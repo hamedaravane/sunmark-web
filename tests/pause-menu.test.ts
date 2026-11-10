@@ -2,6 +2,8 @@ import { afterEach, expect, test, vi } from 'vitest';
 import { GameSession } from '../src/game/ui/session';
 import { sheetContent } from '../src/game/ui/sheets';
 import { humanHeader } from '../src/game/ui/humanHud';
+import { menuContent } from '../src/game/ui/menu';
+import { AppPlatform } from '../src/pwa/app';
 import { MatchStore } from '../src/game/persistence/matchStore';
 
 const actions = (markup: string) => [...markup.matchAll(/data-action="([^"]+)"/g)].map((m) => m[1]);
@@ -22,9 +24,11 @@ test('pause menu has focused actions and experience preferences, one tutorial en
     expect(actions(content.body)).toEqual([
         'open:journal',
         'open:history',
-        'open:review',
-        'open:characters',
+        'open:inspect',
+        'open:turn-review',
         'new-game',
+        'restart-match',
+        'open:experience-guide',
         'open:experience',
         'open-app',
     ]);
@@ -65,20 +69,17 @@ test('tutorial hub gives disabled Anahita a clearly named enable button and keep
     expect(actions(content.footer!)).toEqual(['open:journal']);
 });
 
-test('review retains keyboard inspection and history; restarting a live match requires confirmation', () => {
+test('pause directly exposes keyboard inspection and history; restarting a live match requires confirmation', () => {
     const session = pausedSession();
     const before = session.state;
-    session.openSheet({ kind: 'review' });
+    session.openSheet({ kind: 'help' });
     const content = sheetContent(session);
-    expect(actions(content.body)).toEqual([
-        'open:history',
-        'open:turn-review',
-        'open:characters',
-        'open:inspect',
-        'open:experience-guide',
-        'restart-match',
-    ]);
-    expect(actions(content.footer!)).toEqual(['open:help']);
+    expect(actions(content.body)).toContain('open:history');
+    expect(actions(content.body)).toContain('open:inspect');
+    expect(actions(content.body)).toContain('open:turn-review');
+    expect(actions(content.body)).toContain('restart-match');
+    expect(actions(content.body)).not.toContain('open:review');
+    expect(actions(content.body)).not.toContain('open:characters');
     for (const kind of ['history', 'inspect'] as const) {
         session.openSheet({ kind });
         expect(actions(sheetContent(session).footer!)).toEqual(['open:help']);
@@ -127,14 +128,15 @@ test('practice pause menu has a single relevant help entry and update availabili
     expect(actions(content.body)).toEqual([
         'open:rules',
         'open:history',
-        'open:review',
+        'open:inspect',
         'new-game',
+        'open:experience-guide',
         'open:experience',
         'open-app',
     ]);
     expect(content.body).toContain('به‌روزرسانی بازی');
     expect(content.body).not.toContain('ادامه این بازی');
-    session.openSheet({ kind: 'review' });
+    session.openSheet({ kind: 'help' });
     expect(actions(sheetContent(session).body)).not.toContain('restart-match');
     session.openSheet({ kind: 'rules' });
     expect(sheetContent(session).title).toBe('راهنمای تمرین');
@@ -158,4 +160,13 @@ test('home settings apply narrator choices before entering a new match', () => {
     expect(session.tutorial.enabled).toBe(false);
     expect(session.rivals.enabled).toBe(false);
     expect(session.state?.players).toHaveLength(4);
+});
+
+test('home has no companion gallery route and keeps direct entry to play and practice', () => {
+    const session = new GameSession();
+    const markup = menuContent(new AppPlatform(), session);
+    expect(actions(markup)).toContain('play');
+    expect(actions(markup)).toContain('tutorial');
+    expect(actions(markup)).not.toContain('open:characters');
+    expect(markup).not.toContain('با هم‌نشینان جزیره آشنا شو');
 });

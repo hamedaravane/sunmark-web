@@ -1,3 +1,4 @@
+import { NEUTRAL_PORT_KEY, NEUTRAL_PORT_RADIUS } from './boardMarkerTextures';
 import { ICON_TEXTURE } from '../../ui/icons';
 import type { GameObjects, Scene } from 'phaser';
 import type { Board, Port, TradeRatio } from '../core/types';
@@ -73,8 +74,14 @@ export function createPortMarker(
     }
     const water = scene.add.ellipse(0, 1, 38, 38, 0x83c6c2, 0.15);
     const shadow = scene.add.ellipse(1, 3, 33, 32, 0x0d2733, 0.4);
-    const stone = scene.add.graphics();
-    drawVectorArt(stone, harborArt(ownerColor), 0, 0, PORT_RADIUS);
+    let stone: GameObjects.Image | GameObjects.Graphics;
+    if (ownerColor === undefined) {
+        stone = scene.add.image(0, 0, NEUTRAL_PORT_KEY).setScale(PORT_RADIUS / NEUTRAL_PORT_RADIUS);
+    } else {
+        const owned = scene.add.graphics();
+        drawVectorArt(owned, harborArt(ownerColor), 0, 0, PORT_RADIUS);
+        stone = owned;
+    }
     root.add([water, docks, shadow, stone]);
     root.add(
         scene.add.image(0, -6, ICON_TEXTURE, port.resource ?? 'exchange').setDisplaySize(16, 16),

@@ -24,7 +24,7 @@ npm run browser:verify
 The dev server binds to localhost:4173 with online services disabled for isolated,
 backend-free verification. This environment requires network permission even to
 bind localhost. No production accounts, saves or analytics are used. Capture
-mobile (390 × 844) and desktop (1440 × 900) character dialogs and in-game practice,
+mobile (390 × 844) and desktop (1440 × 900) settings dialogs and in-game practice,
 inspect `output/playwright/*-accessibility.yml`, and read `verification.json` for
 uncaught browser errors. Override `PLAYWRIGHT_BASE_URL` for another local server.
 These are reproducible smoke captures, not approved visual regression baselines
@@ -81,7 +81,7 @@ npm run browser:ui -- story --story-only
 ```
 
 The full review uses fresh contexts at 390×844, 820×1180 and 1440×900. It captures
-home, characters, name entry, Anahita, rolling, the board, construction, keyboard
+home, name entry, Anahita, rolling, the board, construction, keyboard
 expanded details, pause and trade. It places a practice road through the destination
 list and ordinary confirmation controls. The story review starts a real offline
 match, captures the participant introduction and verifies all three rivals speak.
@@ -107,7 +107,7 @@ node scripts/practice-review.mjs review
 node scripts/entry-review.mjs review
 ```
 
-The first command captures 43 game states at 390×844, 820×1180 and 1440×900.
+The first command captures the available game states at 390×844, 820×1180 and 1440×900.
 The flow review verifies real resource payments, card selection/effects, negotiation,
 keyboard disclosures, preference switches and mandatory choices. Practice review
 starts at the normal home and completes the entire guided exercise and reward.

@@ -111,9 +111,6 @@ try {
             await context.close();
             continue;
         }
-        await page.locator('[data-action="open:characters"]').click();
-        await shot('characters');
-        await close();
         await page.locator('[data-action="play"]').click();
         await shot('name');
         await close();

@@ -1002,11 +1002,7 @@
 .bot-receipt > small {
     font-size: 11px;
 }
-.character-gallery {
-    display: grid;
-    gap: 14px;
-}
-.character-card,
+
 .character-dialogue {
     margin: 0;
     padding: 16px;
@@ -1014,7 +1010,6 @@
 .character-dialogue + .character-dialogue {
     margin-top: 12px;
 }
-.character-description p,
 .intro-greeting {
     margin-block: 8px;
     line-height: 1.9;
@@ -1031,19 +1026,6 @@
 .turn-review-dice .dice-face {
     width: 56px;
     height: 58px;
-}
-.character-showcase {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-.character-showcase .character-description {
-    flex: 1;
-    min-width: 0;
-    font-size: 13px;
-}
-.character-portrait {
-    flex-shrink: 0;
 }
 
 .hub-rivals {
@@ -1063,11 +1045,6 @@
 }
 .hub-characters small {
     font-size: 11px;
-}
-@media (max-width: 359px) {
-    .character-showcase {
-        flex-direction: column;
-    }
 }
 
 .player-avatar {

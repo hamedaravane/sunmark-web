@@ -17,5 +17,5 @@ export function desktopTurnHeading(session: MatchSession): string {
 }
 
 export function desktopShortcuts(): string {
-    return `<nav class="desktop-shortcuts" aria-label="بررسی و رویدادهای بازی">${button('بررسی بازی', 'open:review', { className: 'button button--quiet' })}${button('رویدادها', 'open:history', { className: 'button button--quiet' })}</nav>`;
+    return `<nav class="desktop-shortcuts" aria-label="بررسی و رویدادهای بازی">${button('خانه‌های جزیره', 'open:inspect', { className: 'button button--quiet' })}${button('رویدادها', 'open:history', { className: 'button button--quiet' })}</nav>`;
 }

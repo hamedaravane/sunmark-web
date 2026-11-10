@@ -1,6 +1,6 @@
 import type { ResourceType } from '../core/types';
 import { FA } from './messages.fa';
-import { ART, DICE_FACES, type ArtFrame, type ArtName } from '../assets';
+import { ART, type ArtFrame, type ArtName } from '../assets';
 import type { AvatarId } from './playerIdentity';
 import { icon } from '../../ui/icons';
 import { characterById } from './characters';
@@ -29,8 +29,9 @@ export const artSprite = (name: ArtName, width: number, className = ''): string 
     frameSprite(ART[name], width, className).replace('<span ', `<span data-art="${name}" `);
 
 export function diceFace(value: number): string {
-    const frame = DICE_FACES[value - 1];
-    return frame ? `<span class="dice-face" data-dice="${value}" aria-hidden="true"></span>` : '';
+    return Number.isInteger(value) && value >= 1 && value <= 6
+        ? `<span class="dice-face" data-dice="${value}" aria-hidden="true"></span>`
+        : '';
 }
 
 export function button(

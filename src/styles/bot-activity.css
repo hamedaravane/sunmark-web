@@ -136,19 +136,3 @@
     line-height: 20px;
 }
 /* Gallery portraits also meet a visible pedestal, rather than ending in open space. */
-.character-portrait-stage {
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    padding-bottom: 8px;
-    flex-shrink: 0;
-}
-.character-portrait-stage .character-portrait {
-    display: block;
-}
-.character-showcase {
-    align-items: stretch;
-}
-.character-showcase .character-description {
-    align-self: center;
-}

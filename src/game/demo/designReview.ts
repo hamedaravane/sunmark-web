@@ -1,3 +1,4 @@
+import { artTextureKey } from '../rendering/artTextures';
 /** Development-only visual review. Never reads/writes saves or contacts a server. */
 import { GameSession, type Sheet } from '../ui/session';
 import { ProgressionStore } from '../progression/progression';
@@ -25,7 +26,7 @@ const sheets = [
     'development-rules',
     'help',
     'rules',
-    'review',
+
     'history',
     'turn-review',
     'inspect',
@@ -33,7 +34,7 @@ const sheets = [
     'experience',
     'experience-guide',
     'journal',
-    'characters',
+
     'profile',
     'profile-name',
     'achievements',
@@ -188,7 +189,7 @@ export function startDesignReview(parent: HTMLElement) {
             !!game.scene.getScene('InterfaceScene')?.scene.isActive() &&
             [...parent.querySelectorAll<HTMLElement>('[data-art]')]
                 .filter((n) => n.getClientRects().length > 0)
-                .every((n) => game.textures.exists(`ui-${n.dataset.art}`)),
+                .every((n) => game.textures.exists(artTextureKey(n.dataset.art ?? ''))),
         pause: (sleep = true) => {
             if (sleep) game.loop.sleep();
             else game.loop.wake();

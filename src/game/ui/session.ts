@@ -66,7 +66,6 @@ export type Sheet =
               | 'rival-dialogue'
               | 'help'
               | 'rules'
-              | 'review'
               | 'results'
               | 'end-turn'
               | 'targets'
@@ -91,7 +90,6 @@ export type Sheet =
               | 'online-cosmetics'
               | 'referrals';
       }
-    | { kind: 'characters' }
     | { kind: 'new-match' | 'player-name'; count: 3 | 4; guided: boolean };
 export interface Placement {
     kind: BuildType | 'robber';
@@ -495,7 +493,8 @@ export class GameSession {
         if (
             !this.state ||
             this.practice ||
-            this.sheet?.kind !== 'characters' ||
+            this.sheet?.kind !== 'history' ||
+            ['discard', 'steal', 'road-building', 'robber'].includes(this.state.phase) ||
             !this.rivals.seen.has(id) ||
             !(id in DIALOGUES)
         )
@@ -612,7 +611,7 @@ export class GameSession {
                 'tile',
                 'help',
                 'rules',
-                'review',
+
                 'history',
                 'turn-review',
                 'inspect',

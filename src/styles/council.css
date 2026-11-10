@@ -1144,14 +1144,7 @@ p {
     gap: 8px;
 }
 /* The people are the illustration. Their frames stay within real boundaries. */
-.character-gallery {
-    display: grid;
-    gap: 16px;
-}
-.character-card {
-    padding: 18px;
-    overflow: hidden;
-}
+
 .rival-detail-heading {
     display: flex;
     gap: 10px;
@@ -1170,40 +1163,7 @@ p {
     font-size: 11px;
     color: #adbfbb;
 }
-.character-showcase {
-    display: grid;
-    grid-template-columns: 112px minmax(0, 1fr);
-    gap: 18px;
-    align-items: end;
-    direction: ltr;
-    margin-top: 16px;
-}
-.character-description {
-    direction: rtl;
-    min-width: 0;
-    align-self: center;
-}
-.character-description p {
-    font-size: 13px;
-    line-height: 25px;
-    margin: 8px 0;
-}
-.character-description .footnote {
-    font-size: 12px;
-}
-.character-portrait-stage {
-    position: relative;
-    width: 112px;
-    height: 168px;
-    align-self: end;
-}
-.character-portrait {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 112px !important;
-    height: 168px !important;
-}
+
 .character-dialogue {
     padding: 16px;
 }
@@ -1369,7 +1329,6 @@ p {
         [data-screen='trade'],
         [data-screen='domestic'],
         [data-screen='development'],
-        [data-screen='characters'],
         [data-screen='introduction'],
         [data-screen='results']
     ) {
@@ -1387,13 +1346,48 @@ p {
     }
     .construction-list {
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        align-items: start;
+        align-items: stretch;
         gap: 14px;
     }
     .construction-card {
         padding: 18px;
-        gap: 14px;
-        grid-template-columns: 1fr;
+        gap: 12px;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: 68px 80px minmax(72px, 1fr) auto auto;
+    }
+    .construction-card .visual-cost {
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        justify-content: start;
+        align-content: start;
+        align-items: start;
+        gap: 4px;
+    }
+    .construction-card .cost-token {
+        min-height: 34px;
+        padding: 3px 5px;
+        gap: 3px;
+    }
+    .construction-card .cost-token .resource-icon {
+        --icon-size: 18px;
+    }
+    .construction-card .cost-token bdi {
+        font-size: 12px;
+        line-height: 16px;
+    }
+    .construction-card .cost-token small {
+        font-size: 11px;
+        line-height: 14px;
+    }
+    .construction-card .availability {
+        font-size: 11px;
+        line-height: 18px;
+    }
+    @supports (grid-template-rows: subgrid) {
+        .construction-card {
+            grid-row: span 5;
+            grid-template-rows: subgrid;
+        }
     }
     .construction-heading {
         flex-wrap: wrap;
@@ -1464,39 +1458,11 @@ p {
     .development-purchase .button {
         grid-column: 2;
     }
-    .character-gallery {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        align-items: start;
-        gap: 18px;
-    }
-    .character-card {
-        padding: 18px;
-    }
+
     .rival-detail-heading {
         flex-wrap: wrap;
     }
-    .character-showcase {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-        align-items: center;
-    }
-    .character-portrait-stage {
-        width: 146px;
-        height: 219px;
-        align-self: center;
-    }
-    .character-portrait {
-        width: 146px !important;
-        height: 219px !important;
-    }
-    .character-description {
-        align-self: stretch;
-    }
-    .character-description p {
-        font-size: 14px;
-        line-height: 27px;
-    }
+
     .intro-participants {
         grid-template-columns: 1fr 1fr;
         gap: 14px;
@@ -1860,7 +1826,6 @@ p {
 }
 /* Art keeps its source proportions even when a layout chooses a new width. */
 .council-figure,
-.character-portrait,
 .bot-activity-portrait {
     height: auto !important;
     aspect-ratio: var(--art-ratio);

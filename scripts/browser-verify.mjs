@@ -32,12 +32,12 @@ try {
         await page.locator('.graphics-ui canvas').first().waitFor();
         const close = page.locator('dialog[open] [data-action="close-sheet"]').first();
         if (await close.isVisible()) await close.click();
-        await page.locator('[data-action="open:characters"]').click();
-        await page.locator('dialog[open] .character-card').first().waitFor();
+        await page.locator('[data-action="open:experience"]').click();
+        await page.locator('dialog[open]').waitFor();
         await page.evaluate(() => globalThis.document.fonts.ready);
         await page.waitForTimeout(1200); // Allow optional portrait downloads and the canvas repaint.
         const name = viewport.width === 390 ? 'mobile' : 'desktop';
-        await page.screenshot({ path: `${output}/${name}-characters.png`, fullPage: true });
+        await page.screenshot({ path: `${output}/${name}-settings.png`, fullPage: true });
         await writeFile(
             `${output}/${name}-accessibility.yml`,
             await page.locator('body').ariaSnapshot(),

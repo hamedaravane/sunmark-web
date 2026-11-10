@@ -31,9 +31,7 @@ random result informs strategy.
 
 ## Presentation and conversation
 
-The hub shows the three supplied avatars and opens a scrollable character gallery.
-Introductions and player details explain the rivals' styles. The gallery uses complete full portraits; reaction reviews reuse the large narrator
-stage and label the rival explicitly. All Persian text remains runtime text. Short,
+The home retains character artwork but no standalone gallery. Players meet the rivals through the match introduction, ongoing turns and contextual conversations. Player panels focus on current match facts; reaction reviews reuse the large narrator stage and label the rival explicitly. All Persian text remains runtime text. Short,
 event-driven exchanges accompany construction, trade and results. They include
 Anahita only while her guidance is enabled and never interrupt mandatory choices
 with an extra modal. Dialogue uses confirmed events, not game randomness.
@@ -60,7 +58,7 @@ and actions remain in the right rail. On phones/tablets the portrait is behind
 the bottom resource tray, while the existing context ribbon gives its confirmed
 action. Actions stay beside the portrait. Decks reserve 84px on short phones,
 152px on ordinary phones and 204px on portrait tablets, independent of turn.
-Landscape rail portraits and gallery portraits meet a visible pedestal. Art never
+Landscape rail portraits meet a visible pedestal. Art never
 overlays the island or ports, exposes private hands, or delays a command. Modals
 and mandatory human choices retain priority; all original artwork is preserved.
 
@@ -160,7 +158,7 @@ The last speaker can answer **چالش را می‌پذیرم** or **از روش
 fictional responses change only the conversation, never strategy, costs, resources,
 random results or rewards. Continue advances dialogue; closing skips just the
 current conversation. **خاموش‌کردن گفت‌وگوی رقبا** is a separate per-match opt-out
-from Anahita. The character gallery exposes the setting and replay of past story
+from Anahita. Settings expose the dialogue preference; match history exposes replay of past story
 checkpoints, including while automatic dialogue is muted. No countdown forces the
 player to read or respond.
 
@@ -190,3 +188,9 @@ player replies without game mutation/randomness, timed/hidden-page presentation,
 save/reload/mute/replay, mandatory-choice/draft priority, event diversity and
 frequency, private-information independence, corrupt story metadata, and circular
 texture clipping/cache reuse. Device review remains with the user.
+
+The 2026-11-10 asset audit replaces only runtime avatar files with verified
+384x384 `avatar-384.webp` derivatives, encoded losslessly after resizing for the
+256-pixel circular renderer. Original avatar WebPs remain unchanged in the source
+archive; portrait WebPs retain their original encoding and dimensions. See the
+asset guide for the display-size quality checks and export commands.

@@ -22,6 +22,12 @@ export interface SheetContent {
 export class BottomSheet {
     private dialog = document.createElement('dialog');
     private openerAction: string | undefined;
+    private markup = '';
+    private updateMarkup(markup: string): void {
+        if (markup === this.markup) return;
+        this.dialog.innerHTML = markup;
+        this.markup = markup;
+    }
 
     constructor(
         private parent: HTMLElement,
@@ -102,9 +108,13 @@ export class BottomSheet {
         const body = `<div class="sheet-body">${expandedBody}</div>`;
         if (portrait) {
             const [, , width, height] = ART[portrait].frame;
-            this.dialog.innerHTML = `<div class="narrator-stage" aria-hidden="true" style="--portrait-ratio:${width / height}">${artSprite(portrait, 320, 'narrator-hero')}</div><section class="narrator-panel">${header}${body}<footer class="narrator-footer">${content.footer ?? ''}</footer></section>`;
+            this.updateMarkup(
+                `<div class="narrator-stage" aria-hidden="true" style="--portrait-ratio:${width / height}">${artSprite(portrait, 320, 'narrator-hero')}</div><section class="narrator-panel">${header}${body}<footer class="narrator-footer">${content.footer ?? ''}</footer></section>`,
+            );
         } else
-            this.dialog.innerHTML = `${header}${content.context ? `<section class="sheet-context" aria-label="دارایی تو">${content.context}</section>` : ''}${body}${content.footer ? `<footer class="sheet-footer">${content.footer}</footer>` : ''}`;
+            this.updateMarkup(
+                `${header}${content.context ? `<section class="sheet-context" aria-label="دارایی تو">${content.context}</section>` : ''}${body}${content.footer ? `<footer class="sheet-footer">${content.footer}</footer>` : ''}`,
+            );
         const nameInput = this.dialog.querySelector<HTMLInputElement>('#player-name');
         const preferred = [...this.dialog.querySelectorAll<HTMLElement>('[data-action]')].find(
             (el) => el.dataset.action === content.focusAction && !el.matches(':disabled'),

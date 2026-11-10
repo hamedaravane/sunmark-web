@@ -1,3 +1,4 @@
+import { RenderQuality, renderingProfile } from './rendering/renderQuality';
 import { analytics } from '../analytics/browser';
 import { observeMatch } from '../analytics/matchObserver';
 import { ScreenAwake } from '../pwa/screenAwake';
@@ -54,10 +55,23 @@ export function mountMatch(parent: HTMLElement, session: MatchSession, app: AppP
         },
         () => hud.boardReady(),
     );
+    const quality = new RenderQuality(
+        renderingProfile({
+            handheld:
+                window.matchMedia('(pointer: coarse)').matches ||
+                Math.min(parent.clientWidth || 390, parent.clientHeight || 844) <= 600,
+            memoryGB:
+                'deviceMemory' in navigator && typeof navigator.deviceMemory === 'number'
+                    ? navigator.deviceMemory
+                    : undefined,
+            logicalCores: navigator.hardwareConcurrency,
+        }),
+    );
     const initialSize = canvasPixelSize(
         parent.clientWidth || 390,
         parent.clientHeight || 844,
-        window.devicePixelRatio,
+        Math.min(window.devicePixelRatio, quality.cap),
+        quality.pixelBudget,
     );
     const game = new Game({
         type: AUTO,
@@ -67,7 +81,7 @@ export function mountMatch(parent: HTMLElement, session: MatchSession, app: AppP
         transparent: true,
         // ResizeObserver owns the grid measurements, including hidden-menu startup.
         scale: { mode: Scale.NONE, autoCenter: Scale.NO_CENTER, expandParent: false },
-        scene: [new BackdropScene(session, motion), scene, ui],
+        scene: [new BackdropScene(session, motion, quality), scene, ui],
         input: { keyboard: false, mouse: false, touch: false },
         render: { antialias: true, roundPixels: false },
     });
@@ -77,13 +91,26 @@ export function mountMatch(parent: HTMLElement, session: MatchSession, app: AppP
         const size = canvasPixelSize(
             parent.clientWidth,
             parent.clientHeight,
-            window.devicePixelRatio,
+            Math.min(window.devicePixelRatio, quality.cap),
+            quality.pixelBudget,
         );
         if (game.scale.width !== size.width || game.scale.height !== size.height)
             game.scale.resize(size.width, size.height);
         scene.resizeBoard();
         ui.invalidate();
     };
+    let previousFrame = 0;
+    const sampleQuality = () => {
+        const now = performance.now();
+        if (document.hidden || !session.state || session.sheet || parent.closest('[hidden]')) {
+            previousFrame = 0;
+            quality.reset();
+            return;
+        }
+        if (previousFrame && quality.sample(now - previousFrame)) resize();
+        previousFrame = now;
+    };
+    game.events.on('postrender', sampleQuality);
     const observer = new ResizeObserver(resize);
     observer.observe(parent);
     observer.observe(hud.boardViewport);
@@ -102,6 +129,7 @@ export function mountMatch(parent: HTMLElement, session: MatchSession, app: AppP
     window.addEventListener('resize', resize);
     game.events.once('destroy', () => {
         observer.disconnect();
+        game.events.off('postrender', sampleQuality);
         telemetry.destroy();
         disconnectAwake();
         visible.disconnect();

@@ -41,7 +41,7 @@ test('hiding the redundant desktop dice hint cannot hide an error', () => {
 
 test('desktop review shortcuts open existing read-only workspaces, not extra turn actions', () => {
     const markup = desktopShortcuts();
-    expect(markup).toContain('data-action="open:review"');
+    expect(markup).toContain('data-action="open:inspect"');
     expect(markup).toContain('data-action="open:history"');
     expect(markup).not.toContain('data-action="primary"');
 });

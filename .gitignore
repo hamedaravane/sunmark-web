@@ -29,3 +29,6 @@ output/playwright/
 .playwright-cli/
 test-results/
 playwright-report/
+
+# Python asset tooling
+__pycache__/

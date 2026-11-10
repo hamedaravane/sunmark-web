@@ -1,25 +1,8 @@
-import { CHARACTERS, characterById } from './characters';
-import { artSprite, button, diceFace, escape, playerAvatar } from './components';
+import { CHARACTERS } from './characters';
+import { button, diceFace, escape } from './components';
 import type { SheetContent } from './bottomSheet';
 import type { MatchSession } from './matchSession';
-import { rivalJournal } from './rivalDialogueMarkup';
 import { turnReport } from './turnReport';
-
-export function characterDescription(id: string): string {
-    const character = characterById(id);
-    return character
-        ? `<section class="character-description"><p>${character.title}</p><p class="footnote">${character.strategy}</p><p>«${character.greeting}»</p></section>`
-        : '';
-}
-
-export function characterGallery(session?: MatchSession): SheetContent {
-    return {
-        title: 'هم‌نشینان جزیره',
-        key: 'character-gallery',
-        body: `<p class="sheet-intro">سه رقیب هوش مصنوعی، سه شیوهٔ بازی. قوانین، هزینه‌ها و شانس تاس برای همه یکسان است.</p><div class="character-gallery">${CHARACTERS.map((character) => `<article class="character-card"><div class="rival-detail-heading">${playerAvatar(character.id)}<h3>${character.name}</h3><span class="bot-label">هوش مصنوعی</span></div><div class="character-showcase"><div class="character-portrait-stage">${artSprite(`${character.id}-portrait`, 132, 'character-portrait')}<span class="portrait-anchor" aria-hidden="true"></span></div>${characterDescription(character.id)}</div></article>`).join('')}</div><p class="footnote">آناهیتا در مسیر یادگیری همراه توست؛ این سه شخصیت برای پیروزی با تو رقابت می‌کنند.</p>${rivalJournal(session)}`,
-        footer: button('بازگشت', 'close-sheet', { className: 'button button--primary full-width' }),
-    };
-}
 
 export function turnReviewContent(session: MatchSession): SheetContent {
     const report = turnReport(session.transition, session.humanPlayer!.id);

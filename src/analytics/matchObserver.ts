@@ -97,11 +97,9 @@ export function observeMatch(
                             ? 'cosmetics'
                             : kind === 'experience'
                               ? 'settings'
-                              : kind === 'characters'
-                                ? 'characters'
-                                : kind
-                                  ? 'other'
-                                  : 'board';
+                              : kind
+                                ? 'other'
+                                : 'board';
         if (screen !== nextScreen) {
             screen = nextScreen;
             emit('screen_view', { ...context, screen: nextScreen });

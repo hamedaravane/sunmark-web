@@ -9,13 +9,21 @@ export interface DisplayMetrics extends DisplaySize {
 }
 
 /** Bound fill rate while retaining native density on typical 2×/3× phones. */
-export function canvasPixelSize(width: number, height: number, deviceRatio: number): DisplaySize {
+export function canvasPixelSize(
+    width: number,
+    height: number,
+    deviceRatio: number,
+    pixelBudget = 4_000_000,
+): DisplaySize {
     width = Math.max(1, width);
     height = Math.max(1, height);
     const ratio = Math.min(
         Math.max(1, Number.isFinite(deviceRatio) ? deviceRatio : 1),
         3,
-        Math.sqrt(4_000_000 / (width * height)),
+        Math.sqrt(
+            (Number.isFinite(pixelBudget) && pixelBudget > 0 ? pixelBudget : 4_000_000) /
+                (width * height),
+        ),
     );
     return {
         width: Math.max(1, Math.floor(width * ratio)),

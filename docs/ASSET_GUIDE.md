@@ -81,13 +81,13 @@ The current stone UI is drawn with Phaser Graphics, with cut corners, broad chis
 - `fonts/vazirmatn-regular.woff2`: unmodified Vazirmatn v33.003 Regular (400), 50,684 bytes, downloaded from the [official release](https://github.com/rastikerdar/vazirmatn/tree/v33.003/fonts/webfonts). This is the only weight currently used; no variable font, TTF, or extra weight files are shipped. Retains the upstream Persian and Latin glyph coverage.
 - `fonts/vazirmatn-license.txt`: the unmodified SIL Open Font License 1.1 and copyright notice downloaded from the same [release](https://github.com/rastikerdar/vazirmatn/blob/v33.003/OFL.txt).
 - Terrain hexes are generated in memory by `rendering/terrainArt.ts` / `terrainTextures.ts`. Former `board/terrains/*.webp` files are removed; complete PNG masters remain under `art/reference/board/terrains/`.
-- `dice/dice.webp`: dice artwork; frame layout has not been documented.
-- `dice/faces.webp`: preserved supplied six-face stone dice sheet. The match bar now draws its two confirmed dice with Phaser Graphics. Its front faces are ordered 1–3 across the top and 4–6 across the bottom. The source is **RGB with a baked checkerboard**, not transparent. The previous DOM implementation used inset silhouette clipping, trimming the painted edges and shadow. This documented art issue motivates clean procedural ivory dice in the new Graphics UI. A future transparent re-export could restore the painted version; the inspected original crops remain in the registry. The PNG source master remains unchanged under `art/reference/dice/`.
+- `art/reference/dice/dice.png`: preserved original dice artwork; no unused full-sheet runtime export is packaged.
+- `art/reference/dice/faces.png`: preserved supplied six-face stone dice sheet (reference only). The match bar now draws its two confirmed dice with Phaser Graphics. Its front faces are ordered 1–3 across the top and 4–6 across the bottom. The source is **RGB with a baked checkerboard**, not transparent. The previous DOM implementation used inset silhouette clipping, trimming the painted edges and shadow. This documented art issue motivates clean procedural ivory dice in the new Graphics UI. A future transparent re-export could restore the painted version; the inspected original crops remain in the export manifest reference entry. The PNG source master remains unchanged under `art/reference/dice/`.
 - Settlements, cities, and roads use reusable Phaser Graphics components rather than runtime images. Their original paintings are preserved under `art/reference/pieces/`, outside the runtime tree. See [PIECE_RENDERING.md](PIECE_RENDERING.md) for dimensions, material layers, visual states, API, and the `?demo=pieces` gallery.
 - Ahriman is drawn by `rendering/ahriman.ts`; previews and movement use the same vector emblem. The former traveler PNG is preserved at `art/reference/pieces/robber/robber.png`, with checksum metadata in the manifest's `references` array. There is no marker image request.
 - Number medallions are code-drawn limestone and bronze using `NUMBER_TOKEN_ART` in `rendering/boardEmblems.ts`. Runtime Persian numbers retain their 15.4-pixel size. The original `board/tokens/number.png` remains under `art/reference/`; its WebP is retired. Desert has no token.
 - `ui/ornaments/ornaments.webp`: supplied corner, divider, and rosette sheet. Explicit source frames supply menu corners/crest/divider and small sheet-heading ornaments; there are no baked labels or separate player-color images.
-- `ui/emblems/victory.webp`: supplied griffin/rosette medallion, preserved for brand exports; the results sheet now uses the collection trophy with runtime winner/score text.
+- `art/reference/ui/emblems/victory.png`: supplied griffin/rosette medallion, preserved for brand exports; the results sheet now uses the collection trophy with runtime winner/score text.
 - The trade scales use the shared library icon at dock/workspace sizes; former `rendering/tradeArt.ts` is retained as historical source. `art/reference/ui/illustrations/bank.png` preserves the original painting; it is a retired reference, not an active export.
 - `effects/dust.webp`: short construction puff behind the building marker within its container.
 - `effects/spark.webp`: restrained road-placement sparkle over the confirmed edge.
@@ -155,7 +155,7 @@ current icon references. See [ICONOGRAPHY.md](ICONOGRAPHY.md).
 
 ## Supplied offline rival portraits
 
-Six full-resolution WebP portraits/avatars live under `characters/{mithra,ashi,spenta-armaiti}/`, each with `avatar.webp` and `portrait.webp`. The seven supplied WebP originals, including the unused Ashi alternative, are preserved outside runtime packaging. Because these arrive already encoded, the manifest supports `source_file` and `preserve_encoded`: export/check copies and verifies identical bytes, dimensions, alpha and source hashes, without another lossy pass. The older PNG master workflow remains unchanged. Visible avatar/portrait placeholders load through the shared lazy portrait loader; missing optional images use a rosette and never block a match. See [Offline characters](OFFLINE_CHARACTERS.md) for the filename mapping and sizes.
+Three full-resolution portraits and three verified 384-pixel avatar derivatives live under `characters/{mithra,ashi,spenta-armaiti}/`, as `portrait.webp` and `avatar-384.webp`. The seven supplied WebP originals, including the unused Ashi alternative, remain unchanged under `art/reference/`. The manifest links each source with `source_file`: portraits use `preserve_encoded` for byte-identical copies; avatars use explicit lossless size derivatives and display-quality checks described below. Visible avatar/portrait placeholders load through the shared lazy portrait loader; missing optional images use a rosette and never block a match. See [Offline characters](OFFLINE_CHARACTERS.md) for the filename mapping and sizes.
 
 Character avatar framing uses small cached circular textures generated at runtime from the existing avatar frames, including shared human/robot icons. The renderer clips pixels before drawing inside the ownership rim; original files and checksums remain unchanged. Full narrative portraits keep their complete source frame.
 
@@ -178,3 +178,46 @@ replaces the older visual style for all narrator expression keys; it is one supp
 pose, while original expression masters remain reference-only. Ahriman's full art
 appears in occupied-tile information, where it can be read comfortably; the small
 procedural map marker remains unchanged. Export/check group: `council-characters`.
+
+## Asset audit and mobile avatar exports (2026-11-10)
+
+`npm run assets:test` exercises the quality gates, including rejection of damaged pixels, wrong dimensions and poor display-size derivatives.
+
+`npm run assets:audit` inventories and decodes repository media, parses SVG XML,
+and validates the WOFF2 header/length. `npm run assets:lossless` additionally tries
+lossless PNG/WebP recompression on public and documentation images. It only
+replaces smaller candidates after exact decoded RGBA and ICC-profile comparison;
+it never mutates source masters or flattens animated images.
+
+The three opponent avatars now ship as `avatar-384.webp` (384x384), with their
+1254x1254 originals preserved byte-for-byte under `art/reference/`. The new URLs
+avoid mixing old cached full-size images with new frame coordinates. Phaser's
+circular avatar renderer outputs 256x256 textures; the exports deliberately retain
+50% more source resolution. These are Lanczos-resampled derivatives, encoded
+losslessly after resampling, rather than pixel-identical full-resolution copies.
+The manifest records `output_size`, `display_size`, `lossless` and a minimum 45 dB
+PSNR at the renderer's 256-pixel size on light and dark backgrounds. `assets:check`
+verifies exact RGBA pixels against the resized master, source hashes, dimensions,
+ICC profiles and display-size fidelity. Portraits remain full resolution.
+
+The previous full-size WebP avatar preservation requirement still applies to the
+source archive and unchanged portrait exports. It no longer requires shipping the
+original avatar encoding. The old `dice/dice.webp`, `dice/faces.webp` and
+`ui/emblems/victory.webp` are reference-only: actual dice/results use Graphics and
+collection icons, while app icons still derive from the original victory PNG.
+The runtime registry and export manifest no longer package these unused bitmaps.
+The historical crop table and supplied-art descriptions above describe preserved
+sources; active runtime frames are authoritative in `src/game/assets.ts`.
+
+The audit kept the compressed WOFF2 font, glyph coverage, generated SVG atlas,
+platform icon sizes and source masters unchanged. Documentation screenshot
+recompression preserves exact decoded pixels and color profiles. Assets that did
+not become smaller losslessly retain their current encoding; no extra lossy pass
+was applied to existing portraits, backgrounds or effects.
+
+Measured totals: 78 media files reviewed before changes, 75 retained afterward.
+Runtime assets under `public/assets/` decreased from 10,858,705 to 7,397,215
+bytes (31.9%). Lossless documentation screenshot recompression saved another
+36,406 bytes. The three avatar base textures decreased from about 18.0 to
+1.69 MiB of RGBA storage, excluding the unchanged circular render textures.
+All source master bytes and all full-size narrative portraits remain unchanged.

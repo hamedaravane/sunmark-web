@@ -26,5 +26,8 @@ export function rivalDialogueContent(session: MatchSession): SheetContent {
 
 export function rivalJournal(session?: MatchSession): string {
     if (!session?.state || !session.rivals || session.practice || session.online) return '';
-    return `${button(`گفت‌وگوی خودکار رقبا: ${session.rivals.enabled ? 'روشن' : 'خاموش'}`, 'rival-toggle', { className: 'button full-width', pressed: session.rivals.enabled })}<p class="footnote">این تنظیم از آموزش آناهیتا جداست. بازپخش گفت‌وگو منابع و نوبت را تغییر نمی‌دهد.</p><h3>گفت‌وگوهای گذشته</h3>${session.rivals.completed.length ? session.rivals.completed.map((id: DialogueId) => button(escape(DIALOGUES[id].title), `rival-replay:${id}`, { className: 'button full-width' })).join('') : '<p class="footnote">با پیشرفت این سفر، گفت‌وگوها اینجا ثبت می‌شوند.</p>'}`;
+    const replayBlocked = ['discard', 'steal', 'road-building', 'robber'].includes(
+        session.state.phase,
+    );
+    return `${button(`گفت‌وگوی خودکار رقبا: ${session.rivals.enabled ? 'روشن' : 'خاموش'}`, 'rival-toggle', { className: 'button full-width', pressed: session.rivals.enabled })}<p class="footnote">این تنظیم از آموزش آناهیتا جداست. بازپخش گفت‌وگو منابع و نوبت را تغییر نمی‌دهد.</p><h3>گفت‌وگوهای گذشته</h3>${session.rivals.completed.length ? session.rivals.completed.map((id: DialogueId) => button(escape(DIALOGUES[id].title), `rival-replay:${id}`, { className: 'button full-width', disabled: replayBlocked })).join('') : '<p class="footnote">با پیشرفت این سفر، گفت‌وگوها اینجا ثبت می‌شوند.</p>'}`;
 }

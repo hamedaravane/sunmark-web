@@ -26,10 +26,12 @@ export function pauseMenuContent(session: MatchSession, updateReady: boolean): S
                 ${menuOption(practice ? 'آموزش تمرین' : 'آموزش و آناهیتا', practice ? 'هدف و مراحل این تمرین' : session.tutorial.enabled ? 'آناهیتا روشن است • درس‌ها و قوانین' : 'آناهیتا خاموش است • برای روشن‌کردن بزن', practice ? 'open:rules' : 'open:journal')}
             </section>
             <section class="pause-section"><h3>بازی</h3>
-                ${menuOption('رویدادهای بازی', 'تاس‌ها، ساخت‌ها و معامله‌های این سفر', 'open:history')}${menuOption('بررسی جزیره', 'خانه‌ها، تولید و آخرین حرکت', 'open:review')}${!practice && !session.online ? menuOption('هم‌نشینان جزیره', 'شخصیت‌ها و گفت‌وگوهای این سفر', 'open:characters') : ''}
+                ${menuOption('رویدادهای بازی', 'تاس‌ها، ساخت‌ها و معامله‌های این سفر', 'open:history')}${menuOption('خانه‌های جزیره', 'خانه‌ها، تولید و ساختمان‌های مجاور', 'open:inspect')}${!practice && !session.online ? menuOption('بازبینی آخرین حرکت', 'منابع، هزینه‌ها و گفت‌وگوی رقبا', 'open:turn-review') : ''}
                 ${menuOption(session.online ? 'بازگشت به اتاق‌ها' : practice ? 'خروج از تمرین' : 'بازگشت به منوی اصلی', practice ? 'بازی اصلی محفوظ می‌ماند' : session.saveStatus === 'unavailable' ? 'ذخیره خودکار در دسترس نیست' : 'ادامه این بازی با دکمهٔ «بازی»', 'new-game')}
+                ${!practice && !session.online ? menuOption('شروع بازی تازه', 'پس از تأیید، بازی فعلی جایگزین می‌شود', 'restart-match') : ''}
             </section>
             <section class="pause-section"><h3>برنامه</h3>
+                ${menuOption('راهنمای رابط بازی', 'تاس، هزینه‌ها و کارت‌های تو', 'open:experience-guide')}
                 ${menuOption('صدا و حرکت', 'صدای کارها، حرکت کمتر و بازخورد سریع', 'open:experience')}
                 ${menuOption(updateReady ? 'به‌روزرسانی بازی' : 'نصب و بازی آفلاین', updateReady ? 'نسخه تازه آماده است' : 'نصب، ذخیره و وضعیت برنامه', 'open-app')}
             </section>
@@ -43,20 +45,5 @@ export function pauseMenuContent(session: MatchSession, updateReady: boolean): S
             'resume-game',
             { className: 'button button--primary full-width' },
         ),
-    };
-}
-
-export function gameReviewContent(session: MatchSession): SheetContent {
-    return {
-        title: 'بررسی بازی',
-        key: 'game-review',
-        body: `<div class="pause-menu">${session.online ? '<p class="footnote">بازی آنلاین در پس‌زمینه ادامه دارد؛ منو نوبت دیگران را متوقف نمی‌کند.</p>' : ''}
-            ${menuOption('رویدادهای بازی', 'مرور تاس‌ها، ساخت‌وساز و معامله‌ها', 'open:history')}
-            ${!session.online && !session.practice ? menuOption('بازبینی آخرین حرکت', 'منابع، هزینه‌ها و گفت‌وگوی رقبا', 'open:turn-review') + menuOption('هم‌نشینان جزیره', 'شخصیت و شیوهٔ بازی سه رقیب', 'open:characters') : ''}
-            ${menuOption('خانه‌های جزیره', 'فهرست زمین‌ها و تولید هر خانه', 'open:inspect')}
-            ${menuOption('راهنمای رابط بازی', 'تاس لمسی، هزینه‌ها و دست کارت‌ها', 'open:experience-guide')}
-            ${!session.practice ? `<section class="pause-section"><h3>شروع دوباره</h3>${menuOption('شروع بازی تازه', 'پس از تأیید، بازی فعلی جایگزین می‌شود', 'restart-match')}</section>` : ''}
-        </div>`,
-        footer: pauseMenuBack(),
     };
 }

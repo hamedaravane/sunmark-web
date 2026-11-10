@@ -171,7 +171,7 @@ test('partial dialogue and a chosen reply survive reload once, with a separate s
     expect(muted.rivals.enabled).toBe(false);
     expect(muted.rivalReady).toBe(false);
     expect(muted.tutorial.enabled).toBe(false);
-    muted.openSheet({ kind: 'characters' });
+    muted.openSheet({ kind: 'history' });
     expect(sheetContent(muted).body).toContain('rival-replay:human-road');
     const before = muted.state;
     muted.replayRival('human-road');
@@ -179,6 +179,7 @@ test('partial dialogue and a chosen reply survive reload once, with a separate s
     drain(muted);
     expect(muted.rivals.enabled).toBe(false);
     expect(muted.state).toBe(before);
+    expect(muted.sheet?.kind).toBe('history');
 });
 
 test('mandatory seven choices, drafts and open sheets outrank pending conversations', () => {
@@ -209,6 +210,15 @@ test('mandatory seven choices, drafts and open sheets outrank pending conversati
     session.confirmDiscard();
     expect(session.state!.phase).toBe('robber');
     expect(session.rivalReady).toBe(false);
+    session.rivals.seen.add('ashi-trade');
+    session.openSheet({ kind: 'history' });
+    const beforeReplay = session.state;
+    session.replayRival('ashi-trade');
+    expect(session.sheet?.kind).toBe('history');
+    expect(session.state).toBe(beforeReplay);
+    expect(sheetContent(session).body).toMatch(
+        /data-action="rival-replay:ashi-trade"[^>]*disabled/,
+    );
 });
 
 test('director reacts across the match, bounds frequency and queue, and cannot read private opponents', () => {

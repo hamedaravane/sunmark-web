@@ -481,10 +481,10 @@ export class GameHud {
                 'domestic',
                 'help',
                 'rules',
-                'review',
+
                 'history',
                 'turn-review',
-                'characters',
+
                 'targets',
                 'inspect',
                 'journal',
@@ -502,10 +502,8 @@ export class GameHud {
                     | 'domestic'
                     | 'help'
                     | 'rules'
-                    | 'review'
                     | 'history'
                     | 'turn-review'
-                    | 'characters'
                     | 'targets'
                     | 'inspect'
                     | 'journal'

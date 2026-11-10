@@ -1,3 +1,5 @@
+import { artTextureKey, artFrameKey, installArtFrames } from '../rendering/artTextures';
+import { rectangularClip } from '../rendering/rectClip';
 import { circularAvatarTexture } from './avatarTextures';
 import { CANVAS, Scene, type GameObjects } from 'phaser';
 import { ART, assetUrl } from '../assets';
@@ -35,7 +37,8 @@ export class InterfaceScene extends Scene {
     private controlsGroup: GameObjects.Container;
     private controlsMaskShape: GameObjects.Graphics;
     private controlsMask: Phaser.Display.Masks.GeometryMask | undefined;
-    private controlsFilter: Phaser.Filters.Mask | undefined;
+    private clipControls: ((box: UiBox | null) => void) | undefined;
+    private clipContent: ((box: UiBox | null) => void) | undefined;
     private roll: PaintLayer;
     private hints: PaintLayer;
     private dock: PaintLayer;
@@ -45,6 +48,16 @@ export class InterfaceScene extends Scene {
     private maskShape: GameObjects.Graphics;
     private modalMask: Phaser.Display.Masks.GeometryMask | undefined;
     private dirty = true;
+    private styles = new Map<Element, CSSStyleDeclaration>();
+    private boxes = new Map<Element, UiBox>();
+    private style(element: Element): CSSStyleDeclaration {
+        let value = this.styles.get(element);
+        if (!value) {
+            value = getComputedStyle(element);
+            this.styles.set(element, value);
+        }
+        return value;
+    }
     private observer: MutationObserver;
     private resizeObserver: ResizeObserver;
     private nodeIds = new WeakMap<Node, number>();
@@ -82,18 +95,7 @@ export class InterfaceScene extends Scene {
         super('InterfaceScene');
     }
     preload(): void {
-        for (const name of [
-            'corner',
-            'divider',
-            'rosette',
-            'glint',
-            'mithra-portrait',
-            'ashi-portrait',
-            'spenta-armaiti-portrait',
-        ] as const)
-            this.load.image(`ui-${name}`, assetUrl(ART[name].file));
-    }
-    create(): void {
+        const queued = new Set<string>();
         for (const name of [
             'corner',
             'divider',
@@ -103,9 +105,13 @@ export class InterfaceScene extends Scene {
             'ashi-portrait',
             'spenta-armaiti-portrait',
         ] as const) {
-            const [x, y, w, h] = ART[name].frame;
-            this.textures.get(`ui-${name}`).add('crop', 0, x, y, w, h);
+            const key = artTextureKey(name);
+            if (!queued.has(key)) this.load.image(key, assetUrl(ART[name].file));
+            queued.add(key);
         }
+    }
+    create(): void {
+        installArtFrames(this);
         this.hud = this.layer();
         this.panel = this.layer();
         this.dock = this.layer();
@@ -120,13 +126,7 @@ export class InterfaceScene extends Scene {
         this.controlsMaskShape = this.make.graphics({}, false);
         if (this.renderer.type === CANVAS)
             this.controlsMask = this.controlsMaskShape.createGeometryMask();
-        else {
-            this.controlsGroup.enableFilters();
-            this.controlsFilter = this.controlsGroup.filters!.external.addMask(
-                this.controlsMaskShape,
-            );
-            this.controlsFilter.active = false;
-        }
+        else this.clipControls = rectangularClip(this.controlsGroup);
         this.inventory = this.layer();
         this.theatre = this.layer();
         this.modal = this.layer();
@@ -135,12 +135,7 @@ export class InterfaceScene extends Scene {
         if (this.renderer.type === CANVAS) {
             this.modalMask = this.maskShape.createGeometryMask();
             this.content.container.setMask(this.modalMask);
-        } else {
-            // Phaser 4 geometry masks are Canvas-only. External filters share
-            // the UI camera's coordinates with the measured scroll rectangle.
-            this.content.container.enableFilters();
-            this.content.container.filters!.external.addMask(this.maskShape);
-        }
+        } else this.clipContent = rectangularClip(this.content.container);
         this.feedback = new GraphicsFeedback(this, this.parent, this.motion, this.invalidate);
         this.parent.classList.add('graphics-ui');
         this.observer = new MutationObserver(this.invalidate);
@@ -229,6 +224,8 @@ export class InterfaceScene extends Scene {
     }
     invalidate = (): void => {
         this.dirty = true;
+        if (this.game?.isRunning && this.motion.visible && !this.parent.closest('[hidden]'))
+            this.game.loop.wake();
     };
 
     update(time: number): void {
@@ -246,6 +243,12 @@ export class InterfaceScene extends Scene {
             const alpha = 0.45 + 0.55 * (1 - Math.pow(1 - progress, 3));
             this.modal.container.setAlpha(alpha);
             this.content.container.setAlpha(alpha);
+        }
+        if (!this.session.state && !this.session.sheet && !this.pressed) {
+            this.game.events.once('postrender', () => {
+                if (!this.dirty && !this.session.state && !this.session.sheet && !this.pressed)
+                    this.game.loop.sleep();
+            });
         }
         this.animatePortrait(time);
         const entryDuration = this.motion.duration(MOTION.fast);
@@ -304,15 +307,21 @@ export class InterfaceScene extends Scene {
         return `${this.nodeIds.get(node)}:${suffix}`;
     }
     private box(element: Element): UiBox {
+        const cached = this.boxes.get(element);
+        if (cached) return cached;
         const rect = element.getBoundingClientRect();
-        return {
+        const box = {
             x: rect.left - this.origin.x,
             y: rect.top - this.origin.y,
             width: rect.width,
             height: rect.height,
         };
+        this.boxes.set(element, box);
+        return box;
     }
     private paint(time: number): void {
+        this.styles.clear();
+        this.boxes.clear();
         const display = configureDisplayCamera(this);
         this.displayWidth = display.width;
         this.displayHeight = display.height;
@@ -366,7 +375,7 @@ export class InterfaceScene extends Scene {
                 .clear()
                 .fillStyle(0xffffff)
                 .fillRect(controlsBox.x, controlsBox.y, controlsBox.width, controlsBox.height);
-        if (this.controlsFilter) this.controlsFilter.active = clipsControls;
+        this.clipControls?.(clipsControls ? controlsBox : null);
         if (this.controlsMask) {
             if (clipsControls) this.controlsGroup.setMask(this.controlsMask);
             else this.controlsGroup.clearMask();
@@ -419,7 +428,7 @@ export class InterfaceScene extends Scene {
                 const heroBox = this.box(hero);
                 this.portraitRestY = heroBox.y + heroBox.height / 2;
                 const expression = hero.dataset.art!;
-                const ready = this.textures.exists(`ui-${expression}`);
+                const ready = this.textures.exists(artTextureKey(expression));
                 if (expression !== this.portraitExpression || (ready && !this.portraitReady)) {
                     this.portraitExpression = expression;
                     this.portraitChangedAt =
@@ -443,6 +452,7 @@ export class InterfaceScene extends Scene {
             if (context) this.paintTree(context, this.modal);
             const body = dialog.querySelector<HTMLElement>('.sheet-body')!;
             const clip = this.box(body);
+            this.clipContent?.(clip);
             this.maskShape
                 .clear()
                 .fillStyle(0xffffff)
@@ -466,7 +476,8 @@ export class InterfaceScene extends Scene {
             this.modal,
             this.content,
         ])
-            this.end(layer);
+            if (dialog || ![this.modal, this.content, this.theatre].includes(layer))
+                this.end(layer);
     }
     private loadNarrator(): void {
         if (this.narratorLoading) return;
@@ -478,7 +489,7 @@ export class InterfaceScene extends Scene {
                 (name, index, all) =>
                     name in ART &&
                     all.indexOf(name) === index &&
-                    !this.textures.exists(`ui-${name}`) &&
+                    !this.textures.exists(artTextureKey(name)) &&
                     !this.unavailablePortraits.has(name),
             );
         const next =
@@ -489,22 +500,22 @@ export class InterfaceScene extends Scene {
                   : null;
         if (!names.length && next) {
             const name = `anahita-${LESSONS[next].expression}` as const;
-            if (!this.textures.exists(`ui-${name}`) && !this.unavailablePortraits.has(name))
+            if (!this.textures.exists(artTextureKey(name)) && !this.unavailablePortraits.has(name))
                 names.push(name);
         }
         if (!names.length) return;
         this.narratorLoading = true;
-        for (const name of names) this.load.image(`ui-${name}`, assetUrl(ART[name].file));
+        const queued = new Set<string>();
+        for (const name of names) {
+            const key = artTextureKey(name);
+            if (!queued.has(key)) this.load.image(key, assetUrl(ART[name].file));
+            queued.add(key);
+        }
         this.load.once('complete', () => {
             for (const name of names) {
-                const texture = this.textures.get(`ui-${name}`);
-                if (!this.textures.exists(`ui-${name}`)) {
-                    this.unavailablePortraits.add(name);
-                    continue;
-                }
-                const [x, y, width, height] = ART[name].frame;
-                texture.add('crop', 0, x, y, width, height);
+                if (!this.textures.exists(artTextureKey(name))) this.unavailablePortraits.add(name);
             }
+            installArtFrames(this);
             this.narratorLoading = false;
             this.invalidate();
         });
@@ -525,7 +536,7 @@ export class InterfaceScene extends Scene {
                 this.feedback?.hides(element)
             )
                 return;
-            const style = getComputedStyle(element);
+            const style = this.style(element);
             if (style.display === 'none') return;
             if (style.display === 'contents') {
                 if (element.classList.contains('match-controls') && layer === this.hud) return;
@@ -592,7 +603,7 @@ export class InterfaceScene extends Scene {
             return;
         }
         if (el.dataset.art) {
-            const texture = `ui-${el.dataset.art}`;
+            const texture = artTextureKey(el.dataset.art);
             if (!this.textures.exists(texture))
                 drawRosette(
                     layer.graphics,
@@ -601,7 +612,7 @@ export class InterfaceScene extends Scene {
                     Math.min(20, box.width / 3),
                     UI_INK.gold,
                 );
-            else this.paintImage(layer, el, texture, 'crop', box);
+            else this.paintImage(layer, el, texture, artFrameKey(el.dataset.art), box);
         }
     }
     private paintImage(
@@ -631,7 +642,7 @@ export class InterfaceScene extends Scene {
             layer.objects.set(id, image);
         }
         layer.used.add(id);
-        const style = getComputedStyle(node);
+        const style = this.style(node);
         const matrix = new DOMMatrixReadOnly(
             style.transform === 'none' ? undefined : style.transform,
         );
@@ -648,7 +659,7 @@ export class InterfaceScene extends Scene {
         image.setAlpha(node.closest('button:disabled') ? 0.45 : 1);
     }
     private paintText(node: Node, element: HTMLElement, layer: PaintLayer): void {
-        const style = getComputedStyle(element);
+        const style = this.style(element);
         const runs = measureTextRuns(node);
         for (const [index, run] of runs.entries()) {
             const id = this.key(node, String(index));
@@ -724,7 +735,7 @@ export class InterfaceScene extends Scene {
                 top = 0,
                 bottom = this.displayHeight;
             while (ancestor && ancestor !== this.parent) {
-                const overflow = getComputedStyle(ancestor);
+                const overflow = this.style(ancestor);
                 const clipsX = ['hidden', 'clip', 'auto', 'scroll'].includes(overflow.overflowX);
                 const clipsY = ['hidden', 'clip', 'auto', 'scroll'].includes(overflow.overflowY);
                 if (!clipsX && !clipsY) {

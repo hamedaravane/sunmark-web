@@ -30,7 +30,10 @@
     "browser:cli": "node scripts/browser-cli.mjs",
     "browser:verify": "node scripts/browser-verify.mjs",
     "browser:install": "playwright install --with-deps --only-shell chromium",
-    "browser:ui": "node scripts/ui-capture.mjs"
+    "browser:ui": "node scripts/ui-capture.mjs",
+    "assets:audit": "python3 scripts/audit-assets.py",
+    "assets:lossless": "python3 scripts/audit-assets.py --optimize-lossless",
+    "assets:test": "python3 scripts/test-asset-exports.py"
   },
   "dependencies": {
     "phaser": "4.0.0",

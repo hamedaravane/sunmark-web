@@ -1,3 +1,4 @@
+import type { RenderQuality } from '../rendering/renderQuality';
 import { Scene, type GameObjects } from 'phaser';
 import { TEXTURE_FILES, assetUrl } from '../assets';
 import type { MatchSession } from '../ui/matchSession';
@@ -13,6 +14,7 @@ export class BackdropScene extends Scene {
     constructor(
         private session: MatchSession,
         private motion: Motion,
+        private quality: RenderQuality,
     ) {
         super('BackdropScene');
     }
@@ -47,7 +49,10 @@ export class BackdropScene extends Scene {
     update(_time: number, delta: number): void {
         this.ocean?.update(
             delta,
-            this.motion.visible && !this.motion.reduced && !this.session.sheet,
+            this.motion.visible &&
+                !this.motion.reduced &&
+                !this.session.sheet &&
+                this.quality.decorativeMotion,
         );
     }
 }

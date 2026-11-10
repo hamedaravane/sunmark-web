@@ -446,7 +446,7 @@ export function drawComponent(
                 box.y + 9,
                 3,
             );
-    } else if (has('character-card') || has('character-dialogue')) {
+    } else if (has('character-dialogue')) {
         drawSurface(g, box, 'inset', { radius: 16, quiet: true, accent: undefined });
     } else if (el.matches('.detail-list > div, .history-list > li')) {
         g.lineStyle(1, 0x656b61, 0.6).lineBetween(

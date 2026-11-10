@@ -20,8 +20,11 @@ import { UI_FONT_FAMILY } from '../ui/typography';
 import type { Motion } from '../ui/motion';
 import type { PresentedTransition as MatchTransition } from '../ui/transitions';
 import { ART, assetUrl } from '../assets';
-import { NUMBER_TOKEN_ART } from '../rendering/boardEmblems';
-import { drawVectorArt } from '../rendering/vectorArt';
+import {
+    ensureBoardMarkerTextures,
+    NUMBER_PLATE_KEY,
+    NUMBER_PLATE_RADIUS,
+} from '../rendering/boardMarkerTextures';
 import { createBuildingPiece, createRoadPiece } from '../rendering/pieces';
 import {
     createPortMarker,
@@ -105,6 +108,7 @@ export class GameScene extends Scene {
         if (this.prepared) return;
         this.prepared = true;
         ensureTerrainTextures(this);
+        ensureBoardMarkerTextures(this);
         for (const name of ['spark', 'dust'] as const)
             this.load.image(`art-${name}`, assetUrl(ART[name].file));
         this.load.once('complete', () => {
@@ -359,15 +363,11 @@ export class GameScene extends Scene {
             this.boardObjects.add(highlight);
         }
         if (tile.number !== null) {
-            const token = this.add.graphics();
-            drawVectorArt(
-                token,
-                NUMBER_TOKEN_ART,
-                x,
-                y + radius * 0.48,
-                13 * NUMBER_TOKEN_SCALE * this.detailScale,
+            this.boardObjects.add(
+                this.add
+                    .image(x, y + radius * 0.48, NUMBER_PLATE_KEY)
+                    .setScale((13 * NUMBER_TOKEN_SCALE * this.detailScale) / NUMBER_PLATE_RADIUS),
             );
-            this.boardObjects.add(token);
             this.text(
                 x,
                 y + radius * 0.48,
