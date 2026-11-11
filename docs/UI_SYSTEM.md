@@ -362,3 +362,15 @@ covering the viewport height. This exposes the low sun and a wider mountain ridg
 without changing the image's aspect ratio. A soft lower mist mask meets a sampled
 atmospheric gradient behind the palace; no stretched/repeated sky, duplicated scene
 or new artwork is used. The approved tablet/desktop horizon framing stays intact.
+
+## Centered roll CTA (2026-11-11)
+
+The owner's screenshot review supersedes the lower-deck/ocean dice placement above.
+During an eligible human starter or ordinary roll, one compact native button is
+centered in the board viewport. The Graphics renderer paints larger dice on a
+teal/gold CTA with identical hit geometry. This temporary roll control disappears
+on the committed roll and never remains over legal building targets. The board
+viewport and camera do not resize between phases. Pre-roll development cards,
+private victory declaration, storage warnings and menu/inspection access retain
+their rule/state eligibility. No duplicate bottom dice-ready message remains.
+The roll paint layer is independent of decision-rail clipping in landscape.

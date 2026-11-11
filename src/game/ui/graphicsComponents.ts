@@ -84,11 +84,22 @@ export function drawComponent(
             box.height / 2 - 3,
         );
     } else if (has('roll-object')) {
-        const cx = box.x + box.width / 2;
-        g.fillStyle(0x0a2041, 0.3).fillEllipse(cx, box.y + box.height - 23, box.width - 8, 16);
-        // A pair of wing inlays anchors the dice without a modal or solid panel.
-        drawWing(g, box.x + 4, box.y + box.height - 24, 13, -1);
-        drawWing(g, box.x + box.width - 4, box.y + box.height - 24, 13, 1);
+        // One compact CTA over the island, with a matching native hit region.
+        g.fillStyle(0x071e24, 0.28).fillRoundedRect(box.x, box.y + 5, box.width, box.height, 18);
+        g.fillStyle(pressed === el ? 0x28575b : 0x143c40, 0.96).fillRoundedRect(
+            box.x,
+            box.y,
+            box.width,
+            box.height,
+            18,
+        );
+        g.lineStyle(el.matches(':focus-visible') ? 3 : 2, UI_INK.gold, 0.95).strokeRoundedRect(
+            box.x,
+            box.y,
+            box.width,
+            box.height,
+            18,
+        );
     } else if (
         has('dock-primary') ||
         has('dock-button') ||
@@ -216,6 +227,7 @@ export function drawComponent(
             flat: true,
         });
     } else if (has('bottom-space')) {
+        if (el.closest('.is-awaiting-roll')?.querySelector('.dock-roll-options:empty')) return;
         const display = canvasDisplay(g.scene);
         g.fillStyle(MATCH_INK.base).fillRect(
             el.closest('.is-wide') ? box.x : 0,
@@ -224,6 +236,7 @@ export function drawComponent(
             Math.max(0, display.height - box.y),
         );
     } else if (has('action-dock')) {
+        if (el.querySelector('.dock-roll-options:empty')) return;
         if (!el.closest('.is-desktop'))
             g.fillStyle(MATCH_INK.base).fillRect(box.x, box.y, box.width, box.height);
     } else if (has('hub-progress')) {

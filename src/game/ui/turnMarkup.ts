@@ -13,13 +13,14 @@ import { costRow } from './sheets';
 import { transitionReceipt, turnSurface } from './turnSurface';
 import type { MatchSession } from './matchSession';
 import { botControls } from './characterMarkup';
+import { openingGuidance } from './journey';
 import { turnReport } from './turnReport';
 
 export function heroDice(session: MatchSession): string {
     const state = session.state!;
     if (!turnSurface(state, session.humanPlayer!.id, !!session.practice).hero) return '';
     return button(
-        `<span class="hero-dice" aria-hidden="true">${diceFace(3)}${diceFace(5)}</span><span class="roll-caption">${state.phase === 'setup-roll' ? 'تاس آغازین' : 'تاس بریز'}</span>`,
+        `<span class="hero-dice" aria-hidden="true">${diceFace(3)}${diceFace(5)}</span><span class="roll-caption">${state.phase === 'setup-roll' ? 'تاس آغازین' : 'نوبت تو · تاس بریز'}</span>`,
         'roll-dice',
         {
             className: 'roll-object',
@@ -71,10 +72,13 @@ export function turnStatus(session: MatchSession, showReceipt = true): string {
             : 'حریف، اهریمن را جابه‌جا می‌کند';
     if (!text && state.phase === 'road-building')
         text = `${remoteState(state) ? '' : number(state.roadBuilding!.remaining) + ' '}راه رایگان · محل را ببین و تأیید کن`;
+    if (!text && isSetup(state) && session.placement?.targetId)
+        return button('محل انتخاب شد · بررسی این محل', 'open:opening-review', {
+            className: 'button context-button',
+            label: 'بررسی منابع و احتمال تولید محل انتخاب‌شده؛ هنوز تأیید نشده',
+        });
     if (!text && session.placement)
-        text = isSetup(state)
-            ? 'جانمایی آغازین · آبادی و راه رایگان‌اند'
-            : 'محل روشن را انتخاب کن؛ سپس تأیید کن';
+        text = isSetup(state) ? openingGuidance(session) : 'محل روشن را انتخاب کن؛ سپس تأیید کن';
     if (
         session.placement &&
         session.placement.kind !== 'robber' &&
@@ -146,6 +150,16 @@ export function primaryAction(session: MatchSession) {
             disabled: !placement.targetId,
         };
     }
+    if (session.practice?.stage === 'complete')
+        return {
+            label:
+                session.savedMatch && session.savedMatch.state.phase !== 'finished'
+                    ? 'ادامهٔ بازی ذخیره‌شده'
+                    : 'شروع اولین بازی کامل',
+            description: 'خروج از تمرین و ورود به بازی اصلی؛ ذخیرهٔ قبلی محفوظ می‌ماند',
+            action: 'practice-match',
+            disabled: false,
+        };
     const label =
         state.phase === 'discard'
             ? 'انتخاب منابع'
@@ -190,7 +204,7 @@ export function actionDock(session: MatchSession): string {
     if (placement) {
         const required =
             placement.kind === 'robber' || isSetup(state) || state.phase === 'road-building';
-        tools = `<div class="dock-selection">${button(`<span>محل‌ها</span><small>${number(session.targets.length)} محل مجاز</small>`, 'open:targets', { className: 'button dock-targets', disabled: !session.targets.length, pressed: session.sheet?.kind === 'targets', label: `انتخاب از ${number(session.targets.length)} محل مجاز؛ فهرست قابل دسترس` })}${button(required ? 'پاک‌کردن' : 'لغو', 'cancel-placement', { className: 'button dock-cancel', disabled: required && !placement.targetId, label: required ? 'پاک‌کردن انتخاب؛ این مرحله همچنان باید کامل شود' : 'لغو ساخت؛ هیچ منبعی خرج نمی‌شود' })}</div>`;
+        tools = `<div class="dock-selection">${button(`<span>محل‌ها و بررسی</span><small>${number(session.targets.length)} محل مجاز</small>`, 'open:targets', { className: 'button dock-targets', disabled: !session.targets.length, pressed: session.sheet?.kind === 'targets', label: `انتخاب از ${number(session.targets.length)} محل مجاز؛ فهرست قابل دسترس` })}${button(required ? 'پاک‌کردن' : 'لغو', 'cancel-placement', { className: 'button dock-cancel', disabled: required && !placement.targetId, label: required ? 'پاک‌کردن انتخاب؛ این مرحله همچنان باید کامل شود' : 'لغو ساخت؛ هیچ منبعی خرج نمی‌شود' })}</div>`;
     } else if (surface.hero) {
         const card = surface.readyCards
             ? button(
@@ -212,7 +226,7 @@ export function actionDock(session: MatchSession): string {
                       className: 'button context-button',
                   })
                 : '';
-        tools = `<div class="dock-roll-options">${card}${warning || (!card ? '<p class="dock-idle dock-roll-hint">نوبت تو · تاس‌ها آماده‌اند</p>' : '')}</div>`;
+        tools = `<div class="dock-roll-options">${card}${warning}</div>`;
     } else if (
         !isSetup(state) &&
         !['discard', 'robber', 'steal', 'road-building', 'finished'].includes(state.phase)

@@ -21,8 +21,8 @@ export function introductionContent(session: MatchSession, ready: boolean): Shee
         focusAction: 'enter-match',
         body: `<div class="match-introduction">
             ${icon(session.online ? 'friends' : 'offline', 46)}
-            <p class="eyebrow">یک جزیره؛ ${number(state.players.length)} رقیب</p>
-            <h3>داستان این بازی با شما آغاز می‌شود</h3>
+            <p class="eyebrow">یک جزیره؛ ${number(state.players.length)} بازیکن</p>
+            <h3>منابع بگیر، بساز، به ${number(state.victoryTarget)} امتیاز برس</h3><p>اول با تاس، شروع‌کننده را مشخص می‌کنیم. بعد دو آبادی و دو راهت را خودت می‌گذاری.</p>
             <p class="footnote">رنگ مُهر هر بازیکن، رنگ راه‌ها و آبادی‌های اوست.</p>
             <ol class="intro-participants">${state.players
                 .map(
@@ -31,11 +31,18 @@ export function introductionContent(session: MatchSession, ready: boolean): Shee
                         seat,
                     ) => `<li class="intro-participant" style="--owner:${color(player.color)}">
                 ${playerAvatar(avatarForSeat(seat, humanSeat))}
-                <div><b dir="auto">${escape(player.name)}</b><small>${seat === humanSeat ? 'شما' : 'هوش مصنوعی'} • ${colorNames[player.color] ?? color(player.color)}</small>${characterForSeat(seat, humanSeat) ? `<small>${characterForSeat(seat, humanSeat)!.strategy}</small><p class="intro-greeting">«${characterForSeat(seat, humanSeat)!.greeting}»</p>` : ''}</div>
+                <div><b dir="auto">${escape(player.name)}</b><small>${seat === humanSeat ? 'شما' : 'هوش مصنوعی'} • ${colorNames[player.color] ?? color(player.color)}</small>${characterForSeat(seat, humanSeat) ? `<small>${characterForSeat(seat, humanSeat)!.strategy}</small>` : ''}</div>
                 <span class="owner-badge" aria-label="رنگ بازیکن ${color(player.color)}"></span>
             </li>`,
                 )
-                .join('')}</ol>
+                .join('')}</ol><details><summary>آشنایی بیشتر با رقبا</summary>${state.players
+                .map((_, seat) => characterForSeat(seat, humanSeat))
+                .filter((character) => !!character)
+                .map(
+                    (character) =>
+                        `<p class="intro-greeting"><b>${escape(character.name)}</b>: «${escape(character.greeting)}»</p>`,
+                )
+                .join('')}</details>
             <p class="footnote" role="status">${ready ? `نخستین بازیکن با تاس مشخص می‌شود؛ مقصد، ${number(state.victoryTarget)} امتیاز.` : 'در حال آماده‌سازی جزیره و جلوه‌ها…'}</p>
         </div>`,
         footer:

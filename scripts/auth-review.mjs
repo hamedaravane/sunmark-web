@@ -59,6 +59,7 @@ try {
         ['tablet', 820, 1180],
         ['desktop', 1440, 900],
     ]) {
+        if (process.argv.includes('mobile') && device !== 'mobile') continue;
         const context = await browser.newContext({
             viewport: { width, height },
             reducedMotion: 'reduce',
@@ -128,6 +129,7 @@ try {
             await refreshProgression();
             globalThis.sunmarkReview.pause(false);
         });
+        await page.locator('.title-more > summary').click();
         for (const [action, name] of [
             ['hub:online-profile', 'online-profile'],
             ['hub:online-achievements', 'online-achievements'],

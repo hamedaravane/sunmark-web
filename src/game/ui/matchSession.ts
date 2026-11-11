@@ -13,6 +13,7 @@ export type MatchSession = Omit<
     | 'advanceBot'
     | 'botReady'
     | 'start'
+    | 'continueFromPractice'
     | 'progression'
     | 'botPaused'
     | 'setBotPaused'
@@ -26,6 +27,7 @@ export type MatchSession = Omit<
     | 'setRivalDialogue'
     | 'replayRival'
 > & {
+    continueFromPractice?(): void;
     readonly rivals?: GameSession['rivals'];
     readonly rivalCharacters?: GameSession['rivalCharacters'];
     continueRival?(): void;

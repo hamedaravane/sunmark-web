@@ -44,8 +44,38 @@ try {
             await page.evaluate((name) => globalThis.sunmarkReview.show(name), screen);
             await page.waitForFunction(() => globalThis.sunmarkReview.ready());
             await page.waitForTimeout(180);
-            if (!process.argv.includes('--interactions'))
+            if (!process.argv.includes('--interactions')) {
                 await page.screenshot({ path: `${out}/${device}-${screen}.png`, timeout: 150000 });
+                if (process.argv.includes('--scroll-details')) {
+                    const body = page.locator('dialog[open] .sheet-body');
+                    if (await body.count()) {
+                        const range = await body.evaluate((node) => ({
+                            max: node.scrollHeight - node.clientHeight,
+                            step: Math.max(100, Math.floor(node.clientHeight * 0.8)),
+                        }));
+                        for (
+                            let position = range.step, index = 1;
+                            position < range.max + range.step;
+                            position += range.step, index++
+                        ) {
+                            await body.evaluate(
+                                (node, top) => {
+                                    node.scrollTop = top;
+                                },
+                                Math.min(position, range.max),
+                            );
+                            await page.waitForTimeout(100);
+                            await page.screenshot({
+                                path: `${out}/${device}-${screen}-scroll-${index}.png`,
+                                timeout: 150000,
+                            });
+                        }
+                        await body.evaluate((node) => {
+                            node.scrollTop = 0;
+                        });
+                    }
+                }
+            }
             const controls = await page
                 .locator('button, summary, input, select')
                 .evaluateAll((nodes) =>

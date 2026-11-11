@@ -27,7 +27,7 @@ export function roomMarkup(client: OnlineClient, draft: Drafts) {
                 ) +
                 button('بازگشت', 'screen:home');
         } else {
-            body += `<div class="online-mode-grid"><section class="online-card" data-surface="amethyst">${label('رقابت رتبه‌بندی‌شده', 'h2')}${label(rankLabel(onlineProgression()), 'h3')}${label('چهار بازیکن واقعی؛ نتیجهٔ بازی روی رتبه اثر دارد. نوبت‌ها زمان‌سنج ندارند.')}${button('پیدا کردن رقابت', 'ranked', busy)}</section><section class="online-card" data-surface="lapis">${label('بازی سریع دوستانه', 'h2')}${label('هم‌سفرها را پیدا می‌کنیم؛ بازی با چهار بازیکن خودکار شروع می‌شود. بدون تغییر رتبه.')}${button('پیدا کردن بازی', 'quick', busy)}</section><section class="online-card" data-surface="inset">${label('بازی خصوصی', 'h2')}${label('یک جزیره فقط برای تو و دوستانت.')}${button('ساخت بازی خصوصی', 'create', busy)}${button('پیوستن با کد', 'screen:join', busy)}</section></div>`;
+            body += `<div class="online-mode-grid"><section class="online-card" data-surface="inset">${label('بازی خصوصی', 'h2')}${label('با یک دوست هم می‌شود: دو صندلی دیگر را خودت با ربات پر کن. چهار صندلی، بدون نیاز به صف انتظار.')}${button('ساخت بازی خصوصی', 'create', busy)}${button('پیوستن با کد', 'screen:join', busy)}</section><section class="online-card" data-surface="amethyst">${label('رقابت رتبه‌بندی‌شده', 'h2')}${label(rankLabel(onlineProgression()), 'h3')}${label('چهار بازیکن واقعی؛ نتیجهٔ بازی روی رتبه اثر دارد. نوبت‌ها زمان‌سنج ندارند.')}${button('پیدا کردن رقابت', 'ranked', busy)}</section><section class="online-card" data-surface="lapis">${label('بازی سریع دوستانه', 'h2')}${label('هم‌سفرها را پیدا می‌کنیم؛ بازی با چهار بازیکن خودکار شروع می‌شود. بدون تغییر رتبه.')}${button('پیدا کردن بازی', 'quick', busy)}</section></div>`;
             if (client.matches.length)
                 body +=
                     label('ادامه سفرها', 'h3') +
@@ -45,15 +45,20 @@ export function roomMarkup(client: OnlineClient, draft: Drafts) {
         const ready = snapshot.seats.filter((seat) => seat.occupied && seat.ready).length;
         body =
             label(snapshot.name, 'h2') +
-            `<div class="online-lobby"><section class="online-invite" data-surface="lapis">${label('دوستانت را دعوت کن', 'h3')}${label(snapshot.code, 'h2')}${button('کپی پیوند دعوت', 'invite')}${label('دوستانت با این کد کوتاه یا پیوند دعوت وارد می‌شوند.', 'small')}</section>` +
+            `<div class="online-lobby"><section class="online-invite" data-surface="lapis">${label('یک دوستت را دعوت کن', 'h3')}${label(snapshot.code, 'h2')}${button('کپی پیوند دعوت', 'invite')}${label('دوستانت با این کد کوتاه یا پیوند دعوت وارد می‌شوند.', 'small')}</section>` +
             '<section class="online-roster">' +
             label(`آماده برای سفر · ${ready.toLocaleString('fa-IR')} از ۴`, 'h3') +
             `<div class="online-seats">${snapshot.seats.map((seat, index) => `<section class="online-seat" data-surface="${seat.ready ? 'emerald' : 'inset'}"><span data-avatar="${seat.bot ? 'atlas' : 'human'}" data-owner="${['438bff', 'ff526e', '26d7cb', 'ffbd53'][index]}" aria-hidden="true"></span><div>${label(seat.occupied ? `${seat.name}${seat.isYou ? ' · شما' : ''}` : 'جای دوستت خالی است', 'h3')}${label(!seat.occupied ? 'دعوت کن یا ربات اضافه کن' : seat.bot ? 'ربات · آماده بازی' : seat.ready ? 'آماده بازی' : 'منتظر اعلام آمادگی', 'small')}</div>${snapshot.host && index > 0 && (!seat.occupied || seat.bot) ? button(seat.bot ? 'حذف ربات' : 'افزودن ربات', `bot:${index}:${!seat.bot}`, busy) : ''}</section>`).join('')}</div>` +
             label(
                 snapshot.host
-                    ? 'وقتی هر چهار صندلی پر شوند، بازی را آغاز کن.'
-                    : 'همه آماده‌اند؛ میزبان بازی را آغاز می‌کند.',
+                    ? 'یک دوست کافی است؛ برای دو جای خالی «افزودن ربات» را بزن و سفر را آغاز کن.'
+                    : ready === 4
+                      ? 'همه آماده‌اند؛ میزبان بازی را آغاز می‌کند.'
+                      : 'منتظر تکمیل صندلی‌ها؛ میزبان می‌تواند جای خالی را با ربات پر کند.',
             ) +
+            (snapshot.host && snapshot.seats.some((seat) => !seat.occupied)
+                ? button('پرکردن جای خالی با ربات', 'fill-bots', busy)
+                : '') +
             (snapshot.host ? button('آغاز سفر', 'start', busy || ready !== 4) : '') +
             '</section></div>';
     }

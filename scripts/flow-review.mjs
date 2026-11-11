@@ -17,6 +17,7 @@ try {
         ['tablet', 820, 1180],
         ['desktop', 1440, 900],
     ]) {
+        if (process.argv.includes('mobile') && device !== 'mobile') continue;
         const context = await browser.newContext({
             viewport: { width, height },
             reducedMotion: 'reduce',

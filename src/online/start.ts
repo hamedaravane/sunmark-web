@@ -176,6 +176,26 @@ export function startOnline(
                     enabled: parts[1] === 'true',
                 });
                 break;
+            case 'fill-bots':
+                if (client.snapshot?.host && !client.busy) {
+                    const empty = client.snapshot.seats.flatMap((seat, index) =>
+                        !seat.occupied ? [index] : [],
+                    );
+                    void (async () => {
+                        for (const seat of empty) {
+                            if (
+                                disposed ||
+                                !client.snapshot?.host ||
+                                client.snapshot.status !== 'lobby'
+                            )
+                                break;
+                            if (!client.snapshot.seats[seat]?.occupied)
+                                await client.lobby({ kind: 'bot', seat, enabled: true });
+                            if (client.error) break;
+                        }
+                    })();
+                }
+                break;
             case 'start':
                 void client.lobby({ kind: 'start' });
                 break;

@@ -17,6 +17,7 @@ try {
         ['tablet', 820, 1180],
         ['desktop', 1440, 900],
     ]) {
+        if (process.argv.includes('mobile') && device !== 'mobile') continue;
         const context = await browser.newContext({
             viewport: { width, height },
             reducedMotion: 'reduce',
@@ -99,6 +100,30 @@ try {
             c.emit();
         });
         await shot('online-lobby');
+        await page.evaluate(() => {
+            const client = globalThis.reviewOnline.client;
+            client.snapshot.seats[1].ready = true;
+            globalThis.reviewBotSeats = [];
+            // Exercise the real button handler with an isolated transport fixture.
+            client.lobby = async (action) => {
+                assertBotAction(action);
+                function assertBotAction(value) {
+                    if (value.kind !== 'bot' || !value.enabled)
+                        throw new Error('Unexpected lobby action');
+                }
+                globalThis.reviewBotSeats.push(action.seat);
+                const seat = client.snapshot.seats[action.seat];
+                if (seat.occupied) throw new Error('Cannot replace a human');
+                Object.assign(seat, { occupied: true, bot: true, ready: true, name: 'ربات' });
+                client.emit();
+            };
+            client.emit();
+        });
+        await page.locator('[data-online="fill-bots"]').click();
+        await page.waitForFunction(() => globalThis.reviewBotSeats.length === 2);
+        assert.deepEqual(await page.evaluate(() => globalThis.reviewBotSeats), [2, 3]);
+        assert(await page.locator('[data-online="start"]').isEnabled());
+        await shot('online-lobby-with-bots');
         assert.deepEqual(errors, []);
         results.push({ device, errors, accountSteps: 4, onlineStates: 5 });
         console.log(`${device}: account and online entry reviewed`);

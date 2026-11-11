@@ -27,7 +27,7 @@ export function pauseMenuContent(session: MatchSession, updateReady: boolean): S
             </section>
             <section class="pause-section"><h3>بازی</h3>
                 ${menuOption('رویدادهای بازی', 'تاس‌ها، ساخت‌ها و معامله‌های این سفر', 'open:history')}${menuOption('خانه‌های جزیره', 'خانه‌ها، تولید و ساختمان‌های مجاور', 'open:inspect')}${!practice && !session.online ? menuOption('بازبینی آخرین حرکت', 'منابع، هزینه‌ها و گفت‌وگوی رقبا', 'open:turn-review') : ''}
-                ${menuOption(session.online ? 'بازگشت به اتاق‌ها' : practice ? 'خروج از تمرین' : 'بازگشت به منوی اصلی', practice ? 'بازی اصلی محفوظ می‌ماند' : session.saveStatus === 'unavailable' ? 'ذخیره خودکار در دسترس نیست' : 'ادامه این بازی با دکمهٔ «بازی»', 'new-game')}
+                ${menuOption(session.online ? 'بازگشت به اتاق‌ها' : practice ? 'خروج از تمرین' : 'بازگشت به منوی اصلی', practice ? 'بازی اصلی محفوظ می‌ماند' : session.saveStatus === 'unavailable' ? 'ذخیره خودکار در دسترس نیست' : 'ذخیره روی همین دستگاه؛ هر وقت خواستی ادامه بده', 'new-game')}
                 ${!practice && !session.online ? menuOption('شروع بازی تازه', 'پس از تأیید، بازی فعلی جایگزین می‌شود', 'restart-match') : ''}
             </section>
             <section class="pause-section"><h3>برنامه</h3>

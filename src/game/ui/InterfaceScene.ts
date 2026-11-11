@@ -118,18 +118,18 @@ export class InterfaceScene extends Scene {
         this.hud = this.layer();
         this.panel = this.layer();
         this.dock = this.layer();
-        this.roll = this.layer();
         this.hints = this.layer();
         this.controlsGroup = this.add.container(0, 0, [
             this.panel.container,
             this.dock.container,
-            this.roll.container,
             this.hints.container,
         ]);
         this.controlsMaskShape = this.make.graphics({}, false);
         if (this.renderer.type === CANVAS)
             this.controlsMask = this.controlsMaskShape.createGeometryMask();
         else this.clipControls = rectangularClip(this.controlsGroup);
+        // The board CTA must not inherit a scrolling command rail's clipping.
+        this.roll = this.layer();
         this.inventory = this.layer();
         this.theatre = this.layer();
         this.modal = this.layer();
@@ -408,7 +408,7 @@ export class InterfaceScene extends Scene {
         if (actionPhase && !this.hadActionPhase)
             this.dockOpenedAt = this.motion.reduced ? -Infinity : time;
         this.hadActionPhase = actionPhase;
-        const dialog = this.parent.querySelector<HTMLDialogElement>('dialog[open]');
+        const dialog = this.parent.querySelector<HTMLDialogElement>('dialog.bottom-sheet[open]');
         const introduction = dialog?.dataset.contentKey === 'match-introduction';
         if (this.hadIntroduction && !introduction)
             this.matchEnteredAt = this.motion.reduced || !this.motion.visible ? -Infinity : time;

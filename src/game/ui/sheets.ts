@@ -1,3 +1,4 @@
+import { siteDescription, matchReflection } from './journey';
 import { icon } from '../../ui/icons';
 import { rivalDialogueContent } from './rivalDialogueMarkup';
 import { matchAvatar, matchBot } from './headerModel';
@@ -5,6 +6,7 @@ import { scoreAwards } from './scoreMarkup';
 import { constructionSheet } from './constructionMarkup';
 import { experienceSheet, experienceGuide } from './experienceMarkup';
 import { advancedSheet } from './advancedMarkup';
+import { isSetup } from './matchState';
 import { getBankTradeError } from './matchState';
 import {
     getBankTradeRates,
@@ -103,6 +105,29 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
     const sheet = session.sheet!;
     const advanced = advancedSheet(session);
     if (advanced) return advanced;
+    if (sheet.kind === 'opening-review') {
+        const id = session.placement?.targetId;
+        const vertex = id ? state.board.vertices[id] : undefined;
+        const second =
+            Object.values(state.board.vertices).filter((v) => v.building?.ownerId === player.id)
+                .length === 1;
+        const grants = vertex
+            ? state.board.tiles
+                  .filter((t) => vertex.tileIds.includes(t.id) && t.resource)
+                  .map((t) => `۱ ${FA.resources[t.resource!]}`)
+                  .join('، ')
+            : '';
+        return {
+            title: 'قبل از تأیید محل',
+            body:
+                vertex && id
+                    ? `<p>${escape(siteDescription(state, player.id, id))}</p><p>${second ? `با تأیید آبادی دوم همین حالا می‌گیری: ${grants || 'هیچ منبعی'}.` : 'آبادی اول منبع آغازین نمی‌دهد؛ با تاس‌های هم‌شماره تولید می‌کند.'}</p><p>منبع، احتمال تولید و مسیر گسترش را با هم مقایسه کن؛ انتخاب با توست.</p>`
+                    : '<p>این راه به آبادی تازه‌ات وصل است و جهت گسترشت را مشخص می‌کند. راه به‌تنهایی امتیاز یا منبع نمی‌دهد.</p>',
+            footer: button('بازگشت به نقشه و تأیید', 'close-sheet', {
+                className: 'button button--primary full-width',
+            }),
+        };
+    }
     if (sheet.kind === 'help') return pauseMenuContent(session, updateReady);
     if (sheet.kind === 'turn-review' && !session.online) return turnReviewContent(session);
     if (sheet.kind === 'domestic') return domesticContent(session);
@@ -115,7 +140,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
             title: inspecting ? 'بررسی خانه‌های جزیره' : 'انتخاب محل روی جزیره',
             key: inspecting ? 'island-inspection' : 'placement-targets',
             footer: inspecting ? pauseMenuBack() : undefined,
-            body: `<p class="sheet-intro">${inspecting ? 'برای دیدن تولید و ساختمان‌های مجاور، یک خانه را انتخاب کنید.' : 'انتخاب محل فقط پیش‌نمایش است؛ تأیید نهایی روی صفحه بازی انجام می‌شود.'}</p><div class="target-list">${ids
+            body: `<p class="sheet-intro">${inspecting ? 'برای دیدن تولید و ساختمان‌های مجاور، یک خانه را انتخاب کنید.' : 'انتخاب محل فقط پیش‌نمایش است؛ تأیید نهایی روی صفحه بازی انجام می‌شود.'}</p>${!inspecting && isSetup(state) && session.placement?.targetId ? button('بررسی محل انتخاب‌شده', 'open:opening-review', { className: 'button full-width' }) : ''}<div class="target-list">${ids
                 .map((id, i) => {
                     const tile = state.board.tiles.find((candidate) => candidate.id === id);
                     const vertex =
@@ -313,7 +338,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
                 : '';
         return {
             title: FA.winnerTitle,
-            body: `<div class="result-workspace"><section class="result-summary"><div class="victory-art">${icon('ranked', 112)}</div><p class="winner-name" style="--owner:${color(winner.color)}">${escape(winner.name)} ${FA.winnerSuffix}</p><p class="victory-score">${number(getPlayerSummary(state, winner.id).score)}<small>امتیاز · پایان این ماجراجویی</small></p>${onlineReward}${rewardContent}</section><div class="results-list">${state.players
+            body: `<div class="result-workspace"><section class="result-summary"><div class="victory-art">${icon('ranked', 112)}</div><p class="winner-name" style="--owner:${color(winner.color)}">${escape(winner.name)} ${FA.winnerSuffix}</p><p class="victory-score">${number(getPlayerSummary(state, winner.id).score)}<small>امتیاز · پایان این ماجراجویی</small></p>${onlineReward}${rewardContent}${matchReflection(state, player.id)}</section><div class="results-list">${state.players
                 .slice()
                 .sort((a, b) =>
                     a.id === winner.id
@@ -330,7 +355,7 @@ export function sheetContent(session: MatchSession, updateReady = false): SheetC
                 .join(
                     '',
                 )}</div></div>${button('دفتر سفر آناهیتا', 'open:journal', { className: 'button full-width' })}`,
-            footer: `<div class="result-actions">${button('دیدن جزیره', 'close-sheet', { className: 'button button--quiet' })}${button(FA.newGame, 'new-game', { className: 'button button--primary' })}</div>`,
+            footer: `<div class="result-actions">${import.meta.env.VITE_ONLINE_ENABLED !== 'false' ? button('بازی با یک دوست', 'hub-online', { className: 'button button--primary result-friend' }) : ''}${button('دیدن جزیره', 'close-sheet', { className: 'button button--quiet' })}${button(FA.newGame, 'new-game', { className: 'button button--primary' })}</div>`,
         };
     }
     if (session.practice)

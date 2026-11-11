@@ -88,7 +88,8 @@ export type Sheet =
               | 'online-profile'
               | 'online-achievements'
               | 'online-cosmetics'
-              | 'referrals';
+              | 'referrals'
+              | 'opening-review';
       }
     | { kind: 'new-match' | 'player-name'; count: 3 | 4; guided: boolean };
 export interface Placement {
@@ -206,6 +207,11 @@ export class GameSession {
         this.tutorial.replay('practice-intro');
         this.record('صفحهٔ تمرین • تاس و دارایی آماده؛ ذخیرهٔ بازی اصلی محفوظ است.');
         this.emit();
+    }
+    continueFromPractice(): void {
+        if (this.practice?.stage !== 'complete' || this.sheet) return;
+        this.returnToMenu();
+        this.requestPlay();
     }
     requestStart(count: 3 | 4, guided = true): void {
         if (this.practice) return;

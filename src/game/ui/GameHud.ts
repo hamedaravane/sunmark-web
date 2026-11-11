@@ -63,10 +63,10 @@ export class GameHud {
             <section class="match-screen" aria-label="صفحه بازی" hidden>
                 <header class="match-bar"></header>
                 <div class="match-controls">
-                    <section class="bot-activity" aria-label="فعالیت رقیب"></section><div class="command-panel"><header class="command-heading"></header><div class="board-roll"></div><div class="context-line"></div>
+                    <section class="bot-activity" aria-label="فعالیت رقیب"></section><div class="command-panel"><header class="command-heading"></header><div class="context-line"></div>
                     <section class="action-dock" aria-label="کنترل‌های نوبت"></section>${desktopShortcuts()}</div><section class="resource-hand" aria-label="منابع شما"></section><div class="bottom-space"></div>
                 </div>
-                <div class="board-viewport"><div class="board-stage"><div class="board-canvas" aria-hidden="true"></div><p class="board-loading">در حال آماده‌سازی جزیره…</p></div></div>
+                <div class="board-viewport"><div class="board-stage"><div class="board-canvas" aria-hidden="true"></div><p class="board-loading">در حال آماده‌سازی جزیره…</p></div><div class="board-roll"></div></div>
             </section><div class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>`;
         this.boardViewport = parent.querySelector('.board-canvas')!;
         this.sheet = new BottomSheet(parent, () => session.closeSheet());
@@ -439,6 +439,7 @@ export class GameHud {
         }
         if (action === 'play' || action === 'tutorial')
             this.session.requestPlay(action === 'tutorial');
+        if (action === 'practice-match') this.session.continueFromPractice?.();
         if (action === 'resume-match') this.session.resumeSaved();
         if (action === 'restart-match') this.session.requestStart(4);
         if (action === 'confirm-new-match') this.session.confirmNewMatch();

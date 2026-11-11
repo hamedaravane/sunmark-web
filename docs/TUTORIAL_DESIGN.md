@@ -116,3 +116,11 @@ contextual lessons explain the next decision with accurate costs and restriction
 Longer development/title lessons retain the rule exceptions players need. Lessons,
 IDs, expressions, triggers, replay and practice actions are unchanged. Player-trade
 guidance explains the broadcast audience on-turn and active-player-only off-turn.
+
+## Direct practice handoff (2026-11-11)
+
+After viewing the completed exercise, the dock offers a direct transition to the
+first guided normal match, or resume when an unfinished save exists. The existing
+primary/menu exit remains available. The exercise is discarded before entering
+the ordinary flow; saved rules, progression ID, human identity and tutorial state
+are preserved on resume. New ordinary matches retain their real opening setup.

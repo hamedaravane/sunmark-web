@@ -104,3 +104,64 @@ entry and perceived quality. Review existing first-match progress/completion and
 return signals alongside player feedback; screenshots do not establish engagement
 lift and no player sample is claimed. Guardrails: preserve all navigation, consent,
 authentication, saves, rules, opt-outs and readable gameplay; use no new analytics.
+
+## 2026-11-11: first-match continuity implementation
+
+Problem: 20 of 64 observed fresh guest runs reached an ordinary roll; the data
+locates a stopping stage but does not establish confusion or abandonment. Practice
+returned to the menu, opening choices lacked an accessible strategic explanation,
+and the home did not recall an unfinished plan. Concurrent population is the
+working constraint for four-human matchmaking.
+
+Implemented in the first bundle:
+
+- Practice completion has a direct HUD action into guided normal setup or the
+  existing unfinished save. Its old exit remains available. Practice never becomes
+  an ordinary match, overwrites a save or changes normal dice/resources.
+- Opening guidance labels four human placement steps. The optional selected-site
+  review and destination list explain adjacent production odds, newly covered
+  resources, ports and second-settlement grants. Road review explains expansion.
+  All choices still require the original on-board confirmation.
+- Home recalls the saved score, acting player/setup and pinned construction goal;
+  it explicitly describes unfinished offline boards as stored on this device.
+- Construction goal controls are available beside the placement action rather
+  than hidden under Details. Existing affordability/location checks remain intact.
+- Online entry explains one friend plus two explicitly chosen bots. Hosts can
+  fill empty seats with bots in sequence and still explicitly start the room.
+  Human seats are never replaced. Ranked matchmaking remains four humans.
+- Results reflect final own building/road counts and public port access, suggest
+  another strategic experiment, and expose the existing friend-play entry.
+
+Hypothesis: concrete decisions and continuity improve setup progress and later
+confirmed play; friend rooms work without needing four concurrent humans.
+Primary measures: starter roll, first placement, all four placements, ordinary
+roll, later-day confirmed gameplay and distinct completions, separated by build,
+mode and guest/account identity. Small samples and delayed uploads preclude causal
+claims. No new analytics payloads, reward rules or privacy settings were added.
+
+Pending approved work, in priority order: observe first-time mobile players and
+review actual compact-phone rendering; simplify narration based on observations;
+add trading-goal drafts; build optional strategy exercises and safe versioned
+challenge sharing; add persisted learning milestones and calibrated bot difficulty.
+These features are not claimed as implemented by the first bundle. The first
+bundle must not be described as the entire engagement program or a proven lift.
+
+## 2026-11-11: screenshot-led screen review and centered roll
+
+Owner-directed iterative review captured every listed player-facing game screen,
+account and online entry states, then checked changes and scrolled details. See
+SCREEN_REVIEW_2026_11_11.md for the report relationship, retained designs, rejected
+iterations, captures, verified flows and empirical limits. Changes target first
+play clarity, readable placement, learning continuity and accessible friend rooms,
+without new rules, rewards or analytics. Native account dialogs no longer enter
+the game-sheet painter. Offline and loaded online progression remain separately
+reachable and online badge text correctly describes online matches.
+
+The owner then identified the lower dice and redundant bottom instruction as weak
+next-action presentation. Hypothesis: a centered board CTA with readable turn
+ownership makes the required roll easier to notice and initiate. Measure confirmed
+starter/ordinary roll progress and player comprehension by build, alongside
+later-day confirmed play. Guardrails: unchanged random outcomes, one native roll
+command, no rapid-tap double action, preserved pre-roll cards/declaration,
+unchanged board camera, mandatory choices, pause and opt-outs. Screenshots and
+browser interaction checks establish presentation/behavior only, not retention.

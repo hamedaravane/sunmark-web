@@ -17,9 +17,8 @@ export function tutorialContent(session: MatchSession): SheetContent {
         narrator: { portrait: `anahita-${lesson.expression}`, key: id },
         body: `<article class="narrator-dialogue" aria-label="گفت‌وگو با آناهیتا">
             <div class="narrator-copy"><p class="eyebrow">${CHAPTERS[lesson.chapter]}</p><h3>${escape(lesson.title)}</h3><p>${escape(lesson.text)}</p></div>
-            <p class="narrator-task">${escape(lesson.task)}</p>
         </article>${practice?.stage === 'complete' && profile && reward?.source === 'practice' ? rewardMarkup(reward, profile) + (session.progression ? storageNotice(session.progression) : '') : ''}`,
-        footer: `<div class="narrator-controls">${button(practice?.stage === 'complete' ? 'دیدن آبادی و امتیاز تازه' : director.remaining > 1 ? 'بعدش چی؟' : 'بریم سراغش', 'tutorial-next', { className: 'button button--primary' })}${practice ? button('خروج از تمرین', 'tutorial-pause', { className: 'button button--quiet' }) : ''}</div><p class="footnote">${practice ? 'این تمرین ذخیره نمی‌شود؛ با خروج، بازی اصلی محفوظ می‌ماند.' : ''}</p>`,
+        footer: `<p class="narrator-task">${escape(lesson.task)}</p><div class="narrator-controls">${button(practice?.stage === 'complete' ? 'دیدن آبادی و امتیاز تازه' : director.remaining > 1 ? 'بعدش چی؟' : 'بریم سراغش', 'tutorial-next', { className: 'button button--primary' })}${practice ? button('خروج از تمرین', 'tutorial-pause', { className: 'button button--quiet' }) : ''}</div><p class="footnote">${practice ? 'این تمرین ذخیره نمی‌شود؛ با خروج، بازی اصلی محفوظ می‌ماند.' : ''}</p>`,
     };
 }
 

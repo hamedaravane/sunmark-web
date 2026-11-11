@@ -17,6 +17,7 @@ try {
         ['tablet', 820, 1180],
         ['desktop', 1440, 900],
     ]) {
+        if (process.argv.includes('mobile') && device !== 'mobile') continue;
         const context = await browser.newContext({
             viewport: { width, height },
             reducedMotion: 'reduce',
@@ -50,8 +51,9 @@ try {
         await page.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
         await page.locator('.graphics-ui').waitFor();
         await click('open:experience');
-        for (const key of ['anahita', 'rivals', 'reduced'])
+        for (const key of ['anahita', 'reduced'])
             for (let n = 0; n < 2; n++) await click(`experience:${key}`);
+        await click('experience:rivals');
         await shot('home-settings');
         await click('resume-game');
         await click('tutorial');
@@ -75,11 +77,38 @@ try {
         await click('build:settlement');
         await lessons();
         await target();
-        if (await page.locator('.dock-primary[data-action=primary]').isVisible())
-            await click('primary');
-        await page.locator('.council-home').waitFor();
-        assert.equal(await page.locator('.council-home .hub-reward').count(), 0);
         await shot('practice-complete');
+        await click('practice-match');
+        await page.locator('#player-name').waitFor();
+        await shot('guided-name');
+        await page.locator('#player-name').fill('آزمایشگر');
+        await click('confirm-player-name');
+        await page.locator('[data-action=enter-match]').waitFor();
+        await shot('guided-introduction');
+        await click('enter-match');
+        await lessons();
+        await shot('guided-starter');
+        // Ties may require another human starter roll; bots keep their actual turns.
+        for (let n = 0; n < 30; n++) {
+            await lessons();
+            if (await page.locator('[data-action="open:targets"]').isVisible()) break;
+            if (await page.locator('[data-action=roll-dice]').isVisible()) await click('roll-dice');
+            await page.waitForTimeout(500);
+        }
+        await lessons();
+        await click('open:targets');
+        await shot('guided-first-sites');
+        await page.locator('[data-action^="preview-target:"]').first().click();
+        await lessons();
+        await shot('guided-first-preview');
+        await click('primary');
+        await lessons();
+        await shot('guided-first-road');
+        await click('open:help');
+        await click('new-game');
+        await page.locator('.council-home').waitFor();
+        await shot('saved-resume');
+        assert.equal(await page.locator('.council-home .hub-reward').count(), 0);
         await page.locator('.title-more > summary').click();
         await page.locator('.title-more [data-action="hub:profile"]').click();
         assert.match(await page.locator('dialog[open] .hub-reward').innerText(), /تمرین کامل شد/);

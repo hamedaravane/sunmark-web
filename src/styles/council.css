@@ -587,10 +587,10 @@ p {
 .placement-guidance {
     padding: 4px 10px;
     gap: 10px;
-    color: #293b39;
+    color: #f4ebd6;
 }
 .placement-guidance .turn-receipt {
-    color: #293b39;
+    color: #f4ebd6;
     max-width: 220px;
     padding: 0;
 }
@@ -1161,7 +1161,7 @@ p {
 }
 .bot-label {
     font-size: 11px;
-    color: #adbfbb;
+    color: #52635d;
 }
 
 .character-dialogue {
@@ -2454,4 +2454,51 @@ p {
     .is-desktop .action-dock {
         margin-top: 0;
     }
+}
+
+/* Keep the invitation reachable after a meaningful completed match. */
+.result-actions .result-friend {
+    grid-column: 1 / -1;
+}
+.narrator-footer .narrator-task {
+    margin: 0 0 10px;
+    padding: 0;
+    line-height: 22px;
+}
+
+/* A player's pending roll is a temporary, centered board CTA. */
+.match-screen .board-viewport > .board-roll {
+    position: absolute;
+    inset: auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    width: max-content;
+    max-width: calc(100% - 24px);
+    min-height: 0;
+    padding: 0;
+    z-index: 2;
+}
+.match-screen .board-viewport > .board-roll:empty {
+    display: none;
+}
+.board-viewport .roll-object {
+    width: clamp(148px, 48vw, 176px);
+    min-width: 0;
+    min-height: 108px;
+    padding: 12px 14px;
+    gap: 8px;
+    color: #f4ebd6;
+}
+.board-viewport .hero-dice .dice-face {
+    width: clamp(40px, var(--die-size, 56px), 56px);
+    height: calc(clamp(40px, var(--die-size, 56px), 56px) + 2px);
+}
+.board-viewport .roll-caption {
+    font-size: 14px;
+    line-height: 24px;
+}
+.is-awaiting-roll .action-dock:has(.dock-roll-options:empty) {
+    display: none;
 }

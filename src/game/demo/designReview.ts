@@ -70,6 +70,30 @@ export function startDesignReview(parent: HTMLElement) {
     const show = (name: string) => {
         session.returnToMenu();
         if (name === 'home') return;
+        if (name.startsWith('setup-') || name === 'opening-review') {
+            session.start(4, false, 'بازیکن');
+            session.botPaused = true;
+            if (name !== 'setup-roll') {
+                for (
+                    let n = 0;
+                    n < 256 && (session.state!.phase === 'setup-roll' || !session.isHumanTurn);
+                    n++
+                ) {
+                    if (session.isHumanTurn) session.roll();
+                    else session.advanceBot(session.state!, true);
+                }
+                if (name === 'setup-road') {
+                    session.preview(session.targets[0]);
+                    session.primary();
+                }
+                if (name === 'opening-review') {
+                    session.preview(session.targets[0]);
+                    session.openSheet({ kind: 'opening-review' });
+                }
+                if (name === 'setup-targets') session.openSheet({ kind: 'targets' });
+            }
+            return;
+        }
         session.requestPlay(true);
         session.tutorial.pause();
         session.sheet = null;
@@ -125,7 +149,20 @@ export function startDesignReview(parent: HTMLElement) {
             else session.setBuildGoal(null);
             return;
         }
-        if (name === 'roll') state.phase = 'roll';
+        if (name === 'road-building') {
+            state.phase = 'road-building';
+            state.roadBuilding = { remaining: 2, returnPhase: 'actions' };
+            session.placement = { kind: 'road', targetId: null };
+            session.setBuildGoal(null);
+            return;
+        }
+        if (name === 'roll' || name === 'roll-only') {
+            state.phase = 'roll';
+            if (name === 'roll-only' && state.development)
+                state.development.deck.push(
+                    ...state.development.hands[state.players[0].id].splice(0),
+                );
+        }
         if (name === 'bot') state.activePlayerIndex = 1;
         if (name === 'placement') {
             session.chooseBuild('road');
@@ -169,6 +206,7 @@ export function startDesignReview(parent: HTMLElement) {
         }
         if (name === 'discard' || name === 'steal' || name === 'robber') {
             state.phase = name;
+            if (name === 'robber') session.placement = { kind: 'robber', targetId: null };
             state.robberResolution = {
                 source: 'seven',
                 returnPhase: 'actions',
@@ -197,10 +235,17 @@ export function startDesignReview(parent: HTMLElement) {
         show,
         screens: [
             'home',
+            'setup-roll',
+            'setup-settlement',
+            'setup-targets',
+            'setup-road',
+            'opening-review',
             'board',
             'roll',
+            'roll-only',
             'bot',
             'placement',
+            'road-building',
             ...sheets,
             'player',
             'rival',

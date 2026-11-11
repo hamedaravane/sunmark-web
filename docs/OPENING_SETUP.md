@@ -33,3 +33,14 @@ Completed legacy matches stay in their current phase with their existing pieces/
 `tests/setup.test.ts` exercises all starter seats for three/four-player engines, forward/reverse order, consecutive pairs at the reversal, immediate and unique grants, costs/phase guards, occupied/adjacent sites, wrong-anchor roads, human preview/clear/confirmation, bot-started openings, partial saves, tie rounds, malformed snapshots, and narrator pauses. Existing post-opening tests now use test-only helpers that complete the real opening through commands. The user handles device/game testing, production builds, and CI; routine agent verification uses focused Node tests and TypeScript/lint/format checks.
 
 This change adopts the requested initial-piece rules. Sunmark's existing map generation, port slots, unlimited piece/bank supply, and ten-point victory rule remain as documented in [GAME_RULES.md](GAME_RULES.md).
+
+## Decision guidance (2026-11-11)
+
+The opening ribbon identifies the human's four placement steps. After selecting a
+location, **بررسی محل** opens an optional review without committing anything.
+Settlement reviews show adjacent resource-number odds, new resource coverage and
+port access; second-settlement reviews list the immediate one-per-productive-tile
+grant. Roads explain expansion without promising a legal future settlement. The
+accessible destination list includes the same site facts for comparison. Returning
+from review preserves the preview and requires ordinary explicit confirmation.
+No locations are ranked and probability is not a guarantee of income.

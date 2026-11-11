@@ -26,13 +26,14 @@ test('desktop turn context follows the actor while inventory remains human-owned
     expect(desktopTurnHeading(session)).toContain('پایان بازی');
 });
 
-test('hiding the redundant desktop dice hint cannot hide an error', () => {
+test('removing the redundant dice hint preserves errors and the board roll action', () => {
     const session = new GameSession();
     session.start(4, false);
     session.preferences.set('introduced', true);
     session.state!.activePlayerIndex = 0;
     session.state!.phase = 'roll';
-    expect(actionDock(session)).toContain('dock-roll-hint');
+    expect(actionDock(session)).not.toContain('dock-roll-hint');
+    expect(actionDock(session)).toBe('<div class="dock-roll-options"></div>');
     session.error = 'خطای تاس';
     expect(actionDock(session)).toContain('خطای تاس');
     expect(actionDock(session)).not.toContain('dock-roll-hint');

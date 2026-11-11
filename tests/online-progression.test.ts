@@ -79,10 +79,16 @@ test('restores server-owned progression and renders real rank while keeping offl
     expect(markup).toContain('نقره');
     expect(markup).toContain('پیشرفت آفلاین');
     expect(markup).toContain('data-action="hub:cosmetics"');
+    expect(markup).toContain('data-action="hub:online-cosmetics"');
+    expect(markup).toContain('data-action="hub:online-profile"');
+    expect(markup).toContain('data-action="hub:profile"');
     session.openSheet({ kind: 'online-profile' });
     expect(sheetContent(session).body).toContain('سکه و تجربهٔ آفلاین به آن منتقل نمی‌شوند');
     expect(rankLabel(onlineProgression())).toContain('۱٬۰۰۰');
     expect(local.snapshot.coins).toBe(40);
+    session.openSheet({ kind: 'online-achievements' });
+    expect(sheetContent(session).body).toContain('بازی آنلاین');
+    expect(sheetContent(session).body).not.toContain('بازی آفلاین');
     saveIdentity({ id: other, name: 'دیگری', username: 'another' });
     expect(onlineProgression()).toBeNull();
 });
